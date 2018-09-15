@@ -12,7 +12,7 @@ import DisplayUserTokenModal from './display_user_token_modal';
 import DeleteUserModal from './delete_user_modal';
 import * as actions from '../actions';
 
-const disabledAccounts = ['admin', 'guest']
+const disabledAccounts = ['admin', 'guest', 'pi']
 
 let fileDownload = require('js-file-download');
 
@@ -128,9 +128,9 @@ class Users extends Component {
   }
 
   renderUserTable() {
-    if(this.props.users.length > 0){
+    if(this.props.users.filter(user => user.system_user === false).length > 0){
       return (
-        <Panel>
+        <Panel header={this.renderUserHeader()}>
           <Table responsive bordered striped fill>
             <thead>
               <tr>
@@ -145,13 +145,21 @@ class Users extends Component {
           </Table>
         </Panel>
       )
+    } else {
+      return (
+        <Panel>
+          No Users Found!
+        </Panel>
+      )
     }
   }
 
   renderSystemUserTable() {
-    if(this.props.users.length > 0){
+    if(!this.props.roles.includes("admin")) {
+      return null
+    } else if (this.props.users.filter(user => user.system_user === true).length > 0){
       return (
-        <Panel>
+        <Panel header={this.renderSystemUserHeader()}>
           <Table responsive bordered striped fill>
             <thead>
               <tr>
@@ -164,6 +172,12 @@ class Users extends Component {
               {this.renderSystemUsers()}
             </tbody>
           </Table>
+        </Panel>
+      )
+    } else {
+      return (
+        <Panel>
+          No System Users Found!
         </Panel>
       )
     }
@@ -217,8 +231,6 @@ class Users extends Component {
 
     if (this.props.roles.includes("admin") || this.props.roles.includes("cruise_manager")) {
 
-      // console.log("userid:", this.props.userid)
-
       let userForm = (this.props.userid)? <UpdateUser /> : <CreateUser />
 
       return (
@@ -227,20 +239,8 @@ class Users extends Component {
           <DeleteUserModal />
           <Row>
             <Col sm={6} mdOffset= {1} md={5} lgOffset= {2} lg={4}>
-              {
-                () => {
-                  if(this.props.roles.includes("admin")) {
-                    return (
-                      <Panel header={this.renderSystemUserHeader()}>
-                        {this.renderSystemUserTable()}
-                      </Panel>
-                    )
-                  }
-                }
-              }
-              <Panel header={this.renderUserHeader()}>
-                {this.renderUserTable()}
-              </Panel>
+              {this.renderSystemUserTable()}
+              {this.renderUserTable()}
               {this.renderAddUserButton()}
             </Col>
             <Col sm={6} md={5} lg={4}>

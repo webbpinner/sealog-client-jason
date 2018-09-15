@@ -26,8 +26,13 @@ class UpdateEventTemplate extends Component {
   }
 
   handleFormSubmit(formProps) {
-    //console.log(formProps);
+    console.log("typeof:", typeof(formProps.system_template))
+    if(typeof(formProps.system_template) != 'boolean'){
+      formProps.system_template = false;
+    }
+    console.log("formProps:", formProps);
     this.props.updateEventTemplate(formProps);
+    this.props.fetchEventTemplates();
   }
 
   renderField({ input, label, placeholder, required, type, meta: { touched, error, warning } }) {

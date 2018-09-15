@@ -118,7 +118,7 @@ class EventTemplates extends Component {
   }
 
   renderEventTemplatesTable() {
-    if(this.props.event_templates.length > 0){
+    if(this.props.event_templates.filter(template => template.system_template === false).length > 0){
       return (
         <Panel>
           <Table responsive bordered striped fill>
@@ -135,11 +135,17 @@ class EventTemplates extends Component {
           </Table>
         </Panel>
       )
+    } else {
+      return (
+        <Panel>
+          No Event Templates found!
+        </Panel>
+      )
     }
   }
 
   renderSystemEventTemplatesTable() {
-    if(this.props.event_templates.length > 0){
+    if(this.props.event_templates.filter(template => template.system_template === true).length > 0){
       return (
         <Panel>
           <Table responsive bordered striped fill>
@@ -154,6 +160,12 @@ class EventTemplates extends Component {
               {this.renderSystemEventTemplates()}
             </tbody>
           </Table>
+        </Panel>
+      )
+    } else {
+      return (
+        <Panel>
+          No System Event Templates found!
         </Panel>
       )
     }

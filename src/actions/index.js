@@ -762,6 +762,12 @@ export function updateEventTemplate(formProps) {
     fields.event_free_text_required = formProps.event_free_text_required;
   }
 
+  if(!formProps.system_template) {
+    fields.system_template = false;
+  } else {
+    fields.system_template = formProps.system_template;
+  }
+
   if(!formProps.event_options) {
     fields.event_options = [];
   } else {
@@ -1349,7 +1355,11 @@ export function fetchEventTemplates() {
       dispatch({type: FETCH_EVENT_TEMPLATES, payload: data})
     })
     .catch((error) => {
-      console.log(error);
+      if(error.response.data.statusCode == 404) {
+        dispatch({type: FETCH_EVENT_TEMPLATES, payload: []})
+      } else {
+        console.log(error);
+      }
     });
   }
 }
