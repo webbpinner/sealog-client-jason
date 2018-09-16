@@ -49,7 +49,7 @@ class EventShowDetailsModal extends Component {
   }
 
   handleMissingImage(ev) {
-    ev.target.src = `/images/noimage.jpeg`
+    ev.target.src = `images/noimage.jpeg`
   }
 
   renderImage(source, filepath) {
