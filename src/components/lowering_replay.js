@@ -90,7 +90,6 @@ class LoweringReplay extends Component {
     let freetext = (this.props.event.eventFilter.freetext)? `&freetext=${this.props.event.eventFilter.freetext}` : ''
     let datasource = (this.props.event.eventFilter.datasource)? `&datasource=${this.props.event.eventFilter.datasource}` : ''
 
-
     return axios.get(`${API_ROOT_URL}/api/v1/event_aux_data/bylowering/${this.props.lowering.id}?${startTS}${stopTS}${value}${author}${freetext}${datasource}`,
       {
         headers: {
@@ -267,7 +266,8 @@ class LoweringReplay extends Component {
   }
 
   handleMissingImage(ev) {
-    ev.target.src = `/images/noimage.jpeg`
+    console.log(ROOT_PATH)
+    ev.target.src = `${ROOT_PATH}/images/noimage.jpeg`
   }
 
   handleLoweringReplayStart() {
@@ -590,8 +590,8 @@ class LoweringReplay extends Component {
           <DropdownButton disabled={this.props.event.fetching} bsSize="xs" key={1} title={<OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesome name='download' fixedWidth/></OverlayTrigger>} id="export-dropdown" pullRight>
             <MenuItem key="toJSONHeader" eventKey={1.1} header>JSON format</MenuItem>
             <MenuItem key="toJSONAll" eventKey={1.2} onClick={ () => this.exportEventsWithAuxDataToJSON()}>Events w/aux data</MenuItem>
-            <MenuItem key="toJSONEvents" eventKey={1.2} onClick={ () => this.exportEventsToJSON()}>Events Only</MenuItem>
-            <MenuItem key="toJSONAuxData" eventKey={1.2} onClick={ () => this.exportAuxDataToJSON()}>Aux Data Only</MenuItem>
+            <MenuItem key="toJSONEvents" eventKey={1.3} onClick={ () => this.exportEventsToJSON()}>Events Only</MenuItem>
+            <MenuItem key="toJSONAuxData" eventKey={1.4} onClick={ () => this.exportAuxDataToJSON()}>Aux Data Only</MenuItem>
             <MenuItem divider />
             <MenuItem key="toCSVHeader" eventKey={1.5} header>CSV format</MenuItem>
             <MenuItem key="toCSVAll" eventKey={1.6} onClick={ () => this.exportEventsWithAuxDataToCSV()}>Events w/aux data</MenuItem>

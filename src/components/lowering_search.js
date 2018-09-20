@@ -68,7 +68,6 @@ class LoweringSearch extends Component {
   fetchEventAuxData() {
 
     const cookies = new Cookies();
-    // console.log("event export update")
     let startTS = (this.props.event.eventFilter.startTS)? `startTS=${this.props.event.eventFilter.startTS}` : ''
     let stopTS = (this.props.event.eventFilter.stopTS)? `&stopTS=${this.props.event.eventFilter.stopTS}` : ''
     let value = (this.props.event.eventFilter.value)? `&value=${this.props.event.eventFilter.value.split(',').join("&value=")}` : ''
@@ -77,12 +76,13 @@ class LoweringSearch extends Component {
     let freetext = (this.props.event.eventFilter.freetext)? `&freetext=${this.props.event.eventFilter.freetext}` : ''
     let datasource = (this.props.event.eventFilter.datasource)? `&datasource=${this.props.event.eventFilter.datasource}` : ''
 
-    return axios.get(`${API_ROOT_URL}/api/v1/event_aux_data/bylowering/${this.props.lowering_id}?${startTS}${stopTS}${value}${author}${freetext}${datasource}`,
+    return axios.get(`${API_ROOT_URL}/api/v1/event_aux_data/bylowering/${this.props.lowering.id}?${startTS}${stopTS}${value}${author}${freetext}${datasource}`,
       {
         headers: {
           authorization: cookies.get('token')
         }
       }).then((response) => {
+        console.log(response)
         return response.data
       }).catch((error)=>{
         if(error.response.data.statusCode == 404){
@@ -227,8 +227,8 @@ class LoweringSearch extends Component {
           <DropdownButton disabled={this.props.event.fetching} bsSize="xs" key={1} title={<OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesome name='download' fixedWidth/></OverlayTrigger>} id="export-dropdown" pullRight>
             <MenuItem key="toJSONHeader" eventKey={1.1} header>JSON format</MenuItem>
             <MenuItem key="toJSONAll" eventKey={1.2} onClick={ () => this.exportEventsWithAuxDataToJSON()}>Events w/aux data</MenuItem>
-            <MenuItem key="toJSONEvents" eventKey={1.2} onClick={ () => this.exportEventsToJSON()}>Events Only</MenuItem>
-            <MenuItem key="toJSONAuxData" eventKey={1.2} onClick={ () => this.exportAuxDataToJSON()}>Aux Data Only</MenuItem>
+            <MenuItem key="toJSONEvents" eventKey={1.3} onClick={ () => this.exportEventsToJSON()}>Events Only</MenuItem>
+            <MenuItem key="toJSONAuxData" eventKey={1.4} onClick={ () => this.exportAuxDataToJSON()}>Aux Data Only</MenuItem>
             <MenuItem divider />
             <MenuItem key="toCSVHeader" eventKey={1.5} header>CSV format</MenuItem>
             <MenuItem key="toCSVAll" eventKey={1.6} onClick={ () => this.exportEventsWithAuxDataToCSV()}>Events w/aux data</MenuItem>
