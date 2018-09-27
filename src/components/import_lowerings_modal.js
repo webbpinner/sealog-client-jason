@@ -110,6 +110,8 @@ class ImportLoweringsModal extends Component {
 
       // console.log("processing file")
       let json = JSON.parse(e.target.result);
+
+      if(Array.isArray(json)) {
         this.setState( prevState => (
           {
             pending: json.length,
@@ -117,20 +119,31 @@ class ImportLoweringsModal extends Component {
             errors: 0,
             skipped: 0
           }
-        ))
+        ))     
 
-      // console.log("done")
-      let currentLowering;
+        let currentLowering;
 
-      for(let i = 0; i < json.length; i++) {
-        if(this.state.quit) {
-          this.setState({pending: "Quitting"})
-          break;
+        for(let i = 0; i < json.length; i++) {
+          if(this.state.quit) {
+            this.setState({pending: "Quitting"})
+            break;
+          }
+          currentLowering = json[i];
+          // console.log("adding user")
+          await this.insertLowering(currentLowering);
         }
-        currentLowering = json[i];
-        // console.log("adding user")
-        await this.insertLowering(currentLowering);
+      } else {
+        this.setState( prevState => (
+          {
+            pending: 1,
+            imported: 0,
+            errors: 0,
+            skipped: 0
+          }
+        ))
+        await this.insertLowering(json);
       }
+      this.setState({pending: "Complete!"})
 
     } catch (err) {
       console.log('error when trying to parse json = ' + err);

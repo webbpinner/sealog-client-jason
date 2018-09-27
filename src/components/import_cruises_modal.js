@@ -111,6 +111,8 @@ class ImportCruisesModal extends Component {
 
       // console.log("processing file")
       let json = JSON.parse(e.target.result);
+
+      if(Array.isArray(json)) {
         this.setState( prevState => (
           {
             pending: json.length,
@@ -120,18 +122,29 @@ class ImportCruisesModal extends Component {
           }
         ))
 
-      // console.log("done")
-      let currentCruise;
+        let currentCruise;
 
-      for(let i = 0; i < json.length; i++) {
-        if (this.state.quit) {
-          console.log("quiting")
-          break;
+        for(let i = 0; i < json.length; i++) {
+          if (this.state.quit) {
+            console.log("quiting")
+            break;
+          }
+          currentCruise = json[i];
+          // console.log("adding cruise")
+          await this.insertCruise(currentCruise);
         }
-        currentCruise = json[i];
-        // console.log("adding cruise")
-        await this.insertCruise(currentCruise);
+      } else {
+        this.setState( prevState => (
+          {
+            pending: 1,
+            imported: 0,
+            errors: 0,
+            skipped: 0
+          }
+        ))
+        await this.insertCruise(json);
       }
+      this.setState({pending: "Complete!"})
 
     } catch (err) {
       console.log('error when trying to parse json = ' + err);

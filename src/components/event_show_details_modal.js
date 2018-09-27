@@ -61,15 +61,14 @@ class EventShowDetailsModal extends Component {
   }
 
   renderImageryPanel() {
-    if(this.props.event && this.state.event.aux_data) {
+    if(this.props.event && this.state.event.aux_data) { 
+      if (this.state.event.event_value == "SuliusCam") {
+        let tmpData =[]
 
-      let alvinFrameGrabberData = this.state.event.aux_data.filter(aux_data => aux_data.data_source == 'framegrabber')
-      let tmpData = []
-
-      if(alvinFrameGrabberData.length > 0) {
-        for (let i = 0; i < alvinFrameGrabberData[0].data_array.length; i+=2) {
-    
-          tmpData.push({source: alvinFrameGrabberData[0].data_array[i].data_value, filepath: API_ROOT_URL + IMAGE_PATH + '/' + alvinFrameGrabberData[0].data_array[i+1].data_value.split('/').pop()} )
+        for (let i = 0; i < this.state.event.event_options.length; i++) {
+          if (this.state.event.event_options[i].event_option_name == "filename") {
+            tmpData.push({source: "SuliusCam", filepath: API_ROOT_URL + IMAGE_PATH + '/SuliusCam/' + this.state.event.event_options[i].event_option_value} )
+          } 
         }
 
         return (
@@ -77,7 +76,7 @@ class EventShowDetailsModal extends Component {
             {
               tmpData.map((camera) => {
                 return (
-                  <Col key={camera.source} xs={6} sm={6} md={3} lg={3}>
+                  <Col key={camera.source} xs={12} sm={12} md={8} mdOffset={2} lg={8} lgOffset={2}>
                     {this.renderImage(camera.source, camera.filepath)}
                   </Col>
                 )
@@ -85,6 +84,30 @@ class EventShowDetailsModal extends Component {
             }
           </Row>
         )
+      } else {
+        let alvinFrameGrabberData = this.state.event.aux_data.filter(aux_data => aux_data.data_source == 'framegrabber')
+        let tmpData = []
+
+        if(alvinFrameGrabberData.length > 0) {
+          for (let i = 0; i < alvinFrameGrabberData[0].data_array.length; i+=2) {
+      
+            tmpData.push({source: alvinFrameGrabberData[0].data_array[i].data_value, filepath: API_ROOT_URL + IMAGE_PATH + '/' + alvinFrameGrabberData[0].data_array[i+1].data_value.split('/').pop()} )
+          }
+
+          return (
+            <Row>
+              {
+                tmpData.map((camera) => {
+                  return (
+                    <Col key={camera.source} xs={6} sm={6} md={3} lg={3}>
+                      {this.renderImage(camera.source, camera.filepath)}
+                    </Col>
+                  )
+                })
+              }
+            </Row>
+          )
+        }
       }
     }
   }

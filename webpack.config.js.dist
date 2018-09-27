@@ -67,11 +67,11 @@ module.exports = {
   plugins: [
     new CopyWebpackPlugin([
         {context: 'node_modules/react-bootstrap-theme-switcher/themes/', from: '**/*', to: 'themes/'},
-        {context: 'src/assets/fonts', from: '**/*', to: 'fonts/'}
-        {context: 'src/assets/images', from: '**/*', to: 'images/'}
+        {context: 'src/assets/fonts', from: '**/*', to: 'fonts/'},
+        {context: 'src/assets/images', from: '**/*', to: 'images/'},
         {context: 'src/assets/style', from: '**/*', to: 'style/'},
-        {context: 'src/assets/.htaccess', from: '**/*', to: ''}
-        {context: 'src/assets/index.html', from: '**/*', to: ''}
+        {context: 'src/assets/.htaccess', from: '*', to: ''},
+        {context: 'src/assets/index.html', from: '*', to: ''}
       ],
       {copyUnmodified: true}
     ),
