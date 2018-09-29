@@ -266,7 +266,7 @@ class LoweringReplay extends Component {
   }
 
   handleMissingImage(ev) {
-    console.log(ROOT_PATH)
+    // console.log(ROOT_PATH)
     ev.target.src = `${ROOT_PATH}/images/noimage.jpeg`
   }
 
@@ -340,13 +340,13 @@ class LoweringReplay extends Component {
   renderImageryPanel() {
     if(this.props.event && this.props.event.selected_event.aux_data) {
 
-      let frameGrabberData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == 'framegrabber')
-      let tmpData = []
+      if (this.props.event.selected_event.event_value == "SuliusCam") {
+        let tmpData =[]
 
-      if(frameGrabberData.length > 0) {
-        for (let i = 0; i < frameGrabberData[0].data_array.length; i+=2) {
-    
-          tmpData.push({source: frameGrabberData[0].data_array[i].data_value, filepath: API_ROOT_URL + IMAGE_PATH + '/' + frameGrabberData[0].data_array[i+1].data_value.split('/').pop()} )
+        for (let i = 0; i < this.props.event.selected_event.event_options.length; i++) {
+          if (this.props.event.selected_event.event_options[i].event_option_name == "filename") {
+            tmpData.push({source: "SuliusCam", filepath: API_ROOT_URL + IMAGE_PATH + '/SuliusCam/' + this.props.event.selected_event.event_options[i].event_option_value} )
+          } 
         }
 
         return (
@@ -362,6 +362,30 @@ class LoweringReplay extends Component {
             }
           </Row>
         )
+      } else {
+        let frameGrabberData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == 'framegrabber')
+        let tmpData = []
+
+        if(frameGrabberData.length > 0) {
+          for (let i = 0; i < frameGrabberData[0].data_array.length; i+=2) {
+      
+            tmpData.push({source: frameGrabberData[0].data_array[i].data_value, filepath: API_ROOT_URL + IMAGE_PATH + '/' + frameGrabberData[0].data_array[i+1].data_value.split('/').pop()} )
+          }
+
+          return (
+            <Row>
+              {
+                tmpData.map((camera) => {
+                  return (
+                    <Col key={camera.source} xs={6} sm={3} md={3} lg={3}>
+                      {this.renderImage(camera.source, camera.filepath)}
+                    </Col>
+                  )
+                })
+              }
+            </Row>
+          )
+        }
       }
     }
   }

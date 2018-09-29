@@ -32,15 +32,15 @@ class Header extends Component {
     }
   }
 
-  handleASNAPToggle() {
-    if(this.props.asnapStatus) {
-      if(this.props.asnapStatus[0].custom_var_value == 'Off') {
-        this.props.updateCustomVars(this.props.asnapStatus[0].id, {custom_var_value: 'On'})
-      } else {
-        this.props.updateCustomVars(this.props.asnapStatus[0].id, {custom_var_value: 'Off'})
-      }
-    }
-  }
+  // handleASNAPToggle() {
+  //   if(this.props.asnapStatus) {
+  //     if(this.props.asnapStatus[0].custom_var_value == 'Off') {
+  //       this.props.updateCustomVars(this.props.asnapStatus[0].id, {custom_var_value: 'On'})
+  //     } else {
+  //       this.props.updateCustomVars(this.props.asnapStatus[0].id, {custom_var_value: 'Off'})
+  //     }
+  //   }
+  // }
 
   renderUserOptions() {
     if(this.props.roles.includes('admin') || this.props.roles.includes('cruise_manager')) {
