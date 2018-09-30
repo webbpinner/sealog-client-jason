@@ -14,7 +14,7 @@ import * as actions from '../actions';
 
 let fileDownload = require('js-file-download');
 
-const cruisesPerPage = 15
+const maxCruisesPerPage = 15
 
 class Cruises extends Component {
 
@@ -26,6 +26,8 @@ class Cruises extends Component {
     }
 
     this.handlePageSelect = this.handlePageSelect.bind(this);
+    this.handleCruiseImportClose = this.handleCruiseImportClose.bind(this);
+
   }
 
   componentWillMount() {
@@ -61,6 +63,14 @@ class Cruises extends Component {
     this.props.leaveUpdateCruiseForm()
   }
 
+  handleCruiseImport() {
+    this.props.showModal('importCruises');
+  }
+
+  handleCruiseImportClose() {
+    this.props.fetchCruises();
+  }
+
   exportCruisesToJSON() {
     fileDownload(JSON.stringify(this.props.cruises, null, "\t"), 'seaplay_cruisesExport.json');
   }
@@ -92,6 +102,16 @@ class Cruises extends Component {
     }
   }
 
+  renderImportCruisesButton() {
+    if(this.props.roles.includes("admin")) {
+      return (
+        <div className="pull-right">
+          <Button bsStyle="primary" bsSize="small" type="button" onClick={ () => this.handleCruiseImport()}>Import From File</Button>
+        </div>
+      );
+    }
+  }
+
   renderCruises() {
 
     const editTooltip = (<Tooltip id="editTooltip">Edit this cruise.</Tooltip>)
@@ -102,7 +122,7 @@ class Cruises extends Component {
     if(this.props.cruises && this.props.cruises.length > 0){
 
       return this.props.cruises.map((cruise, index) => {
-        if(index >= (this.state.activePage-1) * cruisesPerPage && index < (this.state.activePage * cruisesPerPage)) {
+        if(index >= (this.state.activePage-1) * maxCruisesPerPage && index < (this.state.activePage * maxCruisesPerPage)) {
           let deleteLink = (this.props.roles.includes('admin'))? <Link key={`delete_${cruise.id}`} to="#" onClick={ () => this.handleCruiseDelete(cruise.id) }><OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesome name='trash' fixedWidth/></OverlayTrigger></Link>: null
           let hiddenLink = null;
           if(this.props.roles.includes('admin') && cruise.cruise_hidden) {
@@ -180,20 +200,22 @@ class Cruises extends Component {
   renderPagination() {
     let cruiseCount = this.props.cruises.length
 
-    return (
-      <Pagination
-        prev
-        next
-        first
-        last
-        ellipsis
-        boundaryLinks
-        items={ Math.ceil(cruiseCount/cruisesPerPage) }
-        maxButtons={5}
-        activePage={this.state.activePage}
-        onSelect={this.handlePageSelect}
-      />
-    )
+    if(cruiseCount > maxCruisesPerPage) {
+      return (
+        <Pagination
+          prev
+          next
+          first
+          last
+          ellipsis
+          boundaryLinks
+          items={ Math.ceil(cruiseCount/maxCruisesPerPage) }
+          maxButtons={5}
+          activePage={this.state.activePage}
+          onSelect={this.handlePageSelect}
+        />
+      )
+    }
   }
 
   render() {
@@ -210,6 +232,7 @@ class Cruises extends Component {
       return (
         <Grid fluid>
           <DeleteCruiseModal />
+          <ImportCruisesModal  handleExit={this.handleCruiseImportClose} />
           <Row>
             <Col sm={10} md={7} lgOffset= {1} lg={6}>
               <Panel header={this.renderCruiseHeader()}>
@@ -217,6 +240,7 @@ class Cruises extends Component {
                 {this.renderPagination()}
               </Panel>
               {this.renderAddCruiseButton()}
+              {this.renderImportCruisesButton()}
             </Col>
             <Col sm={6} md={5} lg={4}>
               { cruiseForm }

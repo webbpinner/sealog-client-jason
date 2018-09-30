@@ -8,7 +8,6 @@ import ReactFileReader from 'react-file-reader';
 import Cookies from 'universal-cookie';
 import { API_ROOT_URL } from '../url_config';
 
-
 const cookies = new Cookies();
 
 class ImportUsersModal extends Component {
@@ -24,15 +23,22 @@ class ImportUsersModal extends Component {
       quit: false,
     }
 
-    this.handleHideCustom = this.handleHideCustom.bind(this);
+    this.quitImport = this.quitImport.bind(this);
   }
 
-  handleHideCustom() {
+  static propTypes = {
+    handleHide: PropTypes.func.isRequired,
+    handleDestroy: PropTypes.func.isRequired,
+    handleExit: PropTypes.func
+  };
+
+  quitImport() {
     this.setState({quit: true})
+    this.props.handleExit()
     this.props.handleHide()
   }
 
-  async insertUser({id, username, fullname, email, password, roles, system_user}) {
+  async insertUser({id, username, fullname, email, password = '', roles, system_user = false}) {
 
     await axios.get(`${API_ROOT_URL}/api/v1/users/${id}`,
     {
@@ -124,7 +130,7 @@ class ImportUsersModal extends Component {
 
       for(let i = 0; i < json.length; i++) {
         if(this.state.quit) {
-          this.setState({pending: "Quitting"})
+          // console.log("quiting")
           break;
         }
         currentUser = json[i];
@@ -132,99 +138,6 @@ class ImportUsersModal extends Component {
         await this.insertUser(currentUser);
       }
 
-    } catch (err) {
-      console.log('error when trying to parse json = ' + err);
-    }
-  }
-
-  importUsersFromFile = (e) => {
-    try {
-      let json = JSON.parse(e.target.result);
-        this.setState( prevState => (
-          {
-            pending: json.length,
-            imported: 0,
-            errors: 0,
-            skipped: 0
-          }
-        ))
-      // console.log(json);
-      let promises = json.map(({id, username, fullname, email, password = '', roles = []}) => {
-        return axios.get(`${API_ROOT_URL}/api/v1/users/${id}`,
-        {
-          headers: {
-            authorization: cookies.get('token'),
-            'content-type': 'application/json'
-          }
-        })
-        .then((response) => {
-
-          // console.log("User Already Exists");
-          this.setState( prevState => (
-            {
-              skipped: prevState.skipped + 1,
-              pending: prevState.pending - 1
-            }
-          ))
-        })
-        .catch((error) => {
-
-          if(error.response.data.statusCode == 404) {
-            // console.log("Attempting to add user")
-
-            axios.post(`${API_ROOT_URL}/api/v1/users`,
-            {id, username, fullname, email, password, roles},
-            {
-              headers: {
-                authorization: cookies.get('token'),
-                'content-type': 'application/json'
-              }
-            })
-            .then((response) => {
-              // console.log("User Imported");
-              this.setState( prevState => (
-                {
-                  imported: prevState.imported + 1,
-                  pending: prevState.pending - 1
-                }
-              ))
-              return true
-            })
-            .catch((error) => {
-              
-              if(error.response.data.statusCode == 400) {
-                // console.log("User Data malformed or incomplete");
-              } else {
-                console.log(error);  
-              }
-              
-              this.setState( prevState => (
-                {
-                  errors: prevState.errors + 1,
-                  pending: prevState.pending - 1
-                }
-              ))
-              return false
-            });
-          } else {
-
-            if(error.response.data.statusCode != 400) {
-              console.log(error.response);
-            }
-            this.setState( prevState => (
-              {
-                errors: prevState.errors + 1,
-                pending: prevState.pending - 1
-              }
-            ))
-          }
-        });
-      })
-
-      // console.log("Promises:", promises)
-      Promise.all(promises).then(()=> {
-        // console.log("done")
-      })
     } catch (err) {
       console.log('error when trying to parse json = ' + err);
     }
@@ -239,16 +152,10 @@ class ImportUsersModal extends Component {
 
   render() {
 
-    const { show } = this.props
-    const options = {
-      baseUrl: API_ROOT_URL,
-      query: {
-        warrior: 'fight'
-      }
-    }
+    const { show, handleExit } = this.props
 
     return (
-      <Modal show={show} onHide={this.handleHideCustom}>
+      <Modal show={show} onExit={handleExit} onHide={this.quitImport}>
         <Modal.Header closeButton>
           <Modal.Title>Import Users</Modal.Title>
         </Modal.Header>
@@ -273,7 +180,7 @@ class ImportUsersModal extends Component {
         </Modal.Body>
 
         <Modal.Footer>
-          <Button onClick={this.handleHideCustom}>Close</Button>
+          <Button onClick={this.quitImport}>Close</Button>
         </Modal.Footer>
       </Modal>
     );

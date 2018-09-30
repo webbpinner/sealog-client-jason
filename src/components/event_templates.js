@@ -8,7 +8,9 @@ import { LinkContainer } from 'react-router-bootstrap';
 import { ROOT_PATH } from '../url_config';
 import CreateEventTemplate from './create_event_template';
 import UpdateEventTemplate from './update_event_template';
+import NonSystemEventTemplatesWipeModal from './non_system_event_templates_wipe_modal';
 import DeleteEventTemplateModal from './delete_event_template_modal';
+import ImportEventTemplatesModal from './import_event_templates_modal';
 import * as actions from '../actions';
 
 let fileDownload = require('js-file-download');
@@ -18,6 +20,7 @@ class EventTemplates extends Component {
   constructor (props) {
     super(props);
 
+    this.handleEventTemplateImportClose = this.handleEventTemplateImportClose.bind(this);
   }
 
   componentWillMount() {
@@ -38,6 +41,18 @@ class EventTemplates extends Component {
     this.props.leaveUpdateEventTemplateForm()
   }
 
+  handleEventTemplateImport() {
+    this.props.showModal('importEventTemplates');
+  }
+
+  handleEventTemplateImportClose() {
+    this.props.fetchEventTemplates();
+  }
+
+  handleNonSystemEventTemplatesWipe() {
+    this.props.showModal('nonSystemEventTemplatesWipe', { handleDelete: this.props.deleteAllNonSystemEventTemplates });
+  }
+
   exportTemplatesToJSON() {
     fileDownload(JSON.stringify(this.props.event_templates.filter(template => template.system_template == false), null, 2), 'sealog_eventTemplateExport.json');
   }
@@ -56,6 +71,17 @@ class EventTemplates extends Component {
     }
   }
 
+  renderImportEventTemplatesButton() {
+    if(this.props.roles.includes("admin")) {
+      return (
+        <div className="pull-right">
+          <Button bsStyle="primary" bsSize="small" type="button" onClick={ () => this.handleEventTemplateImport()}>Import From File</Button>
+        </div>
+      );
+    }
+  }
+
+
   renderEventTemplates() {
 
     const editTooltip = (<Tooltip id="editTooltip">Edit this template.</Tooltip>)
@@ -63,8 +89,7 @@ class EventTemplates extends Component {
 
     if(this.props.event_templates && this.props.event_templates.length > 0) {
 
-      let nonSystemTemplates = this.props.event_templates.filter(template => template.system_template == false)
-      return nonSystemTemplates.map((template) => {
+      return this.props.event_templates.filter(template => template.system_template == false).map((template) => {
         return (
           <tr key={template.id}>
             <td>{template.event_name}</td>
@@ -164,9 +189,7 @@ class EventTemplates extends Component {
       )
     } else {
       return (
-        <Panel>
-          No System Event Templates found!
-        </Panel>
+        <div>No System Event Templates found!</div>
       )
     }
   }
@@ -177,14 +200,16 @@ class EventTemplates extends Component {
 
     // const importTooltip = (<Tooltip id="importTooltip">Import Event Templates</Tooltip>)
     const exportTooltip = (<Tooltip id="exportTooltip">Export Event Templates</Tooltip>)
+    const deleteAllNonSystemTooltip = (<Tooltip id="deleteAllNonSystemTooltip">Delete ALL non-system Event Templates</Tooltip>)
 
-    // <Button bsStyle="default" bsSize="xs" type="button" onClick={ this.handleImportEventTemplateList }><OverlayTrigger placement="top" overlay={importTooltip}><FontAwesome name='upload' fixedWidth/></OverlayTrigger></Button>
+    const disableBtn = (this.props.event_templates.filter(event_template => event_template.system_template === false).length > 0)? false : true
 
     return (
       <div>
         { Label }
         <div className="pull-right">
-          <Button bsStyle="default" bsSize="xs" type="button" onClick={ () => this.exportTemplatesToJSON() }><OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesome name='download' fixedWidth/></OverlayTrigger></Button>
+          <OverlayTrigger placement="top" overlay={deleteAllNonSystemTooltip}><Button bsStyle="default" bsSize="xs" type="button" onClick={ () => this.handleNonSystemEventTemplatesWipe() } disabled={disableBtn}><FontAwesome name='trash' fixedWidth/></Button></OverlayTrigger>
+          <OverlayTrigger placement="top" overlay={exportTooltip}><Button bsStyle="default" bsSize="xs" type="button" onClick={ () => this.exportTemplatesToJSON() } disabled={disableBtn}><FontAwesome name='download' fixedWidth/></Button></OverlayTrigger>
         </div>
       </div>
     );
@@ -211,11 +236,9 @@ class EventTemplates extends Component {
   }
 
   render() {
-
     if (!this.props.roles) {
         return (
-          <div>Loading...
-          </div>
+          <div>Loading...</div>
         )
     }
 
@@ -226,6 +249,8 @@ class EventTemplates extends Component {
       return (
         <Grid fluid>
           <DeleteEventTemplateModal />
+          <NonSystemEventTemplatesWipeModal />
+          <ImportEventTemplatesModal handleExit={this.handleEventTemplateImportClose} />
           <Row>
             <Col sm={8} md={6} lgOffset= {1} lg={5}>
               <Panel header={this.renderSystemEventTemplatesHeader()}>
@@ -235,6 +260,7 @@ class EventTemplates extends Component {
                 {this.renderEventTemplatesTable()}
               </Panel>
               {this.renderAddEventTemplateButton()}
+              {this.renderImportEventTemplatesButton()}
             </Col>
             <Col sm={8} md={6} lg={5}>
               { eventTemplatesForm }

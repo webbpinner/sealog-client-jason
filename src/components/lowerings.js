@@ -14,7 +14,7 @@ import * as actions from '../actions';
 
 let fileDownload = require('js-file-download');
 
-const loweringsPerPage = 15
+const maxLoweringsPerPage = 14
 
 class Lowerings extends Component {
 
@@ -26,6 +26,7 @@ class Lowerings extends Component {
     }
 
     this.handlePageSelect = this.handlePageSelect.bind(this);
+    this.handleLoweringImportClose = this.handleLoweringImportClose.bind(this);
 
   }
 
@@ -62,6 +63,14 @@ class Lowerings extends Component {
     this.props.leaveUpdateLoweringForm()
   }
 
+  handleLoweringImport() {
+    this.props.showModal('importLowerings');
+  }
+
+  handleLoweringImportClose() {
+    this.props.fetchLowerings();
+  }
+
   exportLoweringsToJSON() {
     fileDownload(JSON.stringify(this.props.lowerings, null, 2), 'seaplay_loweringExport.json');
   }
@@ -71,6 +80,16 @@ class Lowerings extends Component {
       return (
         <div className="pull-right">
           <Button bsStyle="primary" bsSize="small" type="button" onClick={ () => this.handleLoweringCreate()}>Add Lowering</Button>
+        </div>
+      );
+    }
+  }
+
+  renderImportLoweringsButton() {
+    if(this.props.roles.includes("admin")) {
+      return (
+        <div className="pull-right">
+          <Button bsStyle="primary" bsSize="small" type="button" onClick={ () => this.handleLoweringImport()}>Import From File</Button>
         </div>
       );
     }
@@ -86,7 +105,7 @@ class Lowerings extends Component {
 
     if(this.props.lowerings && this.props.lowerings.length > 0){
       return this.props.lowerings.map((lowering, index) => {
-        if(index >= (this.state.activePage-1) * loweringsPerPage && index < (this.state.activePage * loweringsPerPage)) {
+        if(index >= (this.state.activePage-1) * maxLoweringsPerPage && index < (this.state.activePage * maxLoweringsPerPage)) {
 
           let deleteLink = (this.props.roles.includes('admin'))? <Link key={`delete_${lowering.id}`} to="#" onClick={ () => this.handleLoweringDelete(lowering.id) }><OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesome name='trash' fixedWidth/></OverlayTrigger></Link>: null
           let hiddenLink = null;
@@ -157,20 +176,23 @@ class Lowerings extends Component {
   renderPagination() {
     let loweringCount = this.props.lowerings.length
 
-    return (
-      <Pagination
-        prev
-        next
-        first
-        last
-        ellipsis
-        boundaryLinks
-        items={ Math.ceil(loweringCount/loweringsPerPage) }
-        maxButtons={5}
-        activePage={this.state.activePage}
-        onSelect={this.handlePageSelect}
-      />
-    )
+    if(loweringCount > maxLoweringsPerPage) {
+
+      return (
+        <Pagination
+          prev
+          next
+          first
+          last
+          ellipsis
+          boundaryLinks
+          items={ Math.ceil(loweringCount/maxLoweringsPerPage) }
+          maxButtons={5}
+          activePage={this.state.activePage}
+          onSelect={this.handlePageSelect}
+        />
+      )
+    }
   }
 
 
@@ -188,6 +210,7 @@ class Lowerings extends Component {
       return (
         <Grid fluid>
           <DeleteLoweringModal />
+          <ImportLoweringsModal  handleExit={this.handleLoweringImportClose} />
           <Row>
             <Col sm={10} md={7} lgOffset= {1} lg={6}>
               <Panel header={this.renderLoweringHeader()}>
@@ -195,6 +218,7 @@ class Lowerings extends Component {
                 {this.renderPagination()}
               </Panel>
               {this.renderAddLoweringButton()}
+              {this.renderImportLoweringsButton()}
             </Col>
             <Col sm={6} md={5} lg={4}>
               { loweringForm }

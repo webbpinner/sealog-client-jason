@@ -306,7 +306,7 @@ export function registerUser({username, fullname, password = '', email}) {
 export function createUser({username, fullname, password = '', email, roles, system_user = false}) {
   return function (dispatch) {
     axios.post(`${API_ROOT_URL}/api/v1/users`,
-    {username, fullname, password, email, roles},
+    {username, fullname, password, email, roles, system_user},
     {
       headers: {
         authorization: cookies.get('token'),
@@ -1352,9 +1352,11 @@ export function fetchEventTemplates() {
   return function (dispatch) {
     
     request.then(({data}) => {
+      // console.log("data:", data)
       dispatch({type: FETCH_EVENT_TEMPLATES, payload: data})
     })
     .catch((error) => {
+      console.log("error:", error)
       if(error.response.data.statusCode == 404) {
         dispatch({type: FETCH_EVENT_TEMPLATES, payload: []})
       } else {
@@ -1726,7 +1728,9 @@ export function deleteAllNonSystemUsers() {
             headers: {
               authorization: cookies.get('token')
             }
-          }).catch((error)=> {
+          }).then((respose) => {
+            dispatch(fetchUsers());
+          }).catch((error) => {
             console.log(error.response);
           });
         }
@@ -1760,12 +1764,13 @@ export function deleteAllNonSystemEventTemplates() {
             headers: {
               authorization: cookies.get('token')
             }
+          }).then((response) => {
+            dispatch(fetchEventTemplates());
           }).catch((error)=> {
             console.log(error.response);
           });
         }
       });
-
       // console.log("Promises:", promises)
       Promise.all(promises).then(()=> {
         dispatch(fetchEventTemplates());

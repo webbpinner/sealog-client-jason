@@ -8,7 +8,6 @@ import ReactFileReader from 'react-file-reader';
 import Cookies from 'universal-cookie';
 import { API_ROOT_URL } from '../url_config';
 
-
 const cookies = new Cookies();
 
 class ImportEventTemplatesModal extends Component {
@@ -24,11 +23,18 @@ class ImportEventTemplatesModal extends Component {
       quit: false,
     }
 
-    this.handleHideCustom = this.handleHideCustom.bind(this);
+    this.quitImport = this.quitImport.bind(this);
   }
 
-  handleHideCustom() {
+  static propTypes = {
+    handleHide: PropTypes.func.isRequired,
+    handleDestroy: PropTypes.func.isRequired,
+    handleExit: PropTypes.func
+  };
+
+  quitImport() {
     this.setState({quit: true})
+    this.props.handleExit()
     this.props.handleHide()
   }
 
@@ -123,8 +129,8 @@ class ImportEventTemplatesModal extends Component {
       let currentTemplate;
 
       for(let i = 0; i < json.length; i++) {
-        if (this.state.quit) {
-          console.log("quiting")
+        if(this.state.quit) {
+          // console.log("quiting")
           break;
         }
         currentTemplate = json[i];
@@ -146,7 +152,7 @@ class ImportEventTemplatesModal extends Component {
 
   render() {
 
-    const { show } = this.props
+    const { show, handleExit } = this.props
     const options = {
       baseUrl: API_ROOT_URL,
       query: {
@@ -155,7 +161,7 @@ class ImportEventTemplatesModal extends Component {
     }
 
     return (
-      <Modal show={show} onHide={this.handleHideCustom}>
+      <Modal show={show} onExit={handleExit} onHide={this.quitImport}>
         <Modal.Header closeButton>
           <Modal.Title>Import Event Templates</Modal.Title>
         </Modal.Header>
@@ -180,7 +186,7 @@ class ImportEventTemplatesModal extends Component {
         </Modal.Body>
 
         <Modal.Footer>
-          <Button onClick={this.handleHideCustom}>Close</Button>
+          <Button onClick={this.quitImport}>Close</Button>
         </Modal.Footer>
       </Modal>
     );

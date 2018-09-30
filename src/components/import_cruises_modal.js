@@ -8,7 +8,6 @@ import ReactFileReader from 'react-file-reader';
 import Cookies from 'universal-cookie';
 import { API_ROOT_URL } from '../url_config';
 
-
 const cookies = new Cookies();
 
 class ImportCruisesModal extends Component {
@@ -24,14 +23,20 @@ class ImportCruisesModal extends Component {
       quit: false,
     }
 
-    this.handleHideCustom = this.handleHideCustom.bind(this);
+    this.quitImport = this.quitImport.bind(this);
   }
 
-  handleHideCustom() {
+  static propTypes = {
+    handleHide: PropTypes.func.isRequired,
+    handleDestroy: PropTypes.func.isRequired,
+    handleExit: PropTypes.func
+  };
+
+  quitImport() {
     this.setState({quit: true})
+    this.props.handleExit()
     this.props.handleHide()
   }
-
 
   async insertCruise({ id, cruise_id, cruise_name, start_ts, stop_ts, cruise_description = '', cruise_location = '', cruise_pi, cruise_participants = [], cruise_tags = [], cruise_hidden = false}) {
 
@@ -166,16 +171,10 @@ class ImportCruisesModal extends Component {
 
   render() {
 
-    const { show } = this.props
-    const options = {
-      baseUrl: API_ROOT_URL,
-      query: {
-        warrior: 'fight'
-      }
-    }
-
+    const { show, handleExit } = this.props
+    
     return (
-      <Modal show={show} onHide={this.handleHideCustom}>
+      <Modal show={show} onExit={handleExit} onHide={this.quitImport}>
         <Modal.Header closeButton>
           <Modal.Title>Import Cruises</Modal.Title>
         </Modal.Header>
@@ -200,7 +199,7 @@ class ImportCruisesModal extends Component {
         </Modal.Body>
 
         <Modal.Footer>
-          <Button onClick={this.handleHideCustom}>Close</Button>
+          <Button onClick={this.quitImport}>Close</Button>
         </Modal.Footer>
       </Modal>
     );
