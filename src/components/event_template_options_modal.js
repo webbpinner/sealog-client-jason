@@ -13,6 +13,8 @@ import { API_ROOT_URL } from '../url_config';
 const dateFormat = "YYYY-MM-DD"
 const timeFormat = "HH:mm:ss.SSS"
 
+const TIMER_INTERVAL = 1000
+const TIMEOUT = 120 //seconds
 const cookies = new Cookies();
 
 class EventTemplateOptionsModal extends Component {
@@ -22,10 +24,13 @@ class EventTemplateOptionsModal extends Component {
 
     this.state = {
       ts: "",
-      // defaultValues: {}
+      current_time: moment(),
+      expire_time: moment().add(TIMEOUT, 'seconds'), 
+      timer: null
     }
 
     this.renderDatePicker = this.renderDatePicker.bind(this);
+    this.updateElapseTime = this.updateElapseTime.bind(this);
 
 //    this.handleConfirm = this.handleConfirm.bind(this);
   }
@@ -37,8 +42,24 @@ class EventTemplateOptionsModal extends Component {
   };
 
   componentWillMount() {
-    this.getServerTime()
-    // this.setState = {defaultValues: this.populateDefaultValues()};
+    this.getServerTime();
+    console.log("Start Timer")
+    this.setState({timer:setInterval(this.updateElapseTime, TIMER_INTERVAL)});
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.state.timer);
+    this.setState({timer: null })
+  }
+
+  updateElapseTime() {
+    if(this.state.timer && this.state.current_time.isAfter(this.state.expire_time)) {
+      console.log("Stop Timer")
+      clearInterval(this.state.timer);
+      this.setState({timer: null })
+    } else {
+      this.setState({current_time: moment()})
+    }
   }
 
   async getServerTime() {
@@ -50,9 +71,10 @@ class EventTemplateOptionsModal extends Component {
       }
     })
     .then((response) => {
-      console.log(response.data)
-      this.setState({ts: response.data.ts});
-      console.log("ts:",this.state.ts)
+      // console.log(response.data)
+      this.setState({ts: moment(response.data.ts).toISOString()});
+      this.setState({expire_time: moment(response.data.ts).add(TIMEOUT, 'seconds')});
+      // console.log("ts:",this.state.ts)
     })
     .catch((err) => {
       console.log(err);
@@ -275,6 +297,7 @@ class EventTemplateOptionsModal extends Component {
 
   render() {
 
+    let TimerStr = (this.state.timer && this.state.current_time.isBefore(this.state.expire_time))? <span className="pull-right">Timer:{moment.duration(this.state.expire_time.diff(this.state.current_time)).format()}</span> : <span className="pull-right text-danger">Real-time vehicle data and framegrabs will NOT be associated with this event</span>
     const { show, handleHide, handleSubmit, eventTemplate, pristine, submitting, valid } = this.props
 
     return (
@@ -301,6 +324,9 @@ class EventTemplateOptionsModal extends Component {
               disabled={this.props.disabled}
               defaultValue={this.state.ts}
             />
+            <div>
+              {TimerStr}
+            </div>
           </Modal.Body>
 
           <Modal.Footer>
