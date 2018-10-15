@@ -244,6 +244,7 @@ class LoweringReplay extends Component {
   }
 
   handleEventComment(index) {
+    console.log("comment:", index)
     this.handleLoweringReplayPause();
     this.setState({replayEventIndex: index})
     this.props.advanceLoweringReplayTo(this.props.event.events[index].id)
@@ -676,7 +677,8 @@ class LoweringReplay extends Component {
                   // onClick={() => this.handleEventClick(event.id)} active={active}
                   
                   return (
-                    <ListGroupItem key={event.id} onClick={() => this.handleEventClick(index)} active={active} ><span>{`${event.ts} <${event.event_author}>: ${event.event_value} ${eventOptions}`}</span><span className="pull-right" onClick={() => this.handleEventComment(event.id)}><OverlayTrigger placement="top" overlay={commentTooltip}><FontAwesome name='comment' fixedWidth/></OverlayTrigger></span></ListGroupItem>
+                  //<ListGroupItem key={event.id} active={active} ><span onClick={() => this.handleEventShowDetails(event.id)}>{`${event.ts} <${event.event_author}>: ${event.event_value} ${eventOptions}`}</span><span className="pull-right" onClick={() => this.handleEventComment(event.id)}><OverlayTrigger placement="top" overlay={commentTooltip}><FontAwesome name='comment' fixedWidth/></OverlayTrigger></span></ListGroupItem>
+                    <ListGroupItem key={event.id} active={active} ><span onClick={() => this.handleEventClick(index)} >{`${event.ts} <${event.event_author}>: ${event.event_value} ${eventOptions}`}</span><span className="pull-right" onClick={() => this.handleEventComment(index)}><OverlayTrigger placement="top" overlay={commentTooltip}><FontAwesome name='comment' fixedWidth/></OverlayTrigger></span></ListGroupItem>
                   )
                 }
               })
