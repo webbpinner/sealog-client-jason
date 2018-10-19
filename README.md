@@ -8,7 +8,7 @@ For installation instruction please look at [INSTALL.md](./INSTALL.md)
 - admin account for demo: admin:password
 - guest account for demo: guest:<no password>
 
-**Sealog-Client-Jason** is based off [sealog-client](https://github.com/webbpinner/sealog-client)
+**sealog-client-jason** is based off [sealog-client](https://github.com/webbpinner/sealog-client)
 
 # Current Users
 Sealog-Jason is currently in-use with the JASON ROV operated by the Woods Hole Oceanographic Institution.
