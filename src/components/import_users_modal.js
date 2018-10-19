@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
-import { Button, Modal, Grid, Row, Col } from 'react-bootstrap';
+import { Button, Modal, Row, Col } from 'react-bootstrap';
 import { connectModal } from 'redux-modal';
-import FontAwesome from 'react-fontawesome';
 import ReactFileReader from 'react-file-reader';
 import Cookies from 'universal-cookie';
 import { API_ROOT_URL } from '../url_config';
@@ -40,47 +39,47 @@ class ImportUsersModal extends Component {
 
   async insertUser({id, username, fullname, email, password = '', roles, system_user = false}) {
 
-    await axios.get(`${API_ROOT_URL}/api/v1/users/${id}`,
-    {
-      headers: {
-        authorization: cookies.get('token'),
-        'content-type': 'application/json'
-      }
-    })
-    .then((response) => {
-
-      // console.log("User Already Exists");
-      this.setState( prevState => (
-        {
-          skipped: prevState.skipped + 1,
-          pending: prevState.pending - 1
+    try {
+      const result = await axios.get(`${API_ROOT_URL}/api/v1/users/${id}`,
+      {
+        headers: {
+          authorization: cookies.get('token'),
+          'content-type': 'application/json'
         }
-      ))
-    })
-    .catch((error) => {
+      })
+
+      if(result) {
+        this.setState( prevState => (
+          {
+            skipped: prevState.skipped + 1,
+            pending: prevState.pending - 1
+          }
+        ))
+      }
+    } catch(error) {
 
       if(error.response.data.statusCode == 404) {
         // console.log("Attempting to add user")
 
-        return axios.post(`${API_ROOT_URL}/api/v1/users`,
-        {id, username, fullname, email, password, roles, system_user},
-        {
-          headers: {
-            authorization: cookies.get('token'),
-            'content-type': 'application/json'
-          }
-        })
-        .then((response) => {
-          // console.log("User Imported");
-          this.setState( prevState => (
-            {
-              imported: prevState.imported + 1,
-              pending: prevState.pending - 1
+        try {
+          const result = axios.post(`${API_ROOT_URL}/api/v1/users`,
+          {id, username, fullname, email, password, roles, system_user},
+          {
+            headers: {
+              authorization: cookies.get('token'),
+              'content-type': 'application/json'
             }
-          ))
-          return true
-        })
-        .catch((error) => {
+          })
+
+          if(result) {
+            this.setState( prevState => (
+              {
+                imported: prevState.imported + 1,
+                pending: prevState.pending - 1
+              }
+            ))
+          }
+        } catch(error) {
           
           if(error.response.data.statusCode == 400) {
             // console.log("User Data malformed or incomplete");
@@ -94,8 +93,7 @@ class ImportUsersModal extends Component {
               pending: prevState.pending - 1
             }
           ))
-          return false
-        });
+        }
       } else {
 
         if(error.response.data.statusCode != 400) {
@@ -108,7 +106,7 @@ class ImportUsersModal extends Component {
           }
         ))
       }
-    });
+    }
   }
 
   importUsersFromFile = async (e) => {
@@ -141,6 +139,7 @@ class ImportUsersModal extends Component {
     } catch (err) {
       console.log('error when trying to parse json = ' + err);
     }
+    this.setState({pending: (this.state.quit)?"Quit Early!":"Complete"})
   }
 
   handleUserRecordImport = files => {
@@ -151,7 +150,6 @@ class ImportUsersModal extends Component {
   }
 
   render() {
-
     const { show, handleExit } = this.props
 
     return (
@@ -161,22 +159,20 @@ class ImportUsersModal extends Component {
         </Modal.Header>
 
         <Modal.Body>
-          <Grid fluid>
-            <Row>
-              <Col xs={6}>
-                <ReactFileReader fileTypes={[".json"]} handleFiles={this.handleUserRecordImport}>
-                    <Button>Select File</Button>
-                </ReactFileReader>
-              </Col>
-              <Col xs={3}>
-                Pending: {this.state.pending}
-                <hr/>
-                Imported: {this.state.imported}<br/>
-                Skipped: {this.state.skipped}<br/>
-                Errors: {this.state.errors}<br/>
-              </Col>
-            </Row>
-          </Grid>
+          <Row>
+            <Col xs={6}>
+              <ReactFileReader fileTypes={[".json"]} handleFiles={this.handleUserRecordImport}>
+                  <Button>Select File</Button>
+              </ReactFileReader>
+            </Col>
+            <Col xs={3}>
+              Pending: {this.state.pending}
+              <hr/>
+              Imported: {this.state.imported}<br/>
+              Skipped: {this.state.skipped}<br/>
+              Errors: {this.state.errors}<br/>
+            </Col>
+          </Row>
         </Modal.Body>
 
         <Modal.Footer>

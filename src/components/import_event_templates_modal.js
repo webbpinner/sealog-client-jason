@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import axios from 'axios';
 import { Button, Modal, Grid, Row, Col } from 'react-bootstrap';
 import { connectModal } from 'redux-modal';
-import FontAwesome from 'react-fontawesome';
 import ReactFileReader from 'react-file-reader';
 import Cookies from 'universal-cookie';
 import { API_ROOT_URL } from '../url_config';
@@ -40,47 +39,48 @@ class ImportEventTemplatesModal extends Component {
 
   async insertEventTemplate({id, event_name, event_value, event_free_text_required = false, event_options = [], system_template = false }) {
 
-    await axios.get(`${API_ROOT_URL}/api/v1/event_templates/${id}`,
-    {
-      headers: {
-        authorization: cookies.get('token'),
-        'content-type': 'application/json'
-      }
-    })
-    .then((response) => {
-
-      // console.log("Event Template Already Exists");
-      this.setState( prevState => (
-        {
-          skipped: prevState.skipped + 1,
-          pending: prevState.pending - 1
+    try {
+      const result = await axios.get(`${API_ROOT_URL}/api/v1/event_templates/${id}`,
+      {
+        headers: {
+          authorization: cookies.get('token'),
+          'content-type': 'application/json'
         }
-      ))
-    })
-    .catch((error) => {
+      })
+
+      if(result) {
+        // console.log("Event Template Already Exists");
+        this.setState( prevState => (
+          {
+            skipped: prevState.skipped + 1,
+            pending: prevState.pending - 1
+          }
+        ))
+      }
+    } catch(error) {
 
       if(error.response.data.statusCode == 404) {
-        // console.log("Attempting to add event template")
+      // console.log("Attempting to add event template")
 
-        return axios.post(`${API_ROOT_URL}/api/v1/event_templates`,
-        {id, event_name, event_value, event_free_text_required, event_options, system_template },
-        {
-          headers: {
-            authorization: cookies.get('token'),
-            'content-type': 'application/json'
-          }
-        })
-        .then((response) => {
-          // console.log("Event Template Imported");
-          this.setState( prevState => (
-            {
-              imported: prevState.imported + 1,
-              pending: prevState.pending - 1
+        try {
+          const result = await axios.post(`${API_ROOT_URL}/api/v1/event_templates`,
+          {id, event_name, event_value, event_free_text_required, event_options, system_template },
+          {
+            headers: {
+              authorization: cookies.get('token'),
+              'content-type': 'application/json'
             }
-          ))
-          return true
-        })
-        .catch((error) => {
+          })
+          if(result) {
+            // console.log("Event Template Imported");
+            this.setState( prevState => (
+              {
+                imported: prevState.imported + 1,
+                pending: prevState.pending - 1
+              }
+            ))
+          }
+        } catch(error) {
           
           if(error.response.data.statusCode == 400) {
             // console.log("Event Template Data malformed or incomplete");
@@ -94,13 +94,13 @@ class ImportEventTemplatesModal extends Component {
               pending: prevState.pending - 1
             }
           ))
-          return false
-        });
+        }
       } else {
 
         if(error.response.data.statusCode != 400) {
           console.log(error.response);
         }
+
         this.setState( prevState => (
           {
             errors: prevState.errors + 1,
@@ -108,7 +108,7 @@ class ImportEventTemplatesModal extends Component {
           }
         ))
       }
-    });
+    }
   }
 
   importEventTemplatesFromFile = async (e) => {
@@ -135,12 +135,17 @@ class ImportEventTemplatesModal extends Component {
         }
         currentTemplate = json[i];
         // console.log("adding template")
-        await this.insertEventTemplate(currentTemplate);
+        try {
+          const result = await this.insertEventTemplate(currentTemplate);
+        } catch(error) {
+          throw(error)
+        }
       }
 
     } catch (err) {
       console.log('error when trying to parse json = ' + err);
     }
+    this.setState({pending: (this.state.quit)?"Quit Early!":"Complete"})
   }
 
   handleEventTemplateImport = files => {

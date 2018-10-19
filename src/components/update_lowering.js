@@ -1,6 +1,6 @@
 import moment from 'moment';
 import Datetime from 'react-datetime';
-import 'react-datetime/css/react-datetime.css';
+// import 'react-datetime/css/react-datetime.css';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { reduxForm, Field, initialize } from 'redux-form';
@@ -147,59 +147,62 @@ class UpdateLowering extends Component {
     if (this.props.roles && (this.props.roles.includes("admin") || this.props.roles.includes('cruise_manager'))) {
 
       return (
-        <Panel bsStyle="default" header={updateLoweringFormHeader}>
-          <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
-            <Field
-              name="lowering_id"
-              component={this.renderField}
-              type="text"
-              label="Lowering ID"
-              placeholder="i.e. 4023"
-              required={true}
-            />
-            <Field
-              name="lowering_description"
-              component={this.renderTextArea}
-              type="textarea"
-              label="Lowering Description"
-              placeholder="A brief description of the lowering"
-              rows={10}
-            />
-            <Field
-              name="lowering_location"
-              type="text"
-              component={this.renderField}
-              label="Lowering Location"
-              placeholder="i.e. Kelvin Seamount"
-            />
-            <Field
-              name="start_ts"
-              component={this.renderDatePicker}
-              type="text"
-              label="Start Date/Time (UTC)"
-              required={true}
-            />
-            <Field
-              name="stop_ts"
-              component={this.renderDatePicker}
-              type="text"
-              label="Stop Date/Time (UTC)"
-              required={true}
-            />
-            <Field
-              name="lowering_tags"
-              component={this.renderTextArea}
-              type="textarea"
-              label="Lowering Tags, comma delimited"
-              placeholder="A comma-delimited list of tags, i.e. coral,chemistry,engineering"
-            />
-            {this.renderAlert()}
-            {this.renderMessage()}
-            <div className="pull-right">
-              <Button bsStyle="default" type="button" disabled={pristine || submitting} onClick={reset}>Reset Values</Button>
-              <Button bsStyle="primary" type="submit" disabled={submitting || !valid}>Update</Button>
-            </div>
-          </form>
+        <Panel>
+          <Panel.Heading>{updateLoweringFormHeader}</Panel.Heading>
+          <Panel.Body>
+            <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
+              <Field
+                name="lowering_id"
+                component={this.renderField}
+                type="text"
+                label="Lowering ID"
+                placeholder="i.e. 4023"
+                required={true}
+              />
+              <Field
+                name="lowering_description"
+                component={this.renderTextArea}
+                type="textarea"
+                label="Lowering Description"
+                placeholder="A brief description of the lowering"
+                rows={10}
+              />
+              <Field
+                name="lowering_location"
+                type="text"
+                component={this.renderField}
+                label="Lowering Location"
+                placeholder="i.e. Kelvin Seamount"
+              />
+              <Field
+                name="start_ts"
+                component={this.renderDatePicker}
+                type="text"
+                label="Start Date/Time (UTC)"
+                required={true}
+              />
+              <Field
+                name="stop_ts"
+                component={this.renderDatePicker}
+                type="text"
+                label="Stop Date/Time (UTC)"
+                required={true}
+              />
+              <Field
+                name="lowering_tags"
+                component={this.renderTextArea}
+                type="textarea"
+                label="Lowering Tags, comma delimited"
+                placeholder="A comma-delimited list of tags, i.e. coral,chemistry,engineering"
+              />
+              {this.renderAlert()}
+              {this.renderMessage()}
+              <div className="pull-right">
+                <Button bsStyle="default" type="button" disabled={pristine || submitting} onClick={reset}>Reset Values</Button>
+                <Button bsStyle="primary" type="submit" disabled={submitting || !valid}>Update</Button>
+              </div>
+            </form>
+          </Panel.Body>
         </Panel>
       )
     } else {

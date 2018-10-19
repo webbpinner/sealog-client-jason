@@ -26,11 +26,11 @@ class UpdateEventTemplate extends Component {
   }
 
   handleFormSubmit(formProps) {
-    console.log("typeof:", typeof(formProps.system_template))
+    // console.log("typeof:", typeof(formProps.system_template))
     if(typeof(formProps.system_template) != 'boolean'){
       formProps.system_template = false;
     }
-    console.log("formProps:", formProps);
+    // console.log("formProps:", formProps);
     this.props.updateEventTemplate(formProps);
     this.props.fetchEventTemplates();
   }
@@ -243,42 +243,45 @@ class UpdateEventTemplate extends Component {
 
     if (this.props.roles && (this.props.roles.includes("admin") || this.props.roles.includes("event_manager"))) {
       return (
-        <Panel bsStyle="default" header={formHeader}>
-          <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
-            <Field
-              name="event_name"
-              component={this.renderField}
-              type="text"
-              label="Button Name"
-              required={true}
-            />
-            <Field
-              name="event_value"
-              type="text"
-              component={this.renderField}
-              label="Event Value"
-              required={true}
-            />
-            {this.renderAdminOptions()}
-            <div>
-              <label>Free text Required?</label>
-              <span>{'  '}</span>
+        <Panel>
+          <Panel.Heading>{formHeader}</Panel.Heading>
+          <Panel.Body>
+            <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
               <Field
-                name='event_free_text_required'
-                id='event_free_text_required'
-                component="input"
-                type="checkbox"
+                name="event_name"
+                component={this.renderField}
+                type="text"
+                label="Button Name"
+                required={true}
               />
-            </div>
-            <label>Event Options:</label>
-            <FieldArray name="event_options" component={this.renderEventOptions}/>
-            {this.renderAlert()}
-            {this.renderMessage()}
-            <div className="pull-right">
-              <Button bsStyle="default" type="button" disabled={pristine || submitting} onClick={reset}>Reset Values</Button>
-              <Button bsStyle="primary" type="submit" disabled={pristine || submitting || !valid}>Update</Button>
-            </div>
-          </form>
+              <Field
+                name="event_value"
+                type="text"
+                component={this.renderField}
+                label="Event Value"
+                required={true}
+              />
+              {this.renderAdminOptions()}
+              <div>
+                <label>Free text Required?</label>
+                <span>{'  '}</span>
+                <Field
+                  name='event_free_text_required'
+                  id='event_free_text_required'
+                  component="input"
+                  type="checkbox"
+                />
+              </div>
+              <label>Event Options:</label>
+              <FieldArray name="event_options" component={this.renderEventOptions}/>
+              {this.renderAlert()}
+              {this.renderMessage()}
+              <div className="pull-right">
+                <Button bsStyle="default" type="button" disabled={pristine || submitting} onClick={reset}>Reset Values</Button>
+                <Button bsStyle="primary" type="submit" disabled={pristine || submitting || !valid}>Update</Button>
+              </div>
+            </form>
+          </Panel.Body>
         </Panel>
       )
     } else {
@@ -316,7 +319,7 @@ function validate(formProps) {
         event_optionErrors.event_option_type = 'Required'
         event_optionsArrayErrors[event_optionIndex] = event_optionErrors
       } else {
-        console.log(event_option.event_option_type)
+        // console.log(event_option.event_option_type)
         if (event_option.event_option_type == 'dropdown') {
 
           let valueArray = [];
@@ -338,7 +341,7 @@ function validate(formProps) {
           }
         } else if (event_option.event_option_type == 'checkboxes') {
 
-          console.log(event_option.event_option_values)
+          // console.log(event_option.event_option_values)
           let valueArray = [event_option.event_option_values];
 
           try {
@@ -346,7 +349,7 @@ function validate(formProps) {
             valueArray = valueArray.map(string => {
               return string.trim()
             })
-            console.log(valueArray)
+            // console.log(valueArray)
           }
           catch(err) {
             event_optionErrors.event_option_values = 'Invalid csv list'

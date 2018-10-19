@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import { Button, Checkbox, ControlLabel, FormGroup, FormControl, FormGroupItem, Modal } from 'react-bootstrap';
 import { connectModal } from 'redux-modal';
 import Datetime from 'react-datetime';
-import 'react-datetime/css/react-datetime.css';
 import moment from 'moment';
+import momentDurationFormatSetup from 'moment-duration-format';
 import { reduxForm, Field, initialize, formValueSelector } from 'redux-form';
 import Cookies from 'universal-cookie';
 import { API_ROOT_URL } from '../url_config';
@@ -43,7 +43,7 @@ class EventTemplateOptionsModal extends Component {
 
   componentWillMount() {
     this.getServerTime();
-    console.log("Start Timer")
+    // console.log("Start Timer")
     this.setState({timer:setInterval(this.updateElapseTime, TIMER_INTERVAL)});
   }
 
@@ -54,7 +54,7 @@ class EventTemplateOptionsModal extends Component {
 
   updateElapseTime() {
     if(this.state.timer && this.state.current_time.isAfter(this.state.expire_time)) {
-      console.log("Stop Timer")
+      // console.log("Stop Timer")
       clearInterval(this.state.timer);
       this.setState({timer: null })
     } else {
@@ -101,8 +101,6 @@ class EventTemplateOptionsModal extends Component {
     delete temp.event_free_text
     delete temp.event_ts
 
-    console.log("temp:", temp)
-   
     //Convert obecjts to arrays
     let optionValue = []
     let optionIndex = Object.keys(temp).sort().map( (value, index) => { optionValue.push(temp[value]); return parseInt(value.split('_')[1])});
@@ -112,9 +110,9 @@ class EventTemplateOptionsModal extends Component {
 
     //Build event_options array
     let event_options = optionIndex.map( (value, index) => {
-      console.log(typeof(optionValue[index]));
-      console.log(optionValue[index])
-      console.log(optionValue[index].constructor === Array)
+      // console.log(typeof(optionValue[index]));
+      // console.log(optionValue[index])
+      // console.log(optionValue[index].constructor === Array)
 
       if(optionValue[index].constructor === Array) {
         optionValue[index] = optionValue[index].join(';')
@@ -127,9 +125,9 @@ class EventTemplateOptionsModal extends Component {
       )
     });
 
-    console.log("formProps.event_ts:", formProps.event_ts)
+    // console.log("formProps.event_ts:", formProps.event_ts)
     let event_ts = (formProps.event_ts)? formProps.event_ts.toISOString() : '';
-    console.log("event_ts:", event_ts)
+    // console.log("event_ts:", event_ts)
 
     //Submit event
     this.props.handleCreateEvent(this.props.eventTemplate.event_value, formProps.event_free_text, event_options, event_ts);

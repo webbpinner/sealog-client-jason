@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { reduxForm, Field, reset } from 'redux-form';
-import { FormGroup, Grid, Row, Button, Col, Panel, Alert, Table, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Row, Button, Col, Panel, Alert, Table, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { ROOT_PATH } from '../url_config';
 import CreateUser from './create_user';
@@ -28,7 +28,7 @@ class Users extends Component {
   }
 
   componentWillMount() {
-      this.props.fetchUsers();
+    this.props.fetchUsers();
   }
 
   handleUserDelete(id) {
@@ -104,9 +104,9 @@ class Users extends Component {
             <td>{user.username}</td>
             <td>{user.fullname}</td>
             <td>
-              <Link key={`edit_${user.id}`} to="#" onClick={ () => this.handleUserSelect(user.id) }><OverlayTrigger placement="top" overlay={editTooltip}><FontAwesome name='pencil' fixedWidth/></OverlayTrigger></Link>{' '}
-              {(this.props.roles.includes('admin'))? <Link key={`token_${user.id}`} to="#" onClick={ () => this.handleDisplayUserToken(user.id) }><OverlayTrigger placement="top" overlay={tokenTooltip}><FontAwesome name='eye' fixedWidth/></OverlayTrigger></Link> : ''}{' '}
-              {(user.id != this.props.profileid && !disabledAccounts.includes(user.username))? <Link key={`delete_${user.id}`} to="#" onClick={ () => this.handleUserDelete(user.id) }><OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesome name='trash' fixedWidth/></OverlayTrigger></Link> : ''}
+              <Link key={`edit_${user.id}`} to="#" onClick={ () => this.handleUserSelect(user.id) }><OverlayTrigger placement="top" overlay={editTooltip}><FontAwesomeIcon icon='pencil-alt' fixedWidth/></OverlayTrigger></Link>{' '}
+              {(this.props.roles.includes('admin'))? <Link key={`token_${user.id}`} to="#" onClick={ () => this.handleDisplayUserToken(user.id) }><OverlayTrigger placement="top" overlay={tokenTooltip}><FontAwesomeIcon icon='eye' fixedWidth/></OverlayTrigger></Link> : ''}{' '}
+              {(user.id != this.props.profileid && !disabledAccounts.includes(user.username))? <Link key={`delete_${user.id}`} to="#" onClick={ () => this.handleUserDelete(user.id) }><OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesomeIcon icon='trash' fixedWidth/></OverlayTrigger></Link> : ''}
             </td>
           </tr>
         );
@@ -136,9 +136,9 @@ class Users extends Component {
               <td>{user.username}</td>
               <td>{user.fullname}</td>
               <td>
-                {(this.props.roles.includes('admin'))? <Link key={`edit_${user.id}`} to="#" onClick={ () => this.handleUserSelect(user.id) }><OverlayTrigger placement="top" overlay={editTooltip}><FontAwesome name='pencil' fixedWidth/></OverlayTrigger></Link> : ''}{' '}
-                {(this.props.roles.includes('admin'))? <Link key={`token_${user.id}`} to="#" onClick={ () => this.handleDisplayUserToken(user.id) }><OverlayTrigger placement="top" overlay={tokenTooltip}><FontAwesome name='eye' fixedWidth/></OverlayTrigger></Link> : ''}{' '}
-                {(user.id != this.props.profileid && !disabledAccounts.includes(user.username))? <Link key={`delete_${user.id}`} to="#" onClick={ () => this.handleUserDelete(user.id) }><OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesome name='trash' fixedWidth/></OverlayTrigger></Link> : ''}
+                {(this.props.roles.includes('admin'))? <Link key={`edit_${user.id}`} to="#" onClick={ () => this.handleUserSelect(user.id) }><OverlayTrigger placement="top" overlay={editTooltip}><FontAwesomeIcon icon='pencil-alt' fixedWidth/></OverlayTrigger></Link> : ''}{' '}
+                {(this.props.roles.includes('admin'))? <Link key={`token_${user.id}`} to="#" onClick={ () => this.handleDisplayUserToken(user.id) }><OverlayTrigger placement="top" overlay={tokenTooltip}><FontAwesomeIcon icon='eye' fixedWidth/></OverlayTrigger></Link> : ''}{' '}
+                {(user.id != this.props.profileid && !disabledAccounts.includes(user.username))? <Link key={`delete_${user.id}`} to="#" onClick={ () => this.handleUserDelete(user.id) }><OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesomeIcon icon='trash' fixedWidth/></OverlayTrigger></Link> : ''}
               </td>
             </tr>
           );
@@ -156,26 +156,22 @@ class Users extends Component {
   renderUserTable() {
     if(this.props.users.filter(user => user.system_user === false).length > 0){
       return (
-        <Panel>
-          <Table responsive bordered striped fill>
-            <thead>
-              <tr>
-                <th>User Name</th>
-                <th>Full Name</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {this.renderUsers()}
-            </tbody>
-          </Table>
-        </Panel>
+        <Table responsive bordered striped>
+          <thead>
+            <tr>
+              <th>User Name</th>
+              <th>Full Name</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {this.renderUsers()}
+          </tbody>
+        </Table>
       )
     } else {
       return (
-        <Panel>
-          No Users Found!
-        </Panel>
+        <Panel.Body>No Users Found!</Panel.Body>
       )
     }
   }
@@ -183,24 +179,22 @@ class Users extends Component {
   renderSystemUserTable() {
     if (this.props.users.filter(user => user.system_user === true).length > 0){
       return (
-        <Panel>
-          <Table responsive bordered striped fill>
-            <thead>
-              <tr>
-                <th>User Name</th>
-                <th>Full Name</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {this.renderSystemUsers()}
-            </tbody>
-          </Table>
-        </Panel>
+        <Table responsive bordered striped>
+          <thead>
+            <tr>
+              <th>User Name</th>
+              <th>Full Name</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {this.renderSystemUsers()}
+          </tbody>
+        </Table>
       )
     } else {
       return (
-        <div>No System Users Found!</div>
+        <Panel.Body>No System Users Found!</Panel.Body>
       )
     }
   }
@@ -215,14 +209,14 @@ class Users extends Component {
 
     const disableBtn = (this.props.users.filter(user => user.system_user === false).length > 0)? false : true
 
-    // <Button bsStyle="default" bsSize="xs" type="button" onClick={ this.handleImportUserList }><OverlayTrigger placement="top" overlay={importTooltip}><FontAwesome name='upload' fixedWidth/></OverlayTrigger></Button>
+    // <Button bsStyle="default" bsSize="xs" type="button" onClick={ this.handleImportUserList }><OverlayTrigger placement="top" overlay={importTooltip}><FontAwesomeIcon icon='upload' fixedWidth/></OverlayTrigger></Button>
 
     return (
       <div>
         { Label }
         <div className="pull-right">
-          <OverlayTrigger placement="top" overlay={deleteAllNonSystemTooltip}><Button bsStyle="default" bsSize="xs" type="button" onClick={ () => this.handleNonSystemUsersWipe() } disabled={disableBtn}><FontAwesome name='trash' fixedWidth/></Button></OverlayTrigger>
-          <OverlayTrigger placement="top" overlay={exportTooltip}><Button bsStyle="default" bsSize="xs" type="button" onClick={ () => this.exportUsersToJSON() } disabled={disableBtn}><FontAwesome name='download' fixedWidth/></Button></OverlayTrigger>
+          <OverlayTrigger placement="top" overlay={deleteAllNonSystemTooltip}><Button bsStyle="default" bsSize="xs" type="button" onClick={ () => this.handleNonSystemUsersWipe() } disabled={disableBtn}><FontAwesomeIcon icon='trash' fixedWidth/></Button></OverlayTrigger>
+          <OverlayTrigger placement="top" overlay={exportTooltip}><Button bsStyle="default" bsSize="xs" type="button" onClick={ () => this.exportUsersToJSON() } disabled={disableBtn}><FontAwesomeIcon icon='download' fixedWidth/></Button></OverlayTrigger>
         </div>
       </div>
     );
@@ -235,8 +229,8 @@ class Users extends Component {
     // const importTooltip = (<Tooltip id="importTooltip">Import Users</Tooltip>)
     const exportTooltip = (<Tooltip id="exportTooltip">Export Users</Tooltip>)
 
-    // <Button bsStyle="default" bsSize="xs" type="button" onClick={ this.handleImportUserList }><OverlayTrigger placement="top" overlay={importTooltip}><FontAwesome name='upload' fixedWidth/></OverlayTrigger></Button>
-    let export_icon = (this.props.roles.includes("admin"))? (<OverlayTrigger placement="top" overlay={exportTooltip}><Button bsStyle="default" bsSize="xs" type="button" onClick={ () => this.exportSystemUsersToJSON() }><FontAwesome name='download' fixedWidth/></Button></OverlayTrigger>) : null
+    // <Button bsStyle="default" bsSize="xs" type="button" onClick={ this.handleImportUserList }><OverlayTrigger placement="top" overlay={importTooltip}><FontAwesomeIcon icon='upload' fixedWidth/></OverlayTrigger></Button>
+    let export_icon = (this.props.roles.includes("admin"))? (<OverlayTrigger placement="top" overlay={exportTooltip}><Button bsStyle="default" bsSize="xs" type="button" onClick={ () => this.exportSystemUsersToJSON() }><FontAwesomeIcon icon='download' fixedWidth/></Button></OverlayTrigger>) : null
 
     return (
       <div>
@@ -260,17 +254,23 @@ class Users extends Component {
       let userForm = (this.props.userid)? <UpdateUser /> : <CreateUser />
 
       return (
-        <Grid fluid>
+        <div>
           <DisplayUserTokenModal />
           <DeleteUserModal />
-          <NonSystemUsersWipeModal />
           <ImportUsersModal handleExit={this.handleUserImportClose}/>
+          <NonSystemUsersWipeModal />
           <Row>
             <Col sm={6} mdOffset= {1} md={5} lgOffset= {2} lg={4}>
-              <Panel header={this.renderSystemUsersHeader()}>
+              <Panel>
+                <Panel.Heading>
+                  {this.renderSystemUsersHeader()}
+                </Panel.Heading>
                 {this.renderSystemUserTable()}
               </Panel>
-              <Panel header={this.renderUsersHeader()}>
+              <Panel>
+                <Panel.Heading>
+                  {this.renderUsersHeader()}
+                </Panel.Heading>
                 {this.renderUserTable()}
               </Panel>
               {this.renderAddUserButton()}
@@ -280,7 +280,7 @@ class Users extends Component {
               { userForm }
             </Col>
           </Row>
-        </Grid>
+        </div>
       );
 
     } else {

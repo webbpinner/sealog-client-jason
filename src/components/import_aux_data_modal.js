@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
-import { Button, Modal, Grid, Row, Col } from 'react-bootstrap';
+import { Button, Modal, Row, Col } from 'react-bootstrap';
 import { connectModal } from 'redux-modal';
-import FontAwesome from 'react-fontawesome';
 import ReactFileReader from 'react-file-reader';
 import Cookies from 'universal-cookie';
 import { API_ROOT_URL } from '../url_config';
@@ -20,7 +19,7 @@ class ImportAuxDataModal extends Component {
       pending: 0,
       imported: 0,
       errors: 0,
-      skipped: 0,
+      updated: 0,
       quit: false,
     }
 
@@ -34,76 +33,44 @@ class ImportAuxDataModal extends Component {
 
   async insertAuxData({id, event_id, data_source, data_array}) {
 
-    await axios.get(`${API_ROOT_URL}/api/v1/event_aux_data/${id}`,
-    {
-      headers: {
-        authorization: cookies.get('token'),
-        'content-type': 'application/json'
-      }
-    })
-    .then((response) => {
-
-      // console.log("Event Already Exists");
-      this.setState( prevState => (
-        {
-          skipped: prevState.skipped + 1,
-          pending: prevState.pending - 1
+    try { 
+      const result = await axios.post(`${API_ROOT_URL}/api/v1/event_aux_data`,
+      {id, event_id, data_source, data_array},
+      {
+        headers: {
+          authorization: cookies.get('token'),
+          'content-type': 'application/json'
         }
-      ))
-    })
-    .catch((error) => {
+      })
 
-      if(error.response.data.statusCode == 404) {
-        // console.log("Attempting to add event")
-
-        return axios.post(`${API_ROOT_URL}/api/v1/event_aux_data`,
-        {id, event_id, data_source, data_array},
-        {
-          headers: {
-            authorization: cookies.get('token'),
-            'content-type': 'application/json'
-          }
-        })
-        .then((response) => {
-          // console.log("Event Imported");
+      if(result) {
+        if(result.status === 201) {
           this.setState( prevState => (
             {
               imported: prevState.imported + 1,
               pending: prevState.pending - 1
             }
           ))
-          return true
-        })
-        .catch((error) => {
-          
-          if(error.response.data.statusCode == 400) {
-            // console.log("Event Data malformed or incomplete");
-          } else {
-            console.log(error);  
-          }
-          
+        } else {
           this.setState( prevState => (
             {
-              errors: prevState.errors + 1,
+              updated: prevState.updated + 1,
               pending: prevState.pending - 1
             }
           ))
-          return false
-        });
-      } else {
-
-        if(error.response.data.statusCode != 400) {
-          console.log(error.response);
         }
-        this.setState( prevState => (
-          {
-            errors: prevState.errors + 1,
-            pending: prevState.pending - 1
-          }
-        ))
       }
-    });
-}
+
+    } catch(error) {
+      console.log(error)
+      this.setState( prevState => (
+        {
+          errors: prevState.errors + 1,
+          pending: prevState.pending - 1
+        }
+      ))
+    }
+  }
 
   importAuxDataFromFile = async (e) => {
     try {
@@ -115,7 +82,7 @@ class ImportAuxDataModal extends Component {
             pending: json.length,
             imported: 0,
             errors: 0,
-            skipped: 0
+            updated: 0
           }
         ))
 
@@ -135,6 +102,7 @@ class ImportAuxDataModal extends Component {
     } catch (err) {
       console.log('error when trying to parse json = ' + err);
     }
+    this.setState({pending: (this.state.quit)?"Quit Early!":"Complete"})    
   }
 
   handleAuxDataRecordImport = files => {
@@ -155,22 +123,20 @@ class ImportAuxDataModal extends Component {
         </Modal.Header>
 
         <Modal.Body>
-          <Grid fluid>
-            <Row>
-              <Col xs={6}>
-                <ReactFileReader fileTypes={[".json"]} handleFiles={this.handleAuxDataRecordImport}>
-                    <Button>Select File</Button>
-                </ReactFileReader>
-              </Col>
-              <Col xs={6}>
-                Pending: {this.state.pending}
-                <hr/>
-                Imported: {this.state.imported}<br/>
-                Skipped: {this.state.skipped}<br/>
-                Errors: {this.state.errors}<br/>
-              </Col>
-            </Row>
-          </Grid>
+          <Row>
+            <Col xs={6}>
+              <ReactFileReader fileTypes={[".json"]} handleFiles={this.handleAuxDataRecordImport}>
+                  <Button>Select File</Button>
+              </ReactFileReader>
+            </Col>
+            <Col xs={6}>
+              Pending: {this.state.pending}
+              <hr/>
+              Imported: {this.state.imported}<br/>
+              Updated: {this.state.updated}<br/>
+              Errors: {this.state.errors}<br/>
+            </Col>
+          </Row>
         </Modal.Body>
 
         <Modal.Footer>

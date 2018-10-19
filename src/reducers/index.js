@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import { reducer as reduxFormReducer } from 'redux-form';
-import { routerReducer } from 'react-router-redux';
+// import { routerReducer } from 'react-router-redux';
 import { reducer as modalReducer } from 'redux-modal';
 import authReducer from './auth_reducer';
 import cruiseReducer from './cruise_reducer';
@@ -13,7 +13,7 @@ import userReducer from './user_reducer';
 
 const rootReducer = combineReducers({
   form: reduxFormReducer,
-  routing: routerReducer,
+  // routing: routerReducer,
   modal: modalReducer,
   auth: authReducer,
   cruise: cruiseReducer,

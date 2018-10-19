@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-
 import EventTemplateList from './event_template_list';
 import EventHistory from './event_history';
 import EventInput from './event_input';
@@ -20,7 +19,7 @@ class EventLogging extends Component {
 
   render() {
     return (
-      <Grid fluid>
+      <div>
         <EventCommentModal />
         <EventShowDetailsModal />
         <Row>
@@ -40,7 +39,7 @@ class EventLogging extends Component {
             <EventHistory />
           </Col>
         </Row>
-      </Grid>
+      </div>
     );
   }
 }

@@ -5,7 +5,6 @@ import { Button, Checkbox, ControlLabel, FormGroup, FormControl, FormGroupItem, 
 import { connectModal } from 'redux-modal';
 import Datetime from 'react-datetime';
 import Cookies from 'universal-cookie';
-import 'react-datetime/css/react-datetime.css';
 import moment from 'moment';
 import axios from 'axios';
 import { reduxForm, Field, initialize, formValueSelector } from 'redux-form';

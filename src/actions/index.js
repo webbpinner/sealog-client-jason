@@ -2,11 +2,10 @@ import axios from 'axios';
 import { Redirect } from 'react-router-dom';
 import Cookies from 'universal-cookie';
 import queryString from 'querystring';
-import { push } from 'react-router-redux';
+import { push } from 'connected-react-router';
 import { bindActionCreators } from 'redux';
 import { show, destroy } from 'redux-modal';
 import {change, untouch} from 'redux-form';
-
 import { API_ROOT_URL} from '../url_config';
 
 import {
