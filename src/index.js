@@ -43,11 +43,8 @@ if (token) {
 
 }
 
-// if(!localStorage.getItem('bgcolor')) {
-//   localStorage.setItem('bgcolor', '#a4509b');
-// } else {
-//   console.log("bgcolor:", localStorage.getItem('bgcolor'))
-// }
+            // <Route path={ `/lowering_replay/:id` } exact={true} component={RequireAuth(LoweringReplay)} />
+            // <Route path={ `/lowering_search/:id` } exact={true} component={RequireAuth(LoweringSearch)} />
 
 ReactDOM.render(
   <Provider store={store}>
