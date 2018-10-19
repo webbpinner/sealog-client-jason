@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
-import { Button, Modal, Grid, Row, Col } from 'react-bootstrap';
+import { Button, Modal, Row, Col } from 'react-bootstrap';
 import { connectModal } from 'redux-modal';
-import FontAwesome from 'react-fontawesome';
 import ReactFileReader from 'react-file-reader';
 import Cookies from 'universal-cookie';
 import { API_ROOT_URL } from '../url_config';
@@ -40,47 +39,47 @@ class ImportCruisesModal extends Component {
 
   async insertCruise({ id, cruise_id, cruise_name, start_ts, stop_ts, cruise_description = '', cruise_location = '', cruise_pi, cruise_participants = [], cruise_tags = [], cruise_hidden = false}) {
 
-    await axios.get(`${API_ROOT_URL}/api/v1/cruises/${id}`,
-    {
-      headers: {
-        authorization: cookies.get('token'),
-        'content-type': 'application/json'
-      }
-    })
-    .then((response) => {
-
-      // console.log("Cruise Already Exists");
-      this.setState( prevState => (
-        {
-          skipped: prevState.skipped + 1,
-          pending: prevState.pending - 1
+    try {
+      const result = await axios.get(`${API_ROOT_URL}/api/v1/cruises/${id}`,
+      {
+        headers: {
+          authorization: cookies.get('token'),
+          'content-type': 'application/json'
         }
-      ))
-    })
-    .catch((error) => {
+      })
 
+      if(result) {
+        // console.log("Cruise Already Exists");
+        this.setState( prevState => (
+          {
+            skipped: prevState.skipped + 1,
+            pending: prevState.pending - 1
+          }
+        ))
+      }
+    } catch(error) {
       if(error.response.data.statusCode == 404) {
         // console.log("Attempting to add cruise")
 
-        return axios.post(`${API_ROOT_URL}/api/v1/cruises`,
-        { id, cruise_id, cruise_name, start_ts, stop_ts, cruise_description, cruise_location, cruise_pi, cruise_participants, cruise_tags, cruise_hidden},
-        {
-          headers: {
-            authorization: cookies.get('token'),
-            'content-type': 'application/json'
-          }
-        })
-        .then((response) => {
-          // console.log("Cruise Imported");
-          this.setState( prevState => (
-            {
-              imported: prevState.imported + 1,
-              pending: prevState.pending - 1
+        try {
+          const result = await axios.post(`${API_ROOT_URL}/api/v1/cruises`,
+          { id, cruise_id, cruise_name, start_ts, stop_ts, cruise_description, cruise_location, cruise_pi, cruise_participants, cruise_tags, cruise_hidden},
+          {
+            headers: {
+              authorization: cookies.get('token'),
+              'content-type': 'application/json'
             }
-          ))
-          return true
-        })
-        .catch((error) => {
+          })
+
+          if(result) {
+            this.setState( prevState => (
+              {
+                imported: prevState.imported + 1,
+                pending: prevState.pending - 1
+              }
+            ))
+          }
+        } catch(error) {
           
           if(error.response.data.statusCode == 400) {
             // console.log("Cruise Data malformed or incomplete");
@@ -94,8 +93,7 @@ class ImportCruisesModal extends Component {
               pending: prevState.pending - 1
             }
           ))
-          return false
-        });
+        }
       } else {
 
         if(error.response.data.statusCode != 400) {
@@ -108,7 +106,7 @@ class ImportCruisesModal extends Component {
           }
         ))
       }
-    });
+    }
   }
 
   importCruisesFromFile = async (e) => {
@@ -136,7 +134,11 @@ class ImportCruisesModal extends Component {
           }
           currentCruise = json[i];
           // console.log("adding cruise")
-          await this.insertCruise(currentCruise);
+          try {
+            const result = await this.insertCruise(currentCruise)
+          } catch(error) {
+            throw(error)
+          }
         }
       } else {
         this.setState( prevState => (
@@ -147,13 +149,20 @@ class ImportCruisesModal extends Component {
             skipped: 0
           }
         ))
-        await this.insertCruise(json);
-      }
-      this.setState({pending: "Complete!"})
 
+        try {
+          const result = await this.insertCruise(json);
+          if(result) {
+            this.setState({pending: "Complete!"})
+          }
+        } catch(error) {
+          throw(error)
+        }
+      }
     } catch (err) {
       console.log('error when trying to parse json = ' + err);
     }
+    this.setState({pending: (this.state.quit)?"Quit Early!":"Complete"})
   }
 
   handleCruiseRecordImport = files => {
@@ -180,22 +189,20 @@ class ImportCruisesModal extends Component {
         </Modal.Header>
 
         <Modal.Body>
-          <Grid fluid>
-            <Row>
-              <Col xs={6}>
-                <ReactFileReader fileTypes={[".json"]} handleFiles={this.handleCruiseRecordImport}>
-                    <Button>Select File</Button>
-                </ReactFileReader>
-              </Col>
-              <Col xs={4}>
-                Pending: {this.state.pending}
-                <hr/>
-                Imported: {this.state.imported}<br/>
-                Skipped: {this.state.skipped}<br/>
-                Errors: {this.state.errors}<br/>
-              </Col>
-            </Row>
-          </Grid>
+          <Row>
+            <Col xs={6}>
+              <ReactFileReader fileTypes={[".json"]} handleFiles={this.handleCruiseRecordImport}>
+                  <Button>Select File</Button>
+              </ReactFileReader>
+            </Col>
+            <Col xs={4}>
+              Pending: {this.state.pending}
+              <hr/>
+              Imported: {this.state.imported}<br/>
+              Skipped: {this.state.skipped}<br/>
+              Errors: {this.state.errors}<br/>
+            </Col>
+          </Row>
         </Modal.Body>
 
         <Modal.Footer>

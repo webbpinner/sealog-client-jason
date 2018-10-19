@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { reduxForm, Field, reset } from 'redux-form';
@@ -103,46 +103,38 @@ class Lowerings extends Component {
     const hideTooltip = (<Tooltip id="deleteTooltip">Hide this lowering from users.</Tooltip>)
 
 
-    if(this.props.lowerings && this.props.lowerings.length > 0){
-      return this.props.lowerings.map((lowering, index) => {
-        if(index >= (this.state.activePage-1) * maxLoweringsPerPage && index < (this.state.activePage * maxLoweringsPerPage)) {
+    return this.props.lowerings.map((lowering, index) => {
+      if(index >= (this.state.activePage-1) * maxLoweringsPerPage && index < (this.state.activePage * maxLoweringsPerPage)) {
 
-          let deleteLink = (this.props.roles.includes('admin'))? <Link key={`delete_${lowering.id}`} to="#" onClick={ () => this.handleLoweringDelete(lowering.id) }><OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesome name='trash' fixedWidth/></OverlayTrigger></Link>: null
-          let hiddenLink = null;
-          if(this.props.roles.includes('admin') && lowering.lowering_hidden) {
-            hiddenLink = <Link key={`show_${lowering.id}`} to="#" onClick={ () => this.handleLoweringShow(lowering.id) }><OverlayTrigger placement="top" overlay={showTooltip}><FontAwesome name='eye-slash' fixedWidth/></OverlayTrigger></Link>
-          } else if(this.props.roles.includes('admin') && !lowering.lowering_hidden) {
-            hiddenLink = <Link key={`show_${lowering.id}`} to="#" onClick={ () => this.handleLoweringHide(lowering.id) }><OverlayTrigger placement="top" overlay={hideTooltip}><FontAwesome name='eye' fixedWidth/></OverlayTrigger></Link>  
-          }
-
-          return (
-            <tr key={lowering.id}>
-              <td>{lowering.lowering_id}</td>
-              <td>{lowering.lowering_location}</td>
-              <td>
-                <Link key={`edit_${lowering.id}`} to="#" onClick={ () => this.handleLoweringSelect(lowering.id) }><OverlayTrigger placement="top" overlay={editTooltip}><FontAwesome name='pencil' fixedWidth/></OverlayTrigger></Link>
-                {' '}
-                { deleteLink }
-                {' '}
-                {hiddenLink}
-              </td>
-            </tr>
-          );
+        let deleteLink = (this.props.roles.includes('admin'))? <Link key={`delete_${lowering.id}`} to="#" onClick={ () => this.handleLoweringDelete(lowering.id) }><OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesomeIcon icon='trash' fixedWidth/></OverlayTrigger></Link>: null
+        let hiddenLink = null;
+        if(this.props.roles.includes('admin') && lowering.lowering_hidden) {
+          hiddenLink = <Link key={`show_${lowering.id}`} to="#" onClick={ () => this.handleLoweringShow(lowering.id) }><OverlayTrigger placement="top" overlay={showTooltip}><FontAwesomeIcon icon='eye-slash' fixedWidth/></OverlayTrigger></Link>
+        } else if(this.props.roles.includes('admin') && !lowering.lowering_hidden) {
+          hiddenLink = <Link key={`show_${lowering.id}`} to="#" onClick={ () => this.handleLoweringHide(lowering.id) }><OverlayTrigger placement="top" overlay={hideTooltip}><FontAwesomeIcon icon='eye' fixedWidth/></OverlayTrigger></Link>  
         }
-      })      
-    }
 
-    return (
-      <tr key="noLoweringsFound">
-        <td colSpan="4"> No lowerings found!</td>
-      </tr>
-    )
+        return (
+          <tr key={lowering.id}>
+            <td>{lowering.lowering_id}</td>
+            <td>{lowering.lowering_location}</td>
+            <td>
+              <Link key={`edit_${lowering.id}`} to="#" onClick={ () => this.handleLoweringSelect(lowering.id) }><OverlayTrigger placement="top" overlay={editTooltip}><FontAwesomeIcon icon='pencil-alt' fixedWidth/></OverlayTrigger></Link>
+              {' '}
+              { deleteLink }
+              {' '}
+              {hiddenLink}
+            </td>
+          </tr>
+        );
+      }
+    })      
   }
 
   renderLoweringTable() {
-    return (
-      <Panel>
-        <Table responsive bordered striped fill>
+    if(this.props.lowerings && this.props.lowerings.length > 0){
+      return (
+        <Table responsive bordered striped>
           <thead>
             <tr>
               <th>Lowering</th>
@@ -154,8 +146,12 @@ class Lowerings extends Component {
             {this.renderLowerings()}
           </tbody>
         </Table>
-      </Panel>
-    )
+      )
+    } else {
+      return (
+        <Panel.Body>No Lowerings Found!</Panel.Body>
+      )
+    }
   }
 
   renderLoweringHeader() {
@@ -167,34 +163,53 @@ class Lowerings extends Component {
       <div>
         { Label }
         <div className="pull-right">
-          <Button bsStyle="default" bsSize="xs" type="button" onClick={ () => this.exportLoweringsToJSON() }><OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesome name='download' fixedWidth/></OverlayTrigger></Button>
+          <Button bsStyle="default" bsSize="xs" type="button" onClick={ () => this.exportLoweringsToJSON() }><OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesomeIcon icon='download' fixedWidth/></OverlayTrigger></Button>
         </div>
       </div>
     );
   }
 
   renderPagination() {
-    let loweringCount = this.props.lowerings.length
+    if(this.props.lowerings && this.props.lowerings.length > maxLoweringsPerPage) {
 
-    if(loweringCount > maxLoweringsPerPage) {
+      let priceCount = this.props.lowerings.length;
+      let last = Math.ceil(priceCount/maxLoweringsPerPage);
+      let delta = 2
+      let left = this.state.activePage - delta
+      let right = this.state.activePage + delta + 1
+      let range = []
+      let rangeWithDots = []
+      let l = null
+
+      for (let i = 1; i <= last; i++) {
+        if (i == 1 || i == last || i >= left && i < right) {
+            range.push(i);
+        }
+      }
+
+      for (let i of range) {
+        if (l) {
+          if (i - l === 2) {
+            rangeWithDots.push(<Pagination.Item key={l + 1} active={(this.state.activePage === l+1)} onClick={() => this.setState({activePage: (l + 1)})}>{l + 1}</Pagination.Item>)
+          } else if (i - l !== 1) {
+            rangeWithDots.push(<Pagination.Ellipsis />);
+          }
+        }
+        rangeWithDots.push(<Pagination.Item key={i} active={(this.state.activePage === i)} onClick={() => this.setState({activePage: i})}>{i}</Pagination.Item>);
+        l = i;
+      }
 
       return (
-        <Pagination
-          prev
-          next
-          first
-          last
-          ellipsis
-          boundaryLinks
-          items={ Math.ceil(loweringCount/maxLoweringsPerPage) }
-          maxButtons={5}
-          activePage={this.state.activePage}
-          onSelect={this.handlePageSelect}
-        />
+        <Pagination>
+          <Pagination.First onClick={() => this.setState({activePage: 1})} />
+          <Pagination.Prev onClick={() => { if(this.state.activePage > 1) { this.setState(prevState => ({ activePage: prevState.activePage-1}))}}} />
+          {rangeWithDots}
+          <Pagination.Next onClick={() => { if(this.state.activePage < last) { this.setState(prevState => ({ activePage: prevState.activePage+1}))}}} />
+          <Pagination.Last onClick={() => this.setState({activePage: last})} />
+        </Pagination>
       )
     }
   }
-
 
   render() {
     if (!this.props.roles) {
@@ -213,7 +228,8 @@ class Lowerings extends Component {
           <ImportLoweringsModal  handleExit={this.handleLoweringImportClose} />
           <Row>
             <Col sm={10} md={7} lgOffset= {1} lg={6}>
-              <Panel header={this.renderLoweringHeader()}>
+              <Panel>
+                <Panel.Heading>{this.renderLoweringHeader()}</Panel.Heading>
                 {this.renderLoweringTable()}
                 {this.renderPagination()}
               </Panel>

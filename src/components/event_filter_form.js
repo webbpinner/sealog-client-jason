@@ -4,7 +4,7 @@ import { reduxForm, Field, initialize } from 'redux-form';
 import Datetime from 'react-datetime';
 import 'react-datetime/css/react-datetime.css';
 import moment from 'moment';
-import { Alert, Button, Checkbox, Col, FormGroup, FormControl, FormGroupItem, Grid, Panel, Row, Tooltip, OverlayTrigger} from 'react-bootstrap';
+import { Alert, Button, Checkbox, Col, FormGroup, FormControl, FormGroupItem, Panel, Row, Tooltip, OverlayTrigger} from 'react-bootstrap';
 import * as actions from '../actions';
 
 const dateFormat = "YYYY-MM-DD"
@@ -112,63 +112,66 @@ class EventFilterForm extends Component {
     const stopTS = (this.props.lowering.stop_ts)? moment(this.props.lowering.stop_ts): null
 
     return (
-      <Panel bsStyle="default" header={loweringSearchEventFilterFormHeader}>
-        <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
-          <Field
-            name="value"
-            component={this.renderField}
-            type="text"
-            label="Event Value"
-            placeholder="i.e. SAMPLE"
-            disabled={this.props.disabled}
-          />
-          <Field
-            name="author"
-            type="text"
-            component={this.renderField}
-            label="Author"
-            placeholder="i.e. jsmith"
-            disabled={this.props.disabled}
-          />
-          <Field
-            name="startTS"
-            component={this.renderDatePicker}
-            type="text"
-            defaultValue={startTS}
-            label="Start Date/Time (UTC)"
-            disabled={this.props.disabled}
-          />
-          <Field
-            name="stopTS"
-            component={this.renderDatePicker}
-            type="text"
-            defaultValue={stopTS}
-            label="Stop Date/Time (UTC)"
-            disabled={this.props.disabled}
-          />
-          <Field
-            name="freetext"
-            component={this.renderField}
-            type="text"
-            label="Freeform Text"
-            placeholder="i.e. hi mom"
-            disabled={this.props.disabled}
-          />
-          <Field
-            name="datasource"
-            component={this.renderField}
-            type="text"
-            label="Aux Data Source"
-            placeholder="i.e. Framegrabber"
-            disabled={this.props.disabled}
-          />
-          {this.renderAlert()}
-          {this.renderMessage()}
-          <div className="pull-right">
-            <Button bsStyle="default" bsSize="sm" type="button" disabled={submitting || this.props.disabled} onClick={this.clearForm}>Reset</Button>
-            <Button bsStyle="primary" bsSize="sm" type="submit" disabled={submitting || !valid || this.props.disabled}>Update</Button>
-          </div>
-        </form>
+      <Panel>
+        <Panel.Heading>{loweringSearchEventFilterFormHeader}</Panel.Heading>
+        <Panel.Body>
+          <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
+            <Field
+              name="value"
+              component={this.renderField}
+              type="text"
+              label="Event Value"
+              placeholder="i.e. SAMPLE"
+              disabled={this.props.disabled}
+            />
+            <Field
+              name="author"
+              type="text"
+              component={this.renderField}
+              label="Author"
+              placeholder="i.e. jsmith"
+              disabled={this.props.disabled}
+            />
+            <Field
+              name="startTS"
+              component={this.renderDatePicker}
+              type="text"
+              defaultValue={startTS}
+              label="Start Date/Time (UTC)"
+              disabled={this.props.disabled}
+            />
+            <Field
+              name="stopTS"
+              component={this.renderDatePicker}
+              type="text"
+              defaultValue={stopTS}
+              label="Stop Date/Time (UTC)"
+              disabled={this.props.disabled}
+            />
+            <Field
+              name="freetext"
+              component={this.renderField}
+              type="text"
+              label="Freeform Text"
+              placeholder="i.e. hi mom"
+              disabled={this.props.disabled}
+            />
+            <Field
+              name="datasource"
+              component={this.renderField}
+              type="text"
+              label="Aux Data Source"
+              placeholder="i.e. Framegrabber"
+              disabled={this.props.disabled}
+            />
+            {this.renderAlert()}
+            {this.renderMessage()}
+            <div className="pull-right">
+              <Button bsStyle="default" bsSize="sm" type="button" disabled={submitting || this.props.disabled} onClick={this.clearForm}>Reset</Button>
+              <Button bsStyle="primary" bsSize="sm" type="submit" disabled={submitting || !valid || this.props.disabled}>Update</Button>
+            </div>
+          </form>
+        </Panel.Body>
       </Panel>
     )
   }

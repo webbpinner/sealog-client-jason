@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { reduxForm, Field, reset } from 'redux-form';
-import { FormGroup, Grid, Row, Button, Col, Panel, Alert, Table, OverlayTrigger, Tooltip, Pagination } from 'react-bootstrap';
+import { FormGroup, Row, Button, Col, Panel, Alert, Table, OverlayTrigger, Tooltip, Pagination } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { ROOT_PATH } from '../url_config';
 import CreateCruise from './create_cruise';
@@ -88,7 +88,7 @@ class Cruises extends Component {
     // /* Use ReactUploadFile with options */
     // /* Custom your buttons */
     // return (
-    //   <ReactUploadFile options={options} uploadFileButton={<FontAwesome name='upload' fixedWidth/>} />
+    //   <ReactUploadFile options={options} uploadFileButton={<FontAwesomeIcon icon='upload' fixedWidth/>} />
     // );
   }
 
@@ -119,47 +119,38 @@ class Cruises extends Component {
     const showTooltip = (<Tooltip id="deleteTooltip">Allow users to view this cruise.</Tooltip>)
     const hideTooltip = (<Tooltip id="deleteTooltip">Hide this cruise from users.</Tooltip>)
 
-    if(this.props.cruises && this.props.cruises.length > 0){
-
-      return this.props.cruises.map((cruise, index) => {
-        if(index >= (this.state.activePage-1) * maxCruisesPerPage && index < (this.state.activePage * maxCruisesPerPage)) {
-          let deleteLink = (this.props.roles.includes('admin'))? <Link key={`delete_${cruise.id}`} to="#" onClick={ () => this.handleCruiseDelete(cruise.id) }><OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesome name='trash' fixedWidth/></OverlayTrigger></Link>: null
-          let hiddenLink = null;
-          if(this.props.roles.includes('admin') && cruise.cruise_hidden) {
-            hiddenLink = <Link key={`show_${cruise.id}`} to="#" onClick={ () => this.handleCruiseShow(cruise.id) }><OverlayTrigger placement="top" overlay={showTooltip}><FontAwesome name='eye-slash' fixedWidth/></OverlayTrigger></Link>
-          } else if(this.props.roles.includes('admin') && !cruise.cruise_hidden) {
-            hiddenLink = <Link key={`show_${cruise.id}`} to="#" onClick={ () => this.handleCruiseHide(cruise.id) }><OverlayTrigger placement="top" overlay={hideTooltip}><FontAwesome name='eye' fixedWidth/></OverlayTrigger></Link>  
-          }
-
-          return (
-            <tr key={cruise.id}>
-              <td>{cruise.cruise_id}</td>
-              <td>{cruise.cruise_name}</td>
-              <td>{cruise.cruise_pi}</td>
-              <td>
-                <Link key={`edit_${cruise.id}`} to="#" onClick={ () => this.handleCruiseSelect(cruise.id) }><OverlayTrigger placement="top" overlay={editTooltip}><FontAwesome name='pencil' fixedWidth/></OverlayTrigger></Link>
-                {' '}
-                {deleteLink}
-                {' '}
-                {hiddenLink}
-              </td>
-            </tr>
-          );
+    return this.props.cruises.map((cruise, index) => {
+      if(index >= (this.state.activePage-1) * maxCruisesPerPage && index < (this.state.activePage * maxCruisesPerPage)) {
+        let deleteLink = (this.props.roles.includes('admin'))? <Link key={`delete_${cruise.id}`} to="#" onClick={ () => this.handleCruiseDelete(cruise.id) }><OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesomeIcon icon='trash' fixedWidth/></OverlayTrigger></Link>: null
+        let hiddenLink = null;
+        if(this.props.roles.includes('admin') && cruise.cruise_hidden) {
+          hiddenLink = <Link key={`show_${cruise.id}`} to="#" onClick={ () => this.handleCruiseShow(cruise.id) }><OverlayTrigger placement="top" overlay={showTooltip}><FontAwesomeIcon icon='eye-slash' fixedWidth/></OverlayTrigger></Link>
+        } else if(this.props.roles.includes('admin') && !cruise.cruise_hidden) {
+          hiddenLink = <Link key={`show_${cruise.id}`} to="#" onClick={ () => this.handleCruiseHide(cruise.id) }><OverlayTrigger placement="top" overlay={hideTooltip}><FontAwesomeIcon icon='eye' fixedWidth/></OverlayTrigger></Link>  
         }
-      })      
-    }
 
-    return (
-      <tr key="noCruisesFound">
-        <td colSpan="4"> No cruises found!</td>
-      </tr>
-    )
+        return (
+          <tr key={cruise.id}>
+            <td>{cruise.cruise_id}</td>
+            <td>{cruise.cruise_name}</td>
+            <td>{cruise.cruise_pi}</td>
+            <td>
+              <Link key={`edit_${cruise.id}`} to="#" onClick={ () => this.handleCruiseSelect(cruise.id) }><OverlayTrigger placement="top" overlay={editTooltip}><FontAwesomeIcon icon='pencil-alt' fixedWidth/></OverlayTrigger></Link>
+              {' '}
+              {deleteLink}
+              {' '}
+              {hiddenLink}
+            </td>
+          </tr>
+        );
+      }
+    })
   }
 
   renderCruiseTable() {
-    return (
-      <Panel>
-        <Table responsive bordered striped fill>
+    if(this.props.cruises && this.props.cruises.length > 0) {
+      return (
+        <Table responsive bordered striped>
           <thead>
             <tr>
               <th>Cruise ID</th>
@@ -172,8 +163,12 @@ class Cruises extends Component {
             {this.renderCruises()}
           </tbody>
         </Table>
-      </Panel>
-    )
+      )
+    } else {
+      return (
+        <Panel.Body>No Cruises found!</Panel.Body>
+      )
+    }
   }
 
   renderCruiseHeader() {
@@ -183,7 +178,7 @@ class Cruises extends Component {
     // const importTooltip = (<Tooltip id="importTooltip">Import Cruises</Tooltip>)
     const exportTooltip = (<Tooltip id="exportTooltip">Export Cruises</Tooltip>)
 
-    // <Button bsStyle="default" bsSize="xs" type="button" onClick={ this.handleImportCruiseList }><OverlayTrigger placement="top" overlay={importTooltip}><FontAwesome name='upload' fixedWidth/></OverlayTrigger></Button>
+    // <Button bsStyle="default" bsSize="xs" type="button" onClick={ this.handleImportCruiseList }><OverlayTrigger placement="top" overlay={importTooltip}><FontAwesomeIcon icon='upload' fixedWidth/></OverlayTrigger></Button>
 
 
 
@@ -191,29 +186,50 @@ class Cruises extends Component {
       <div>
         { Label }
         <div className="pull-right">
-          <Button bsStyle="default" bsSize="xs" type="button" onClick={ () => this.exportCruisesToJSON() }><OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesome name='download' fixedWidth/></OverlayTrigger></Button>
+          <Button bsStyle="default" bsSize="xs" type="button" onClick={ () => this.exportCruisesToJSON() }><OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesomeIcon icon='download' fixedWidth/></OverlayTrigger></Button>
         </div>
       </div>
     );
   }
 
   renderPagination() {
-    let cruiseCount = this.props.cruises.length
+    if(this.props.cruises && this.props.cruises.length > maxCruisesPerPage) {
 
-    if(cruiseCount > maxCruisesPerPage) {
+      let priceCount = this.props.cruises.length;
+      let last = Math.ceil(priceCount/maxCruisesPerPage);
+      let delta = 2
+      let left = this.state.activePage - delta
+      let right = this.state.activePage + delta + 1
+      let range = []
+      let rangeWithDots = []
+      let l = null
+
+      for (let i = 1; i <= last; i++) {
+        if (i == 1 || i == last || i >= left && i < right) {
+            range.push(i);
+        }
+      }
+
+      for (let i of range) {
+        if (l) {
+          if (i - l === 2) {
+            rangeWithDots.push(<Pagination.Item key={l + 1} active={(this.state.activePage === l+1)} onClick={() => this.setState({activePage: (l + 1)})}>{l + 1}</Pagination.Item>)
+          } else if (i - l !== 1) {
+            rangeWithDots.push(<Pagination.Ellipsis />);
+          }
+        }
+        rangeWithDots.push(<Pagination.Item key={i} active={(this.state.activePage === i)} onClick={() => this.setState({activePage: i})}>{i}</Pagination.Item>);
+        l = i;
+      }
+
       return (
-        <Pagination
-          prev
-          next
-          first
-          last
-          ellipsis
-          boundaryLinks
-          items={ Math.ceil(cruiseCount/maxCruisesPerPage) }
-          maxButtons={5}
-          activePage={this.state.activePage}
-          onSelect={this.handlePageSelect}
-        />
+        <Pagination>
+          <Pagination.First onClick={() => this.setState({activePage: 1})} />
+          <Pagination.Prev onClick={() => { if(this.state.activePage > 1) { this.setState(prevState => ({ activePage: prevState.activePage-1}))}}} />
+          {rangeWithDots}
+          <Pagination.Next onClick={() => { if(this.state.activePage < last) { this.setState(prevState => ({ activePage: prevState.activePage+1}))}}} />
+          <Pagination.Last onClick={() => this.setState({activePage: last})} />
+        </Pagination>
       )
     }
   }
@@ -230,14 +246,15 @@ class Cruises extends Component {
       let cruiseForm = (this.props.cruiseid)? <UpdateCruise /> : <CreateCruise />
 
       return (
-        <Grid fluid>
+        <div>
           <DeleteCruiseModal />
           <ImportCruisesModal  handleExit={this.handleCruiseImportClose} />
           <Row>
             <Col sm={10} md={7} lgOffset= {1} lg={6}>
-              <Panel header={this.renderCruiseHeader()}>
-                {this.renderCruiseTable()}
-                {this.renderPagination()}
+              <Panel>
+                <Panel.Heading>{this.renderCruiseHeader()}</Panel.Heading>
+                  {this.renderCruiseTable()}
+                  {this.renderPagination()}
               </Panel>
               {this.renderAddCruiseButton()}
               {this.renderImportCruisesButton()}
@@ -246,7 +263,7 @@ class Cruises extends Component {
               { cruiseForm }
             </Col>
           </Row>
-        </Grid>
+        </div>
       );
 
     } else {

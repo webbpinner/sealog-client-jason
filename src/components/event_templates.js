@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { reduxForm, Field, reset } from 'redux-form';
@@ -87,27 +87,18 @@ class EventTemplates extends Component {
     const editTooltip = (<Tooltip id="editTooltip">Edit this template.</Tooltip>)
     const deleteTooltip = (<Tooltip id="deleteTooltip">Delete this template.</Tooltip>)
 
-    if(this.props.event_templates && this.props.event_templates.length > 0) {
-
-      return this.props.event_templates.filter(template => template.system_template == false).map((template) => {
-        return (
-          <tr key={template.id}>
-            <td>{template.event_name}</td>
-            <td>{template.event_value}</td>
-            <td>
-              <Link to="#" onClick={ () => this.handleEventTemplateSelect(template.id) }><OverlayTrigger placement="top" overlay={editTooltip}><FontAwesome name='pencil' fixedWidth/></OverlayTrigger></Link>{' '}
-              <Link to="#" onClick={ () => this.handleEventTemplateDelete(template.id) }><OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesome name='trash' fixedWidth/></OverlayTrigger></Link>
-            </td>
-          </tr>
-        );
-      })
-    }
-
-    return (
-      <tr key="noEventTemplatesFound">
-        <td colSpan="3"> No event templates found!</td>
-      </tr>
-    )   
+    return this.props.event_templates.filter(template => template.system_template == false).map((template) => {
+      return (
+        <tr key={template.id}>
+          <td>{template.event_name}</td>
+          <td>{template.event_value}</td>
+          <td>
+            <Link to="#" onClick={ () => this.handleEventTemplateSelect(template.id) }><OverlayTrigger placement="top" overlay={editTooltip}><FontAwesomeIcon icon='pencil-alt' fixedWidth/></OverlayTrigger></Link>{' '}
+            <Link to="#" onClick={ () => this.handleEventTemplateDelete(template.id) }><OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesomeIcon icon='trash' fixedWidth/></OverlayTrigger></Link>
+          </td>
+        </tr>
+      );
+    })
   }
 
   renderSystemEventTemplates() {
@@ -120,8 +111,8 @@ class EventTemplates extends Component {
       let systemTemplates = this.props.event_templates.filter(template => template.system_template == true)
       return systemTemplates.map((template) => {
 
-        let edit_icon = (this.props.roles.includes("admin"))? (<Link to="#" onClick={ () => this.handleEventTemplateSelect(template.id) }><OverlayTrigger placement="top" overlay={editTooltip}><FontAwesome name='pencil' fixedWidth/></OverlayTrigger></Link>): null
-        let delete_icon = (this.props.roles.includes("admin"))? (<Link to="#" onClick={ () => this.handleEventTemplateDelete(template.id) }><OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesome name='trash' fixedWidth/></OverlayTrigger></Link>): null
+        let edit_icon = (this.props.roles.includes("admin"))? (<Link to="#" onClick={ () => this.handleEventTemplateSelect(template.id) }><OverlayTrigger placement="top" overlay={editTooltip}><FontAwesomeIcon icon='pencil-alt' fixedWidth/></OverlayTrigger></Link>): null
+        let delete_icon = (this.props.roles.includes("admin"))? (<Link to="#" onClick={ () => this.handleEventTemplateDelete(template.id) }><OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesomeIcon icon='trash' fixedWidth/></OverlayTrigger></Link>): null
         return (
           <tr key={template.id}>
             <td>{template.event_name}</td>
@@ -143,53 +134,49 @@ class EventTemplates extends Component {
   }
 
   renderEventTemplatesTable() {
-    if(this.props.event_templates.filter(template => template.system_template === false).length > 0){
+    if(this.props.event_templates && this.props.event_templates.filter(template => template.system_template === false).length > 0){
       return (
-        <Panel>
-          <Table responsive bordered striped fill>
-            <thead>
-              <tr>
-                <th>Button Name</th>
-                <th>Event Value</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {this.renderEventTemplates()}
-            </tbody>
-          </Table>
-        </Panel>
+        <Table responsive bordered striped>
+          <thead>
+            <tr>
+              <th>Button Name</th>
+              <th>Event Value</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {this.renderEventTemplates()}
+          </tbody>
+        </Table>
       )
     } else {
       return (
-        <Panel>
+        <Panel.Body>
           No Event Templates found!
-        </Panel>
+        </Panel.Body>
       )
     }
   }
 
   renderSystemEventTemplatesTable() {
-    if(this.props.event_templates.filter(template => template.system_template === true).length > 0){
+    if(this.props.event_templates && this.props.event_templates.filter(template => template.system_template === true).length > 0){
       return (
-        <Panel>
-          <Table responsive bordered striped fill>
-            <thead>
-              <tr>
-                <th>Button Name</th>
-                <th>Event Value</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {this.renderSystemEventTemplates()}
-            </tbody>
-          </Table>
-        </Panel>
+        <Table responsive bordered striped>
+          <thead>
+            <tr>
+              <th>Button Name</th>
+              <th>Event Value</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {this.renderSystemEventTemplates()}
+          </tbody>
+        </Table>
       )
     } else {
       return (
-        <div>No System Event Templates found!</div>
+        <Panel.Body>No System Event Templates found!</Panel.Body>
       )
     }
   }
@@ -208,8 +195,8 @@ class EventTemplates extends Component {
       <div>
         { Label }
         <div className="pull-right">
-          <OverlayTrigger placement="top" overlay={deleteAllNonSystemTooltip}><Button bsStyle="default" bsSize="xs" type="button" onClick={ () => this.handleNonSystemEventTemplatesWipe() } disabled={disableBtn}><FontAwesome name='trash' fixedWidth/></Button></OverlayTrigger>
-          <OverlayTrigger placement="top" overlay={exportTooltip}><Button bsStyle="default" bsSize="xs" type="button" onClick={ () => this.exportTemplatesToJSON() } disabled={disableBtn}><FontAwesome name='download' fixedWidth/></Button></OverlayTrigger>
+          <OverlayTrigger placement="top" overlay={deleteAllNonSystemTooltip}><Button bsStyle="default" bsSize="xs" type="button" onClick={ () => this.handleNonSystemEventTemplatesWipe() } disabled={disableBtn}><FontAwesomeIcon icon='trash' fixedWidth/></Button></OverlayTrigger>
+          <OverlayTrigger placement="top" overlay={exportTooltip}><Button bsStyle="default" bsSize="xs" type="button" onClick={ () => this.exportTemplatesToJSON() } disabled={disableBtn}><FontAwesomeIcon icon='download' fixedWidth/></Button></OverlayTrigger>
         </div>
       </div>
     );
@@ -219,11 +206,9 @@ class EventTemplates extends Component {
 
     const Label = "System Templates (Added/Edited by Admins only)"
 
-    // const importTooltip = (<Tooltip id="importTooltip">Import Event Templates</Tooltip>)
-    const exportTooltip = (<Tooltip id="exportTooltip">Export Event Templates</Tooltip>)
+    const exportTooltip = (<Tooltip id="exportTooltip">Export System Event Templates</Tooltip>)
 
-    // <Button bsStyle="default" bsSize="xs" type="button" onClick={ this.handleImportEventTemplateList }><OverlayTrigger placement="top" overlay={importTooltip}><FontAwesome name='upload' fixedWidth/></OverlayTrigger></Button>
-    let export_icon = (this.props.roles.includes("admin"))? (<Button bsStyle="default" bsSize="xs" type="button" onClick={ () => this.exportSystemTemplatesToJSON() }><OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesome name='download' fixedWidth/></OverlayTrigger></Button>) : null
+    let export_icon = (this.props.roles.includes("admin"))? (<OverlayTrigger placement="top" overlay={exportTooltip}><Button bsStyle="default" bsSize="xs" type="button" onClick={ () => this.exportSystemTemplatesToJSON() }><FontAwesomeIcon icon='download' fixedWidth/></Button></OverlayTrigger>) : null
 
     return (
       <div>
@@ -253,10 +238,12 @@ class EventTemplates extends Component {
           <ImportEventTemplatesModal handleExit={this.handleEventTemplateImportClose} />
           <Row>
             <Col sm={8} md={6} lgOffset= {1} lg={5}>
-              <Panel header={this.renderSystemEventTemplatesHeader()}>
+              <Panel>
+               <Panel.Heading>{this.renderSystemEventTemplatesHeader()}</Panel.Heading>
                 {this.renderSystemEventTemplatesTable()}
               </Panel>
-              <Panel header={this.renderEventTemplatesHeader()}>
+              <Panel>
+                <Panel.Heading>{this.renderEventTemplatesHeader()}</Panel.Heading>
                 {this.renderEventTemplatesTable()}
               </Panel>
               {this.renderAddEventTemplateButton()}

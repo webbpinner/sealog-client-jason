@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Link } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import Cookies from 'universal-cookie';
-import { Button, Grid, Row, Col, Panel, Accordion, ListGroup, DropdownButton, ButtonToolbar, ButtonGroup, MenuItem, ListGroupItem, Pagination, Tooltip, OverlayTrigger, Well } from 'react-bootstrap';
+import { Button, Row, Col, Panel, ListGroup, ListGroupItem, ButtonToolbar, DropdownButton, Pagination, MenuItem, Tooltip, OverlayTrigger, Well } from 'react-bootstrap';
 import axios from 'axios';
 import EventFilterForm from './event_filter_form';
 import EventCommentModal from './event_comment_modal';
@@ -17,6 +17,8 @@ let fileDownload = require('js-file-download');
 
 const dateFormat = "YYYYMMDD"
 const timeFormat = "HHmm"
+
+const maxEventsPerPage = 15
 
 class LoweringSearch extends Component {
 
@@ -224,7 +226,7 @@ class LoweringSearch extends Component {
         { Label }
         <ButtonToolbar className="pull-right" >
           {ASNAPToggle}
-          <DropdownButton disabled={this.props.event.fetching} bsSize="xs" key={1} title={<OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesome name='download' fixedWidth/></OverlayTrigger>} id="export-dropdown" pullRight>
+          <DropdownButton disabled={this.props.event.fetching} bsSize="xs" key={1} title={<OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesomeIcon icon='download' fixedWidth/></OverlayTrigger>} id="export-dropdown" pullRight>
             <MenuItem key="toJSONHeader" eventKey={1.1} header>JSON format</MenuItem>
             <MenuItem key="toJSONAll" eventKey={1.2} onClick={ () => this.exportEventsWithAuxDataToJSON()}>Events w/aux data</MenuItem>
             <MenuItem key="toJSONEvents" eventKey={1.3} onClick={ () => this.exportEventsToJSON()}>Events Only</MenuItem>
@@ -243,10 +245,11 @@ class LoweringSearch extends Component {
 
     if(this.props.event.fetching) {
       return (
-        <Panel header={ this.renderEventListHeader() }>
-          <ListGroup fill>
-            <ListGroupItem>Loading...</ListGroupItem>
-          </ListGroup>
+        <Panel>
+        <Panel.Heading>{ this.renderEventListHeader() }</Panel.Heading>
+        <ListGroup>
+          <ListGroupItem>Loading...</ListGroupItem>
+        </ListGroup>
         </Panel>
       )
     } else if(this.props.event && this.props.event.events.length > 0) {
@@ -255,10 +258,9 @@ class LoweringSearch extends Component {
 
       if(eventList.length == 0){
         return (
-          <Panel header={ this.renderEventListHeader() }>
-            <ListGroup fill>
-              <ListGroupItem>No events found!</ListGroupItem>
-            </ListGroup>
+          <Panel>
+            <Panel.Heading>{ this.renderEventListHeader() }</Panel.Heading>
+            <Panel.Body>No events found!</Panel.Body>
           </Panel>
         )
       }
@@ -266,41 +268,43 @@ class LoweringSearch extends Component {
       // console.log(this.props.event.selected_event)
 
       return (          
-        <Panel header={ this.renderEventListHeader() }>
-          <ListGroup fill>
-            {
-              eventList.map((event, index) => {
-                if(index >= (this.state.activePage-1) * 15 && index < (this.state.activePage * 15)) {
-                  let eventOptionsArray = [];
-                  event.event_options.map((option) => {
-                    if (option.event_option_name != 'event_comment') {
-                      eventOptionsArray.push(option.event_option_name.replace(/\s+/g, "_") + ": \"" + option.event_option_value + "\"");
-                    }
-                  })
-                  
-                  if (event.event_free_text) {
-                    eventOptionsArray.push("text: \"" + event.event_free_text + "\"")
-                  } 
+        <Panel>
+        <Panel.Heading>{ this.renderEventListHeader() }</Panel.Heading>
+        <ListGroup>
+          {
+            eventList.map((event, index) => {
+              if(index >= (this.state.activePage-1) * maxEventsPerPage && index < (this.state.activePage * maxEventsPerPage)) {
+                let eventOptionsArray = [];
+                event.event_options.map((option) => {
+                  if (option.event_option_name != 'event_comment') {
+                    eventOptionsArray.push(option.event_option_name.replace(/\s+/g, "_") + ": \"" + option.event_option_value + "\"");
+                  }
+                })
+                
+                if (event.event_free_text) {
+                  eventOptionsArray.push("text: \"" + event.event_free_text + "\"")
+                } 
 
-                  let eventOptions = (eventOptionsArray.length > 0)? '--> ' + eventOptionsArray.join(', '): ''
-                  let commentTooltip = (<Tooltip id={`commentTooltip_${event.id}`}>Edit/View Comment</Tooltip>)
-                  let eventDetailsTooltip = (<Tooltip id={`commentTooltip_${event.id}`}>View Event Details</Tooltip>)
-                  let active = (this.props.event.selected_event.id == event.id)? true : false
-                  // onClick={() => this.handleEventClick(event.id)} active={active}
-                  
-                  return (
-                    <ListGroupItem key={event.id} active={active} ><span onClick={() => this.handleEventShowDetails(event.id)}>{`${event.ts} <${event.event_author}>: ${event.event_value} ${eventOptions}`}</span><span className="pull-right" onClick={() => this.handleEventComment(event.id)}><OverlayTrigger placement="top" overlay={commentTooltip}><FontAwesome name='comment' fixedWidth/></OverlayTrigger></span></ListGroupItem>
-                  )
-                }
-              })
-            }
-          </ListGroup>
+                let eventOptions = (eventOptionsArray.length > 0)? '--> ' + eventOptionsArray.join(', '): ''
+                let commentTooltip = (<Tooltip id={`commentTooltip_${event.id}`}>Edit/View Comment</Tooltip>)
+                let eventDetailsTooltip = (<Tooltip id={`commentTooltip_${event.id}`}>View Event Details</Tooltip>)
+                let active = (this.props.event.selected_event.id == event.id)? true : false
+                // onClick={() => this.handleEventClick(event.id)} active={active}
+                
+                return (
+                  <ListGroupItem key={event.id} active={active} ><span onClick={() => this.handleEventShowDetails(event.id)}>{`${event.ts} <${event.event_author}>: ${event.event_value} ${eventOptions}`}</span><span className="pull-right" onClick={() => this.handleEventComment(event.id)}><OverlayTrigger placement="top" overlay={commentTooltip}><FontAwesomeIcon icon='comment' fixedWidth/></OverlayTrigger></span></ListGroupItem>
+                )
+              }
+            })
+          }
+        </ListGroup>
         </Panel>
       );
     } else {
       return (
-        <Panel header={ this.renderEventListHeader() }>
-          <ListGroup fill>
+        <Panel>
+        <Panel.Heading>{ this.renderEventListHeader() }</Panel.Heading>
+          <ListGroup>
             <ListGroupItem>No events found!</ListGroupItem>
           </ListGroup>
         </Panel>
@@ -308,23 +312,44 @@ class LoweringSearch extends Component {
     }
   }
 
-  renderPagination() {
-    if(!this.props.event.fetching && this.props.event.events.length > 0) {
+    renderPagination() {
 
+    if(!this.props.event.fetching && this.props.event.events.length > 0) {
       let eventCount = this.props.event.events.length
+      let last = Math.ceil(eventCount/maxEventsPerPage);
+      let delta = 2
+      let left = this.state.activePage - delta
+      let right = this.state.activePage + delta + 1
+      let range = []
+      let rangeWithDots = []
+      let l = null
+
+      for (let i = 1; i <= last; i++) {
+        if (i == 1 || i == last || i >= left && i < right) {
+            range.push(i);
+        }
+      }
+
+      for (let i of range) {
+        if (l) {
+          if (i - l === 2) {
+            rangeWithDots.push(<Pagination.Item key={l + 1} active={(this.state.activePage === l+1)} onClick={() => this.setState({activePage: (l + 1)})}>{l + 1}</Pagination.Item>)
+          } else if (i - l !== 1) {
+            rangeWithDots.push(<Pagination.Ellipsis key={`ellipsis_${i}`} />);
+          }
+        }
+        rangeWithDots.push(<Pagination.Item key={i} active={(this.state.activePage === i)} onClick={() => this.setState({activePage: i})}>{i}</Pagination.Item>);
+        l = i;
+      }
+
       return (
-        <Pagination
-          prev
-          next
-          first
-          last
-          ellipsis
-          boundaryLinks
-          items={ Math.ceil(eventCount/15) }
-          maxButtons={5}
-          activePage={this.state.activePage}
-          onSelect={this.handlePageSelect}
-        />
+        <Pagination>
+          <Pagination.First onClick={() => this.setState({activePage: 1})} />
+          <Pagination.Prev onClick={() => { if(this.state.activePage > 1) { this.setState(prevState => ({ activePage: prevState.activePage-1}))}}} />
+          {rangeWithDots}
+          <Pagination.Next onClick={() => { if(this.state.activePage < last) { this.setState(prevState => ({ activePage: prevState.activePage+1}))}}} />
+          <Pagination.Last onClick={() => this.setState({activePage: last})} />
+        </Pagination>
       )
     }
   }
@@ -333,7 +358,7 @@ class LoweringSearch extends Component {
 
     let lowering_id = (this.props.lowering.lowering_id)? this.props.lowering.lowering_id : "loading..."
     return (
-      <Grid fluid>
+      <div>
         <EventCommentModal />
         <EventShowDetailsModal />
         <Row>
@@ -349,15 +374,15 @@ class LoweringSearch extends Component {
           </Col>
         </Row>
         <Row>
-          <Col sm={6} md={8} lg={9}>
+          <Col sm={7} md={8} lg={9}>
             {this.renderEventPanel()}
             {this.renderPagination()}
           </Col>
-          <Col sm={6} md={4} lg={3}>
+          <Col sm={5} md={4} lg={3}>
             <EventFilterForm disabled={this.props.event.fetching} hideASNAP={this.state.hideASNAP} handlePostSubmit={ () => { this.setState({ activePage: 1}) } } lowering_id={this.props.lowering.id}/>
           </Col>
         </Row>
-      </Grid>
+      </div>
     )
   }
 }

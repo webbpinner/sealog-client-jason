@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
-import { Button, Modal, Grid, Row, Col } from 'react-bootstrap';
+import { Button, Modal, Row, Col } from 'react-bootstrap';
 import { connectModal } from 'redux-modal';
-import FontAwesome from 'react-fontawesome';
 import ReactFileReader from 'react-file-reader';
 import Cookies from 'universal-cookie';
 import { API_ROOT_URL } from '../url_config';
@@ -32,69 +31,42 @@ class ImportEventsModal extends Component {
     this.props.handleHide()
   }
 
+  // importEventsFromFile = async (e) => {
+  // async insertEvent({id, ts, event_author, event_value, event_free_text = '', event_options = []}) {
+
   async insertEvent({id, ts, event_author, event_value, event_free_text = '', event_options = []}) {
 
-    await axios.get(`${API_ROOT_URL}/api/v1/events/${id}`,
-    {
-      headers: {
-        authorization: cookies.get('token'),
-        'content-type': 'application/json'
+    try {
+      const result = await axios.post(`${API_ROOT_URL}/api/v1/events`,
+      {id, ts, event_author, event_value, event_free_text, event_options},
+      {
+        headers: {
+          authorization: cookies.get('token'),
+          'content-type': 'application/json'
+        }
+      })
+
+      if(result){
+        this.setState( prevState => (
+          {
+            imported: prevState.imported + 1,
+            pending: prevState.pending - 1
+          }
+        ))
       }
-    })
-    .then((response) => {
 
-      console.log("Event", id, "Already Exists");
-      this.setState( prevState => (
-        {
-          skipped: prevState.skipped + 1,
-          pending: prevState.pending - 1
-        }
-      ))
-    })
-    .catch((error) => {
-
-      if(error.response.data.statusCode == 404) {
-        // console.log("Attempting to add event")
-
-        return axios.post(`${API_ROOT_URL}/api/v1/events`,
-        {id, ts, event_author, event_value, event_free_text, event_options},
-        {
-          headers: {
-            authorization: cookies.get('token'),
-            'content-type': 'application/json'
+    } catch(error) {
+      if(error.response.data.statusCode == 400) {
+        console.log("Duplicate ID, skipping");
+        this.setState( prevState => (
+          {
+            skipped: prevState.skipped + 1,
+            pending: prevState.pending - 1
           }
-        })
-        .then((response) => {
-          // console.log("Event Imported");
-          this.setState( prevState => (
-            {
-              imported: prevState.imported + 1,
-              pending: prevState.pending - 1
-            }
-          ))
-          return true
-        })
-        .catch((error) => {
-          
-          if(error.response.data.statusCode == 400) {
-            // console.log("Event Data malformed or incomplete");
-          } else {
-            console.log(error);  
-          }
-          
-          this.setState( prevState => (
-            {
-              errors: prevState.errors + 1,
-              pending: prevState.pending - 1
-            }
-          ))
-          return false
-        });
+        ))
+
       } else {
-
-        if(error.response.data.statusCode != 400) {
-          console.log(error.response);
-        }
+        console.log(error.response.data.message);
         this.setState( prevState => (
           {
             errors: prevState.errors + 1,
@@ -102,7 +74,7 @@ class ImportEventsModal extends Component {
           }
         ))
       }
-    });
+    }
   }
 
   importEventsFromFile = async (e) => {
@@ -128,13 +100,19 @@ class ImportEventsModal extends Component {
           break;
         }
         currentEvent = json[i];
-        // console.log("adding event")
-        await this.insertEvent(currentEvent);
+
+        try{
+          // console.log("adding event")
+          const results = await this.insertEvent(currentEvent);
+        } catch(error) {
+          throw(error)
+        }
       }
 
     } catch (err) {
       console.log('error when trying to parse json = ' + err);
     }
+    this.setState({pending: (this.state.quit)?"Quit Early!":"Complete!"})
   }
 
   handleEventRecordImport = files => {
@@ -146,41 +124,33 @@ class ImportEventsModal extends Component {
 
   render() {
 
-    const { show, handleHide } = this.props
-    const options = {
-      baseUrl: API_ROOT_URL,
-      query: {
-        warrior: 'fight'
-      }
-    }
+    const { show } = this.props
 
     return (
-      <Modal show={show} onHide={handleHide}>
+      <Modal show={show} onHide={this.handleHideCustom}>
         <Modal.Header closeButton>
           <Modal.Title>Import Events</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
-          <Grid fluid>
-            <Row>
-              <Col xs={6}>
-                <ReactFileReader fileTypes={[".json"]} handleFiles={this.handleEventRecordImport}>
-                    <Button>Select File</Button>
-                </ReactFileReader>
-              </Col>
-              <Col xs={3}>
-                Pending: {this.state.pending}
-                <hr/>
-                Imported: {this.state.imported}<br/>
-                Skipped: {this.state.skipped}<br/>
-                Errors: {this.state.errors}<br/>
-              </Col>
-            </Row>
-          </Grid>
+          <Row>
+            <Col xs={6}>
+              <ReactFileReader fileTypes={[".json"]} handleFiles={this.handleEventRecordImport}>
+                <Button>Select File</Button>
+              </ReactFileReader>
+            </Col>
+            <Col xs={3}>
+              Pending: {this.state.pending}
+              <hr/>
+              Imported: {this.state.imported}<br/>
+              Skipped: {this.state.skipped}<br/>
+              Errors: {this.state.errors}<br/>
+            </Col>
+          </Row>
         </Modal.Body>
 
         <Modal.Footer>
-          <Button onClick={handleHide}>Close</Button>
+          <Button onClick={this.handleHideCustom}>Close</Button>
         </Modal.Footer>
       </Modal>
     );

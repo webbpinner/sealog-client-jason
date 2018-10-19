@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Modal, Label, Thumbnail } from 'react-bootstrap';
 import { connectModal } from 'redux-modal';
-import FontAwesome from 'react-fontawesome';
 import { ROOT_PATH, } from '../url_config';
 
 class ImagePreviewModal extends Component {
@@ -14,7 +13,7 @@ class ImagePreviewModal extends Component {
   }
 
   handleMissingImage(ev) {
-    ev.target.src = `${ROOT_PATH}/images/noimage.jpeg`
+    ev.target.src = `/images/noimage.jpeg`
   }
 
   static propTypes = {

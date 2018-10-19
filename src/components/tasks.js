@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import FontAwesome from 'react-fontawesome';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Grid, Row, Button, Col, Panel, ListGroup, ListGroupItem } from 'react-bootstrap';
@@ -29,21 +28,21 @@ class Tasks extends Component {
   }
 
   handleEventImport() {
-    var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
-    if (is_chrome == true) {
-      alert("Chrome can not be used when importing event data, sorry.")
-    } else {
-      this.props.showModal('importEvents');
-    }
+    // var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
+    // if (is_chrome == true) {
+    //   alert("Chrome can not be used when importing event data, sorry.")
+    // } else {
+    this.props.showModal('importEvents');
+    // }
   }
 
   handleAuxDataImport() {
-    var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
-    if (is_chrome == true) {
-      alert("Chrome can not be used when importing event auxiliary data, sorry.")
-    } else {
-      this.props.showModal('importAuxData');
-    }
+    // var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
+    // if (is_chrome == true) {
+    //   alert("Chrome can not be used when importing event auxiliary data, sorry.")
+    // } else {
+    this.props.showModal('importAuxData');
+    // }
   }
 
   handleCruiseImport() {
@@ -92,6 +91,8 @@ class Tasks extends Component {
             // <Col sm={6} md={5} lg={4}>
               // { taskForm }
             // </Col>
+          // <ImportEventsModal />
+          // <ImportAuxDataModal />
 
       return (
         <Grid fluid>

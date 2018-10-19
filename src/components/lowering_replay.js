@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import moment from 'moment';
+import momentDurationFormatSetup from 'moment-duration-format';
 import axios from 'axios';
 import Cookies from 'universal-cookie';
-import momentDurationFormatSetup from 'moment-duration-format';
 import { Link } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
 import { connect } from 'react-redux';
@@ -268,7 +268,8 @@ class LoweringReplay extends Component {
 
   handleMissingImage(ev) {
     // console.log(ROOT_PATH)
-    ev.target.src = `${ROOT_PATH}/images/noimage.jpeg`
+    // ev.target.src = `${ROOT_PATH}/images/noimage.jpeg`
+    ev.target.src = `/images/noimage.jpeg`
   }
 
   handleLoweringReplayStart() {
@@ -416,18 +417,18 @@ class LoweringReplay extends Component {
     let altitude = 'n/a'
 
     if(this.props.event && this.props.event.selected_event.aux_data) {
-      let alvinRealtimeNavData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == "alvinRealtimeNavData")
-      if(alvinRealtimeNavData.length > 0) {
-        let latObj = alvinRealtimeNavData[0].data_array.filter(data => data.data_name == "latitude")
+      let vehicleRealtimeNavData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == "vehicleRealtimeNavData")
+      if(vehicleRealtimeNavData.length > 0) {
+        let latObj = vehicleRealtimeNavData[0].data_array.filter(data => data.data_name == "latitude")
         latitude = (latObj.length > 0)? `${latObj[0].data_value} ${latObj[0].data_uom}` : 'n/a'
 
-        let lonObj = alvinRealtimeNavData[0].data_array.filter(data => data.data_name == "longitude")
+        let lonObj = vehicleRealtimeNavData[0].data_array.filter(data => data.data_name == "longitude")
         longitude = (lonObj.length > 0)? `${lonObj[0].data_value} ${lonObj[0].data_uom}` : 'n/a'
 
-        let depthObj = alvinRealtimeNavData[0].data_array.filter(data => data.data_name == "depth")
+        let depthObj = vehicleRealtimeNavData[0].data_array.filter(data => data.data_name == "depth")
         depth = (depthObj.length > 0)? `${depthObj[0].data_value} ${depthObj[0].data_uom}` : 'n/a'
 
-        let altObj = alvinRealtimeNavData[0].data_array.filter(data => data.data_name == "altitude")
+        let altObj = vehicleRealtimeNavData[0].data_array.filter(data => data.data_name == "altitude")
         altitude = (altObj.length > 0)? `${altObj[0].data_value} ${altObj[0].data_uom}` : 'n/a'
 
       }
@@ -450,7 +451,7 @@ class LoweringReplay extends Component {
     let alvin_z = 'n/a'
 
     if(this.props.event && this.props.event.selected_event.aux_data) {
-      let alvinRealtimeAlvinCoordData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == "alvinRealtimeNavData")
+      let alvinRealtimeAlvinCoordData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == "vehicleRealtimeNavData")
       if(alvinRealtimeAlvinCoordData.length > 0) {
         let xObj = alvinRealtimeAlvinCoordData[0].data_array.filter(data => data.data_name == "alvin_x")
         alvin_x = (xObj.length > 0)? `${xObj[0].data_value} ${xObj[0].data_uom}` : 'n/a'
@@ -479,15 +480,15 @@ class LoweringReplay extends Component {
     let roll = 'n/a'
 
     if(this.props.event && this.props.event.selected_event.aux_data) {
-      let alvinRealtimeNavData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == "alvinRealtimeNavData")
-      if(alvinRealtimeNavData.length > 0) {
-        let hdgObj = alvinRealtimeNavData[0].data_array.filter(data => data.data_name == "heading")
+      let vehicleRealtimeNavData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == "vehicleRealtimeNavData")
+      if(vehicleRealtimeNavData.length > 0) {
+        let hdgObj = vehicleRealtimeNavData[0].data_array.filter(data => data.data_name == "heading")
         hdg = (hdgObj.length > 0)? `${hdgObj[0].data_value} ${hdgObj[0].data_uom}` : 'n/a'
 
-        let pitchObj = alvinRealtimeNavData[0].data_array.filter(data => data.data_name == "pitch")
+        let pitchObj = vehicleRealtimeNavData[0].data_array.filter(data => data.data_name == "pitch")
         pitch = (pitchObj.length > 0)? `${pitchObj[0].data_value} ${pitchObj[0].data_uom}` : 'n/a'
 
-        let rollObj = alvinRealtimeNavData[0].data_array.filter(data => data.data_name == "roll")
+        let rollObj = vehicleRealtimeNavData[0].data_array.filter(data => data.data_name == "roll")
         roll = (rollObj.length > 0)? `${rollObj[0].data_value} ${rollObj[0].data_uom}` : 'n/a'
 
       }
@@ -509,22 +510,22 @@ class LoweringReplay extends Component {
     let temp_probe = 'n/a'
 
     if(this.props.event && this.props.event.selected_event.aux_data) {
-      let alvinCTDData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == "alvinCTDData")
-      if(alvinCTDData.length > 0) {
-        let ctd_cObj = alvinCTDData[0].data_array.filter(data => data.data_name == "ctd_c")
+      let vehicleCTDData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == "vehicleCTDData")
+      if(vehicleCTDData.length > 0) {
+        let ctd_cObj = vehicleCTDData[0].data_array.filter(data => data.data_name == "ctd_c")
         ctd_c = (ctd_cObj.length > 0)? `${ctd_cObj[0].data_value} ${ctd_cObj[0].data_uom}` : 'n/a'
 
-        let ctd_tObj = alvinCTDData[0].data_array.filter(data => data.data_name == "ctd_t")
+        let ctd_tObj = vehicleCTDData[0].data_array.filter(data => data.data_name == "ctd_t")
         ctd_t = (ctd_tObj.length > 0)? `${ctd_tObj[0].data_value} ${ctd_tObj[0].data_uom}` : 'n/a'
 
-        let ctd_dObj = alvinCTDData[0].data_array.filter(data => data.data_name == "ctd_d")
+        let ctd_dObj = vehicleCTDData[0].data_array.filter(data => data.data_name == "ctd_d")
         ctd_d = (ctd_dObj.length > 0)? `${ctd_dObj[0].data_value} ${ctd_dObj[0].data_uom}` : 'n/a'
 
       }
 
-      let alvinTempProbeData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == "alvinTempProbeData")
-      if(alvinTempProbeData.length > 0) {
-        let temp_probeObj = alvinTempProbeData[0].data_array.filter(data => data.data_name == "ctd_c")
+      let vehicleTempProbeData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == "vehicleTempProbeData")
+      if(vehicleTempProbeData.length > 0) {
+        let temp_probeObj = vehicleTempProbeData[0].data_array.filter(data => data.data_name == "ctd_c")
         temp_probe = (temp_probeObj.length > 0)? `${temp_probeObj[0].data_value} ${temp_probeObj[0].data_uom}` : 'n/a'
       }
     }  
@@ -548,23 +549,23 @@ class LoweringReplay extends Component {
       let replayOffset = (this.props.event.selected_event.ts)? moment(this.props.event.selected_event.ts).diff(loweringStartTime) : 0
       let loweringDuration = loweringEndTime.diff(loweringStartTime)
       
-      let playPause = (this.state.replayState != 1)? <Link key={`pause_${this.props.lowering.id}`} to="#" onClick={ () => this.handleLoweringReplayPause() }><FontAwesome name="pause"/>{' '}</Link> : <Link key={`play_${this.props.lowering.id}`} to="#" onClick={ () => this.handleLoweringReplayPlay() }><FontAwesome name="play"/>{' '}</Link>;
+      let playPause = (this.state.replayState != 1)? <Link key={`pause_${this.props.lowering.id}`} to="#" onClick={ () => this.handleLoweringReplayPause() }><FontAwesomeIcon icon="pause"/>{' '}</Link> : <Link key={`play_${this.props.lowering.id}`} to="#" onClick={ () => this.handleLoweringReplayPlay() }><FontAwesomeIcon icon="play"/>{' '}</Link>;
 
       let buttons = (this.props.event.selected_event.ts && !this.props.event.fetching)? (
         <div className="text-center">
-          <Link key={`start_${this.props.lowering.id}`} to="#" onClick={ () => this.handleLoweringReplayStart() }><FontAwesome name="step-backward"/>{' '}</Link>
-          <Link key={`frev_${this.props.lowering.id}`} to="#" onClick={ () => this.handleLoweringReplayFRev() }><FontAwesome name="backward"/>{' '}</Link>
+          <Link key={`start_${this.props.lowering.id}`} to="#" onClick={ () => this.handleLoweringReplayStart() }><FontAwesomeIcon icon="step-backward"/>{' '}</Link>
+          <Link key={`frev_${this.props.lowering.id}`} to="#" onClick={ () => this.handleLoweringReplayFRev() }><FontAwesomeIcon icon="backward"/>{' '}</Link>
           {playPause}
-          <Link key={`ffwd_${this.props.lowering.id}`} to="#" onClick={ () => this.handleLoweringReplayFFwd() }><FontAwesome name="forward"/>{' '}</Link>
-          <Link key={`end_${this.props.lowering.id}`} to="#" onClick={ () => this.handleLoweringReplayEnd() }><FontAwesome name="step-forward"/>{' '}</Link>
+          <Link key={`ffwd_${this.props.lowering.id}`} to="#" onClick={ () => this.handleLoweringReplayFFwd() }><FontAwesomeIcon icon="forward"/>{' '}</Link>
+          <Link key={`end_${this.props.lowering.id}`} to="#" onClick={ () => this.handleLoweringReplayEnd() }><FontAwesomeIcon icon="step-forward"/>{' '}</Link>
         </div>
       ):(
         <div className="text-center">
-          <FontAwesome name="step-backward"/>{' '}
-          <FontAwesome name="backward"/>{' '}
-          <FontAwesome name="play"/>{' '}
-          <FontAwesome name="forward"/>{' '}
-          <FontAwesome name="step-forward"/>
+          <FontAwesomeIcon icon="step-backward"/>{' '}
+          <FontAwesomeIcon icon="backward"/>{' '}
+          <FontAwesomeIcon icon="play"/>{' '}
+          <FontAwesomeIcon icon="forward"/>{' '}
+          <FontAwesomeIcon icon="step-forward"/>
         </div>
       )
 
@@ -572,27 +573,29 @@ class LoweringReplay extends Component {
 //            tipFormatter={this.sliderTooltipFormatter}
       return (
         <Panel>
-          <Slider
-            tipProps={{ overlayClassName: 'foo' }}
-            trackStyle={{ opacity: 0.5 }}
-            railStyle={{ opacity: 0.5 }}
-            onAfterChange={this.handleSliderChange}
-            max={this.props.event.events.length-1}
-          />
-          <Row>
-            <Col xs={4}>
-                00:00:00
-            </Col>
-            <Col xs={4}>
-                {buttons}
-            </Col>
-            <Col xs={4}>
-              <div className="pull-right">
-                {moment.duration(loweringDuration).format("d [days] hh:mm:ss")}
-              </div>
-            </Col>
-          </Row>
-          <Line percent={(this.props.event.fetching)? 0 : 100 * replayOffset / loweringDuration} strokeWidth={"1"} />
+          <Panel.Body>
+            <Slider
+              tipProps={{ overlayClassName: 'foo' }}
+              trackStyle={{ opacity: 0.5 }}
+              railStyle={{ opacity: 0.5 }}
+              onAfterChange={this.handleSliderChange}
+              max={this.props.event.events.length-1}
+            />
+            <Row>
+              <Col xs={4}>
+                  00:00:00
+              </Col>
+              <Col xs={4}>
+                  {buttons}
+              </Col>
+              <Col xs={4}>
+                <div className="pull-right">
+                  {moment.duration(loweringDuration).format("d [days] hh:mm:ss")}
+                </div>
+              </Col>
+            </Row>
+            <Line percent={(this.props.event.fetching)? 0 : 100 * replayOffset / loweringDuration} strokeWidth={"1"} />
+          </Panel.Body>
         </Panel>
       );
     }
@@ -612,7 +615,7 @@ class LoweringReplay extends Component {
         { Label }
         <ButtonToolbar className="pull-right" >
           {ASNAPToggle}
-          <DropdownButton disabled={this.props.event.fetching} bsSize="xs" key={1} title={<OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesome name='download' fixedWidth/></OverlayTrigger>} id="export-dropdown" pullRight>
+          <DropdownButton disabled={this.props.event.fetching} bsSize="xs" key={1} title={<OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesomeIcon icon='download' fixedWidth/></OverlayTrigger>} id="export-dropdown" pullRight>
             <MenuItem key="toJSONHeader" eventKey={1.1} header>JSON format</MenuItem>
             <MenuItem key="toJSONAll" eventKey={1.2} onClick={ () => this.exportEventsWithAuxDataToJSON()}>Events w/aux data</MenuItem>
             <MenuItem key="toJSONEvents" eventKey={1.3} onClick={ () => this.exportEventsToJSON()}>Events Only</MenuItem>
@@ -631,8 +634,9 @@ class LoweringReplay extends Component {
 
     if(this.props.event.fetching) {
       return (
-        <Panel header={ this.renderEventListHeader() }>
-          <ListGroup fill>
+        <Panel>
+          <Panel.Heading>{ this.renderEventListHeader() }</Panel.Heading>
+          <ListGroup>
             <ListGroupItem>Loading...</ListGroupItem>
           </ListGroup>
         </Panel>
@@ -643,8 +647,9 @@ class LoweringReplay extends Component {
 
       if(eventList.length == 0){
         return (
-          <Panel header={ this.renderEventListHeader() }>
-            <ListGroup fill>
+          <Panel>
+            <Panel.Heading>{ this.renderEventListHeader() }</Panel.Heading>
+            <ListGroup>
               <ListGroupItem>No events found!</ListGroupItem>
             </ListGroup>
           </Panel>
@@ -654,8 +659,9 @@ class LoweringReplay extends Component {
       // console.log(this.props.event.selected_event)
 
       return (          
-        <Panel header={ this.renderEventListHeader() }>
-          <ListGroup fill>
+        <Panel>
+          <Panel.Heading>{ this.renderEventListHeader() }</Panel.Heading>
+          <ListGroup>
             {
               eventList.map((event, index) => {
                 if(index >= (this.state.activePage-1) * 7 && index < (this.state.activePage * 7)) {
@@ -677,8 +683,8 @@ class LoweringReplay extends Component {
                   // onClick={() => this.handleEventClick(event.id)} active={active}
                   
                   return (
-                  //<ListGroupItem key={event.id} active={active} ><span onClick={() => this.handleEventShowDetails(event.id)}>{`${event.ts} <${event.event_author}>: ${event.event_value} ${eventOptions}`}</span><span className="pull-right" onClick={() => this.handleEventComment(event.id)}><OverlayTrigger placement="top" overlay={commentTooltip}><FontAwesome name='comment' fixedWidth/></OverlayTrigger></span></ListGroupItem>
-                    <ListGroupItem key={event.id} active={active} ><span onClick={() => this.handleEventClick(index)} >{`${event.ts} <${event.event_author}>: ${event.event_value} ${eventOptions}`}</span><span className="pull-right" onClick={() => this.handleEventComment(index)}><OverlayTrigger placement="top" overlay={commentTooltip}><FontAwesome name='comment' fixedWidth/></OverlayTrigger></span></ListGroupItem>
+                  //<ListGroupItem key={event.id} active={active} ><span onClick={() => this.handleEventShowDetails(event.id)}>{`${event.ts} <${event.event_author}>: ${event.event_value} ${eventOptions}`}</span><span className="pull-right" onClick={() => this.handleEventComment(event.id)}><OverlayTrigger placement="top" overlay={commentTooltip}><FontAwesomeIcon icon='comment' fixedWidth/></OverlayTrigger></span></ListGroupItem>
+                    <ListGroupItem key={event.id} active={active} ><span onClick={() => this.handleEventClick(index)} >{`${event.ts} <${event.event_author}>: ${event.event_value} ${eventOptions}`}</span><span className="pull-right" onClick={() => this.handleEventComment(index)}><OverlayTrigger placement="top" overlay={commentTooltip}><FontAwesomeIcon icon='comment' fixedWidth/></OverlayTrigger></span></ListGroupItem>
                   )
                 }
               })
@@ -688,32 +694,53 @@ class LoweringReplay extends Component {
       );
     } else {
       return (
-        <Panel header={ this.renderEventListHeader() }>
-          <ListGroup fill>
-            <ListGroupItem>No events found!</ListGroupItem>
-          </ListGroup>
+        <Panel>
+          <Panel.Heading>{ this.renderEventListHeader() }</Panel.Heading>
+          <Panel.Body>No events found!</Panel.Body>
         </Panel>
       )
     }
   }
 
   renderPagination() {
-    if(!this.props.event.fetching && this.props.event.events.length > 0) {
+    const maxEventsPerPage = 7
 
+    if(!this.props.event.fetching && this.props.event.events.length > 0) {
       let eventCount = this.props.event.events.length
+      let last = Math.ceil(eventCount/maxEventsPerPage);
+      let delta = 2
+      let left = this.state.activePage - delta
+      let right = this.state.activePage + delta + 1
+      let range = []
+      let rangeWithDots = []
+      let l = null
+
+      for (let i = 1; i <= last; i++) {
+        if (i == 1 || i == last || i >= left && i < right) {
+            range.push(i);
+        }
+      }
+
+      for (let i of range) {
+        if (l) {
+          if (i - l === 2) {
+            rangeWithDots.push(<Pagination.Item key={l + 1} active={(this.state.activePage === l+1)} onClick={() => this.setState({activePage: (l + 1)})}>{l + 1}</Pagination.Item>)
+          } else if (i - l !== 1) {
+            rangeWithDots.push(<Pagination.Ellipsis key={`ellipsis_${i}`} />);
+          }
+        }
+        rangeWithDots.push(<Pagination.Item key={i} active={(this.state.activePage === i)} onClick={() => this.setState({activePage: i})}>{i}</Pagination.Item>);
+        l = i;
+      }
+
       return (
-        <Pagination
-          prev
-          next
-          first
-          last
-          ellipsis
-          boundaryLinks
-          items={ Math.ceil(eventCount/7) }
-          maxButtons={5}
-          activePage={this.state.activePage}
-          onSelect={this.handlePageSelect}
-        />
+        <Pagination>
+          <Pagination.First onClick={() => this.setState({activePage: 1})} />
+          <Pagination.Prev onClick={() => { if(this.state.activePage > 1) { this.setState(prevState => ({ activePage: prevState.activePage-1}))}}} />
+          {rangeWithDots}
+          <Pagination.Next onClick={() => { if(this.state.activePage < last) { this.setState(prevState => ({ activePage: prevState.activePage+1}))}}} />
+          <Pagination.Last onClick={() => this.setState({activePage: last})} />
+        </Pagination>
       )
     }
   }
@@ -780,15 +807,16 @@ class LoweringReplay extends Component {
             <EventFilterForm disabled={this.props.event.fetching} hideASNAP={this.state.hideASNAP} handlePostSubmit={ () => { this.handleLoweringReplayPause();this.setState({ activePage: 1, replayEventIndex: 0 }) } } lowering_id={this.props.lowering.id}/>
           </Col>          
         </Row>
-        <Row>
-          <Col lg={12}>
-            {this.renderPopoutMapButton()}
-          </Col>
-        </Row>
       </Grid>
     )
   }
 }
+
+        // <Row>
+          // <Col lg={12}>
+            // {this.renderPopoutMapButton()}
+          // </Col>
+        // </Row>
 
 function mapStateToProps(state) {
   return {

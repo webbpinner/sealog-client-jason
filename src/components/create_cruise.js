@@ -1,6 +1,5 @@
 import moment from 'moment';
 import Datetime from 'react-datetime';
-import 'react-datetime/css/react-datetime.css';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { reduxForm, Field, initialize, reset } from 'redux-form';
@@ -140,82 +139,85 @@ class CreateCruise extends Component {
       if(this.props.roles.includes("admin")) {
 
         return (
-          <Panel bsStyle="default" header={createCruiseFormHeader}>
-            <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
-              <Field
-                name="cruise_id"
-                component={this.renderField}
-                type="text"
-                label="Cruise ID"
-                placeholder="i.e. AT02-17"
-                required={true}
-              />
-              <Field
-                name="cruise_name"
-                type="text"
-                component={this.renderField}
-                label="Cruise Name"
-                placeholder="i.e. Lost City 2018"
-                required={true}
-              />
-              <Field
-                name="cruise_description"
-                component={this.renderTextArea}
-                type="textarea"
-                label="Cruise Description"
-                placeholder="A brief summary of the cruise"
-                rows={10}
-              />
-              <Field
-                name="cruise_location"
-                type="text"
-                component={this.renderField}
-                label="Cruise Location"
-                placeholder="i.e. Lost City"
-              />
-              <Field
-                name="start_ts"
-                component={this.renderDatePicker}
-                type="text"
-                label="Start Date (UTC)"
-                required={true}
-              />
-              <Field
-                name="stop_ts"
-                component={this.renderDatePicker}
-                type="text"
-                label="Stop Date (UTC)"
-                required={true}
-              />
-              <Field
-                name="cruise_pi"
-                component={this.renderField}
-                type="text"
-                label="Primary Investigator"
-                placeholder="i.e. Dr. Susan Lang"
-                required={true}
-              />
-              <Field
-                name="cruise_participants"
-                component={this.renderTextArea}
-                type="textarea"
-                label="Cruise Particpants, comma delimited"
-                placeholder="A comma-delimited list of names, i.e. Dave Butterfield,Sharon Walker"
-              />
-              <Field
-                name="cruise_tags"
-                component={this.renderTextArea}
-                type="textarea"
-                label="Cruise Tags, comma delimited"
-                placeholder="A comma-delimited list of tags, i.e. coral,chemistry,engineering"
-              />
-              {this.renderAlert()}
-              {this.renderMessage()}
-              <div className="pull-right">
-                <Button bsStyle="default" type="button" disabled={pristine || submitting} onClick={reset}>Reset Form</Button>
-                <Button bsStyle="primary" type="submit" disabled={submitting || !valid}>Create</Button>
-              </div>
-            </form>
+          <Panel>
+            <Panel.Heading>{createCruiseFormHeader}</Panel.Heading>
+            <Panel.Body>
+              <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
+                <Field
+                  name="cruise_id"
+                  component={this.renderField}
+                  type="text"
+                  label="Cruise ID"
+                  placeholder="i.e. AT02-17"
+                  required={true}
+                />
+                <Field
+                  name="cruise_name"
+                  type="text"
+                  component={this.renderField}
+                  label="Cruise Name"
+                  placeholder="i.e. Lost City 2018"
+                  required={true}
+                />
+                <Field
+                  name="cruise_description"
+                  component={this.renderTextArea}
+                  type="textarea"
+                  label="Cruise Description"
+                  placeholder="A brief summary of the cruise"
+                  rows={10}
+                />
+                <Field
+                  name="cruise_location"
+                  type="text"
+                  component={this.renderField}
+                  label="Cruise Location"
+                  placeholder="i.e. Lost City"
+                />
+                <Field
+                  name="start_ts"
+                  component={this.renderDatePicker}
+                  type="text"
+                  label="Start Date (UTC)"
+                  required={true}
+                />
+                <Field
+                  name="stop_ts"
+                  component={this.renderDatePicker}
+                  type="text"
+                  label="Stop Date (UTC)"
+                  required={true}
+                />
+                <Field
+                  name="cruise_pi"
+                  component={this.renderField}
+                  type="text"
+                  label="Primary Investigator"
+                  placeholder="i.e. Dr. Susan Lang"
+                  required={true}
+                />
+                <Field
+                  name="cruise_participants"
+                  component={this.renderTextArea}
+                  type="textarea"
+                  label="Cruise Particpants, comma delimited"
+                  placeholder="A comma-delimited list of names, i.e. Dave Butterfield,Sharon Walker"
+                />
+                <Field
+                  name="cruise_tags"
+                  component={this.renderTextArea}
+                  type="textarea"
+                  label="Cruise Tags, comma delimited"
+                  placeholder="A comma-delimited list of tags, i.e. coral,chemistry,engineering"
+                />
+                {this.renderAlert()}
+                {this.renderMessage()}
+                <div className="pull-right">
+                  <Button bsStyle="default" type="button" disabled={pristine || submitting} onClick={reset}>Reset Form</Button>
+                  <Button bsStyle="primary" type="submit" disabled={submitting || !valid}>Create</Button>
+                </div>
+              </form>
+            </Panel.Body>
           </Panel>
         )
       } else {

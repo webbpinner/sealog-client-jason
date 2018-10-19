@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import axios from 'axios';
 import { Button, Modal, Grid, Row, Col } from 'react-bootstrap';
 import { connectModal } from 'redux-modal';
-import FontAwesome from 'react-fontawesome';
 import ReactFileReader from 'react-file-reader';
 import Cookies from 'universal-cookie';
 import { API_ROOT_URL } from '../url_config';
@@ -40,47 +39,49 @@ class ImportLoweringsModal extends Component {
 
   async insertLowering({id, lowering_id, lowering_name, start_ts, stop_ts, lowering_description = '', lowering_location = '', lowering_tags = [], lowering_hidden = false }) {
 
-    await axios.get(`${API_ROOT_URL}/api/v1/lowerings/${id}`,
-    {
-      headers: {
-        authorization: cookies.get('token'),
-        'content-type': 'application/json'
-      }
-    })
-    .then((response) => {
-
-      // console.log("User Already Exists");
-      this.setState( prevState => (
-        {
-          skipped: prevState.skipped + 1,
-          pending: prevState.pending - 1
+    try {
+      const result = await axios.get(`${API_ROOT_URL}/api/v1/lowerings/${id}`,
+      {
+        headers: {
+          authorization: cookies.get('token'),
+          'content-type': 'application/json'
         }
-      ))
-    })
-    .catch((error) => {
+      })
+      if(result) {
+
+        // console.log("User Already Exists");
+        this.setState( prevState => (
+          {
+            skipped: prevState.skipped + 1,
+            pending: prevState.pending - 1
+          }
+        ))
+      }
+    } catch(error) {
 
       if(error.response.data.statusCode == 404) {
         // console.log("Attempting to add user")
 
-        return axios.post(`${API_ROOT_URL}/api/v1/lowerings`,
-        {id, lowering_id, lowering_name, start_ts, stop_ts, lowering_description, lowering_location, lowering_tags, lowering_hidden},
-        {
-          headers: {
-            authorization: cookies.get('token'),
-            'content-type': 'application/json'
-          }
-        })
-        .then((response) => {
-          // console.log("User Imported");
-          this.setState( prevState => (
-            {
-              imported: prevState.imported + 1,
-              pending: prevState.pending - 1
+        try {
+
+          const result = await axios.post(`${API_ROOT_URL}/api/v1/lowerings`,
+          {id, lowering_id, lowering_name, start_ts, stop_ts, lowering_description, lowering_location, lowering_tags, lowering_hidden},
+          {
+            headers: {
+              authorization: cookies.get('token'),
+              'content-type': 'application/json'
             }
-          ))
-          return true
-        })
-        .catch((error) => {
+          })
+          if(result) {
+            // console.log("User Imported");
+            this.setState( prevState => (
+              {
+                imported: prevState.imported + 1,
+                pending: prevState.pending - 1
+              }
+            ))
+          }
+        } catch(error) {
           
           if(error.response.data.statusCode == 400) {
             // console.log("User Data malformed or incomplete");
@@ -94,8 +95,7 @@ class ImportLoweringsModal extends Component {
               pending: prevState.pending - 1
             }
           ))
-          return false
-        });
+        }
       } else {
 
         if(error.response.data.statusCode != 400) {
@@ -108,7 +108,7 @@ class ImportLoweringsModal extends Component {
           }
         ))
       }
-    });
+    }
   }
 
   importLoweringsFromFile = async (e) => {
@@ -135,8 +135,11 @@ class ImportLoweringsModal extends Component {
             break;
           }
           currentLowering = json[i];
-          // console.log("adding user")
-          await this.insertLowering(currentLowering);
+          try {
+            const result = await this.insertLowering(currentLowering);
+          } catch(error) {
+            throw(error)
+          }
         }
       } else {
         this.setState( prevState => (
@@ -149,11 +152,10 @@ class ImportLoweringsModal extends Component {
         ))
         await this.insertLowering(json);
       }
-      this.setState({pending: "Complete!"})
-
     } catch (err) {
       console.log('error when trying to parse json = ' + err);
     }
+    this.setState({pending: (this.state.quit)?"Quit Early!":"Complete"})
   }
 
   handleLoweringRecordImport = files => {

@@ -2,13 +2,19 @@ import React, { Component } from 'react';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { Button, Grid, Row, Col, Panel, Accordion, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Button, Row, Col, Panel, PanelGroup, ListGroup, ListGroupItem } from 'react-bootstrap';
 import * as actions from '../actions';
 
 class CruiseMenu extends Component {
 
   constructor (props) {
     super(props);
+
+    this.state = {
+      activeKey: "0"
+    };
+
+    this.handleSelect = this.handleSelect.bind(this);
   }
 
   componentWillMount(){
@@ -38,17 +44,23 @@ class CruiseMenu extends Component {
     this.props.gotoLoweringSearch(id);
   }
 
+  handleSelect(activeKey) {
+    this.setState({ activeKey });
+  }
 
   renderLoweringPanel() {
 
     if(this.props.lowering.id){
       return (          
-        <Panel header={"Lowering: " + this.props.lowering.lowering_id}>
-          <p><strong>Description:</strong> {this.props.lowering.lowering_description}</p>
-          <p><strong>Location:</strong> {this.props.lowering.lowering_location}</p>
-          <p><strong>Date:</strong> {moment.utc(this.props.lowering.start_ts).format("YYYY/MM/DD HH:mm")} - {moment.utc(this.props.lowering.stop_ts).format("YYYY/MM/DD HH:mm")}</p>
-          <Button bsSize={'sm'} bsStyle={'primary'} onClick={ () => this.handleLoweringSelectForReplay(this.props.lowering.id) }>Goto replay...</Button>
-          <Button bsSize={'sm'} bsStyle={'primary'} onClick={ () => this.handleLoweringSelectForSearch(this.props.lowering.id) }>Goto search...</Button>
+        <Panel>
+          <Panel.Heading>{"Lowering: " + this.props.lowering.lowering_id}</Panel.Heading>
+          <Panel.Body>
+            <p><strong>Description:</strong> {this.props.lowering.lowering_description}</p>
+            <p><strong>Location:</strong> {this.props.lowering.lowering_location}</p>
+            <p><strong>Date:</strong> {moment.utc(this.props.lowering.start_ts).format("YYYY/MM/DD HH:mm")} - {moment.utc(this.props.lowering.stop_ts).format("YYYY/MM/DD HH:mm")}</p>
+            <Button bsSize={'sm'} bsStyle={'primary'} onClick={ () => this.handleLoweringSelectForReplay(this.props.lowering.id) }>Goto replay...</Button>
+            <Button bsSize={'sm'} bsStyle={'primary'} onClick={ () => this.handleLoweringSelectForSearch(this.props.lowering.id) }>Goto search...</Button>
+          </Panel.Body>
         </Panel>
       );
     }
@@ -68,11 +80,12 @@ class CruiseMenu extends Component {
 
   renderCruiseListItems() {
 
-    if(this.props.cruises && this.props.cruises.length > 0){
-      return this.props.cruises.map((cruise, index) => {
-        let cruiseLowerings = this.renderLoweringList(cruise.start_ts, cruise.stop_ts)
-        return (          
-          <Panel key={cruise.cruise_id} header={"Cruise: " + cruise.cruise_id} eventKey={index} >
+    return this.props.cruises.map((cruise, index) => {
+      let cruiseLowerings = this.renderLoweringList(cruise.start_ts, cruise.stop_ts)
+      return (          
+        <Panel key={`panel_${index}`}eventKey={index.toString()}>
+          <Panel.Heading><Panel.Title toggle>{"Cruise: " + cruise.cruise_id}</Panel.Title></Panel.Heading>
+          <Panel.Body collapsible>
             <p><strong>Cruise Name:</strong> {cruise.cruise_name}</p>
             <p><strong>Chief Scientist:</strong> {cruise.cruise_pi}</p>
             <p><strong>Location:</strong> {cruise.cruise_location}</p>
@@ -85,23 +98,25 @@ class CruiseMenu extends Component {
                 ))
               }
             </ul>
-          </Panel>
-        );
-      })      
-    }
-
-    return (
-      <Panel>No cruises found!</Panel>
-    )
+          </Panel.Body>
+        </Panel>
+      );
+    })      
   }
 
   renderCruiseList() {
 
-    if(this.props.cruises.length > 1){
+    if(this.props.cruises && this.props.cruises.length > 1){
       return (
-        <Accordion >
+        <PanelGroup id="accordion-controlled-example" accordion activeKey={this.state.activeKey} onSelect={this.handleSelect}>
           {this.renderCruiseListItems()}
-        </Accordion>
+        </PanelGroup>
+      )
+    } else {
+      return (
+        <Panel>
+          <Panel.Body>No cruises found!</Panel.Body>
+        </Panel>
       )
     }
 
@@ -114,28 +129,28 @@ class CruiseMenu extends Component {
 
   render(){
     return (
-      <Grid fluid>
-          <Row>
-            <Col xs={12}>
-              <h4>Welcome to Sealog</h4>
-              Sealog provides the NDSF user community with at-sea access to in-situ observations, still imagery, position/attitude data, and sensor data from the JASON ROV for review and analysis<br/><br/>
-            </Col>
-          </Row>
-          <Row>
-            <Col sm={6} mdOffset= {1} md={5} lgOffset= {2} lg={4}>
-              {this.renderCruiseList()}
-            </Col>
-            <Col sm={6} md={5} lg={4}>
-              {this.renderLoweringPanel()}
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              Please select a cruise from the list above.  Once a cruise is selected please select a lowering from the list of lowerings associated with that cruise that appear at the bottom of the cruise information panel.  Selecting a lowering will open the lowering information panel.  At the bottom of the cruise information panel there will be buttons for proceeding to the lowering replay section of Sealog or the lowering event search section of Sealog.
-              If at any time you wish to return to this page please click the "Sealog" text in upper-left part of the window.
-            </Col>
-          </Row>
-      </Grid>
+      <div>
+        <Row>
+          <Col xs={12}>
+            <h4>Welcome to Sealog</h4>
+            Sealog provides the NDSF user community with at-sea access to in-situ observations, still imagery, position/attitude data, and sensor data from the JASON ROV for review and analysis<br/><br/>
+          </Col>
+        </Row>
+        <Row>
+          <Col sm={6} mdOffset= {1} md={5} lgOffset= {2} lg={4}>
+            {this.renderCruiseList()}
+          </Col>
+          <Col sm={6} md={5} lg={4}>
+            {this.renderLoweringPanel()}
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            Please select a cruise from the list above.  Once a cruise is selected please select a lowering from the list of lowerings associated with that cruise that appear at the bottom of the cruise information panel.  Selecting a lowering will open the lowering information panel.  At the bottom of the cruise information panel there will be buttons for proceeding to the lowering replay section of Sealog or the lowering event search section of Sealog.
+            If at any time you wish to return to this page please click the "Sealog" text in upper-left part of the window.
+          </Col>
+        </Row>
+      </div>
     )
   }
 }

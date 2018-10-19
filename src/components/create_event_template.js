@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { reduxForm, Field, FieldArray, initialize, formValueSelector, reset } from 'redux-form';
-import { Alert, Button, Checkbox, Col, ControlLabel, FormGroup, FormControl, FormGroupItem, Grid, Panel, Row } from 'react-bootstrap';
+import { Alert, Button, Checkbox, Col, ControlLabel, FormGroup, FormControl, FormGroupItem, Panel, Row } from 'react-bootstrap';
 import * as actions from '../actions';
 import { EventTemplateOptionTypes } from '../event_template_option_types';
 
@@ -20,7 +20,7 @@ class CreateEventTemplate extends Component {
   }
 
   handleFormSubmit(formProps) {
-    console.log(formProps);
+    // console.log(formProps);
     if(typeof(formProps.system_template) === 'undefined'){
       formProps.system_template = false;
     }
@@ -217,48 +217,51 @@ class CreateEventTemplate extends Component {
   render() {
 
     const { handleSubmit, pristine, reset, submitting, valid } = this.props;
-    const formHeader = (<h3>Create Event Template</h3>);
+    const formHeader = <div>Create Event Template</div>;
 
 
     if (this.props.roles && (this.props.roles.includes("admin") || this.props.roles.includes("event_manager"))) {
       return (
-        <Panel bsStyle="default" header={formHeader}>
-          <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
-            <Field
-              name="event_name"
-              component={this.renderField}
-              type="text"
-              label="Button Name"
-              required={true}
-            />
-            <Field
-              name="event_value"
-              type="text"
-              component={this.renderField}
-              label="Event Value"
-              required={true}
-            />
-            {this.renderAdminOptions()}
-            <div>
-              <label>Free text Required?</label>
-              <span>{'  '}</span>
+        <Panel>
+          <Panel.Heading>{formHeader}</Panel.Heading>
+          <Panel.Body>
+            <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
               <Field
-                name='event_free_text_required'
-                id='event_free_text_required'
-                component="input"
-                type="checkbox"
+                name="event_name"
+                component={this.renderField}
+                type="text"
+                label="Button Name"
+                required={true}
               />
-            </div>
+              <Field
+                name="event_value"
+                type="text"
+                component={this.renderField}
+                label="Event Value"
+                required={true}
+              />
+              {this.renderAdminOptions()}
+              <div>
+                <label>Free text Required?</label>
+                <span>{'  '}</span>
+                <Field
+                  name='event_free_text_required'
+                  id='event_free_text_required'
+                  component="input"
+                  type="checkbox"
+                />
+              </div>
 
-            <FieldArray name="event_options" component={this.renderOptions}/>
-            <br/>
-            {this.renderAlert()}
-            {this.renderMessage()}
-            <div className="pull-right">
-              <Button bsStyle="default" type="button" bsSize="small" disabled={pristine || submitting} onClick={reset}>Reset Values</Button>
-              <Button bsStyle="primary" type="submit" bsSize="small" disabled={pristine || submitting || !valid}>Create</Button>
-            </div>
-          </form>
+              <FieldArray name="event_options" component={this.renderOptions}/>
+              <br/>
+              {this.renderAlert()}
+              {this.renderMessage()}
+              <div className="pull-right">
+                <Button bsStyle="default" type="button" bsSize="small" disabled={pristine || submitting} onClick={reset}>Reset Values</Button>
+                <Button bsStyle="primary" type="submit" bsSize="small" disabled={pristine || submitting || !valid}>Create</Button>
+              </div>
+            </form>
+          </Panel.Body>
         </Panel>
       )
     } else {
