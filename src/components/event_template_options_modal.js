@@ -17,6 +17,11 @@ const TIMER_INTERVAL = 1000
 const TIMEOUT = 120 //seconds
 const cookies = new Cookies();
 
+const required =  value => !value ? 'Required' : undefined
+
+const requiredArray =  value => !value || value.length === 0 ? 'At least one required' : undefined
+
+
 class EventTemplateOptionsModal extends Component {
 
   constructor (props) {
@@ -246,8 +251,8 @@ class EventTemplateOptionsModal extends Component {
               type="select"
               component={this.renderSelectField}
               label={option.event_option_name}
-              required={(option.event_option_required)? true : false }
-              validate={ value => value || !option.event_option_required ? undefined : 'Required' }
+              required={ option.event_option_required }
+              validate={ option.event_option_required ? required : undefined }
             >
               { defaultOption }
               { optionList }
@@ -271,8 +276,8 @@ class EventTemplateOptionsModal extends Component {
               component={this.renderCheckboxGroup}
               label={option.event_option_name}
               options={optionList}
-              required={(option.event_option_required)? true : false }
-              validate={ value => value && value.length > 0 || !option.event_option_required ? undefined : 'Required' }
+              required={ option.event_option_required }
+              validate={ option.event_option_required ? requiredArray : undefined }
             />
           </div>
         )
@@ -284,8 +289,8 @@ class EventTemplateOptionsModal extends Component {
               type="text"
               component={this.renderTextField}
               label={option.event_option_name}
-              required={(option.event_option_required)? true : false }
-              validate={ value => value || !option.event_option_required ? undefined : 'Required' }
+              required={ option.event_option_required }
+              validate={ option.event_option_required ? required : undefined }
             />
           </div>
         )
@@ -312,7 +317,8 @@ class EventTemplateOptionsModal extends Component {
               component={this.renderTextField}
               type="text"
               label="Additional Text"
-              validate={ value => value || !eventTemplate.event_free_text_required ? undefined : 'Required' }
+              required={eventTemplate.event_free_text_required}
+              validate={ eventTemplate.event_free_text_required ? required : undefined }
             />
             <Field
               name="event_ts"
