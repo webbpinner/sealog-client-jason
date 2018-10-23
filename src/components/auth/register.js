@@ -175,8 +175,8 @@ function validate(formProps) {
     errors.username = 'Username can not include whitespace'
   }
 
-  if (!formProps.fullName) {
-    errors.fullName = 'Required'
+  if (!formProps.fullname) {
+    errors.fullname = 'Required'
   }
 
   if (!formProps.email) {
