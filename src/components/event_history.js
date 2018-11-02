@@ -175,9 +175,10 @@ class EventHistory extends Component {
 
       let eventArray = []
 
-      for (let i = this.props.history.length; i > 0; i--) {
+      // for (let i = this.props.history.length; i > 0; i--) {
+      for (let i = 0; i < this.props.history.length; i++) {
 
-        let event = this.props.history[i-1]
+        let event = this.props.history[i]
         let commentTooltip = (<Tooltip id={`commentTooltip_${event.id}`}>Add Comment</Tooltip>)
 
         // if(this.state.hideASNAP && event.event_value == "ASNAP") {

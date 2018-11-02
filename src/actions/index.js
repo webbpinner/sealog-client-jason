@@ -1313,9 +1313,9 @@ export function clearSelectedEvent() {
 
 export function fetchEventHistory(asnap = false) {
 
-  let url = API_ROOT_URL + '/api/v1/events'
+  let url = API_ROOT_URL + '/api/v1/events?sort=newest&limit=20'
   if(!asnap) {
-    url = url + '?value=!ASNAP'
+    url = url + '&value=!ASNAP'
   }
 
   const request = axios.get(url, {
