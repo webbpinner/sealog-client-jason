@@ -23,11 +23,27 @@ import LoweringReplay from './components/lowering_replay';
 import LoweringSearch from './components/lowering_search';
 import Cruises from './components/cruises';
 
-import { library, dom } from '@fortawesome/fontawesome-svg-core';
-import { faUser, faArrowLeft, faArrowRight, faPencilAlt, faTrash, faEye, faEyeSlash, faDownload, faComment, faExpand, faCompress, faStepBackward, faBackward, faPlay, faPause, faForward, faStepForward } from '@fortawesome/free-solid-svg-icons';
+import { library } from '@fortawesome/fontawesome-svg-core';
+
+import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft';
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons/faArrowRight';
+import { faPencilAlt } from '@fortawesome/free-solid-svg-icons/faPencilAlt';
+import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
+import { faEye } from '@fortawesome/free-solid-svg-icons/faEye';
+import { faEyeSlash } from '@fortawesome/free-solid-svg-icons/faEyeSlash';
+import { faDownload } from '@fortawesome/free-solid-svg-icons/faDownload';
+import { faComment } from '@fortawesome/free-solid-svg-icons/faComment';
+import { faExpand } from '@fortawesome/free-solid-svg-icons/faExpand';
+import { faCompress } from '@fortawesome/free-solid-svg-icons/faCompress';
+import { faStepBackward } from '@fortawesome/free-solid-svg-icons/faStepBackward';
+import { faBackward } from '@fortawesome/free-solid-svg-icons/faBackward';
+import { faPlay } from '@fortawesome/free-solid-svg-icons/faPlay';
+import { faPause } from '@fortawesome/free-solid-svg-icons/faPause';
+import { faForward } from '@fortawesome/free-solid-svg-icons/faForward';
+import { faStepForward } from '@fortawesome/free-solid-svg-icons/faStepForward';
 
 library.add(faUser, faArrowLeft, faArrowRight, faPencilAlt, faTrash, faEye, faEyeSlash, faDownload, faComment, faExpand, faCompress, faStepBackward, faBackward, faPlay, faPause, faForward, faStepForward);
-// dom.i2svg();
 
 require('typeface-roboto');
 
@@ -43,16 +59,13 @@ if (token) {
 
 }
 
-            // <Route path={ `/lowering_replay/:id` } exact={true} component={RequireAuth(LoweringReplay)} />
-            // <Route path={ `/lowering_search/:id` } exact={true} component={RequireAuth(LoweringSearch)} />
-
 ReactDOM.render(
   <Provider store={store}>
       <ConnectedRouter history={history}>
           <div>
             <Header />
             <Route path={ `/` } exact={true} component={RequireAuth(EventLogging)}/>
-            <Route path={ `/github`} exact={true} component={() => window.location = 'https://github.com/webbpinner/sealog-client'}/>
+            <Route path={ `/github`} exact={true} component={() => window.location = 'https://github.com/webbpinner/sealog-client-jason'}/>
             <Route path={ `/license`} exact={true} component={() => window.location = 'http://www.gnu.org/licenses/gpl-3.0.html'}/>
             <Route path={ `/profile` } exact={true} component={RequireAuth(Profile)} />
             <Route path={ `/register` } exact={true} component={Register} />
