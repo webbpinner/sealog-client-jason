@@ -330,7 +330,7 @@ class LoweringReplay extends Component {
   }
 
   replayReverse() {
-    if(this.state.replayEventIndex > 1) {
+    if(this.state.replayEventIndex > 0) {
       this.setState({replayEventIndex: this.state.replayEventIndex - 1})
       this.props.advanceLoweringReplayTo(this.props.event.events[this.state.replayEventIndex].id)
       this.setState({activePage: Math.ceil((this.state.replayEventIndex+1)/7)})
