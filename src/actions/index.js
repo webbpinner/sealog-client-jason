@@ -39,16 +39,6 @@ import {
   UPDATE_PROFILE_SUCCESS,
   UPDATE_PROFILE_ERROR,
   LEAVE_UPDATE_PROFILE_FORM,
-  // INIT_EVENT_EXPORT_TEMPLATE,
-  // UPDATE_EVENT_EXPORT_TEMPLATE,
-  // UPDATE_EVENT_EXPORT_TEMPLATE_SUCCESS,
-  // UPDATE_EVENT_EXPORT_TEMPLATE_ERROR,
-  // LEAVE_UPDATE_EVENT_EXPORT_TEMPLATE_FORM,
-  // CREATE_EVENT_EXPORT_TEMPLATE,
-  // CREATE_EVENT_EXPORT_TEMPLATE_SUCCESS,
-  // CREATE_EVENT_EXPORT_TEMPLATE_ERROR,
-  // LEAVE_CREATE_EVENT_EXPORT_TEMPLATE_FORM,
-  // FETCH_EVENT_EXPORT_TEMPLATES,
   INIT_EVENT_TEMPLATE,
   FETCH_EVENT_TEMPLATES,
   UPDATE_EVENT_TEMPLATE,
@@ -93,8 +83,6 @@ import {
 const cookies = new Cookies();
 
 export function validateJWT() {
-
-  //console.log("Verify JWT")
 
   const token = cookies.get('token')
 
@@ -146,7 +134,6 @@ export function updateProfileState() {
     })
     .then((response) => {
       dispatch({ type: UPDATE_PROFILE, payload: response.data })
-      //console.log("Updated profile data successfully");
     })
     .catch((error)=>{
         console.log(error);
@@ -164,7 +151,6 @@ export function initUser(id) {
     })
     .then((response) => {
       dispatch({ type: INIT_USER, payload: response.data })
-      //console.log("Initialized user data successfully");
     })
     .catch((error)=>{
       console.log(error);
@@ -188,7 +174,6 @@ export function initEventTemplate(id) {
       })
 
       dispatch({ type: INIT_EVENT_TEMPLATE, payload: response.data })
-      //console.log("Initialized event template data successfully");
     })
     .catch((error)=>{
       console.log(error);
@@ -208,18 +193,12 @@ export function login({username, password = ''}) {
 
       dispatch(updateProfileState());
       dispatch({ type: AUTH_USER })
-
-      // Redirect to chat
-      //this.context.router.history.push(`${ROOT_PATH}/`);
     })
     .catch((error)=>{
-
       console.log(error);
-
 
       // If request is unauthenticated
       dispatch(authError('Bad login info'));
-
     });
   }
 }
@@ -247,7 +226,7 @@ export function gotoLoweringSearch(id) {
   }
 }
 
-export function createEvent(eventValue, eventFreeText = '', eventOptions = [], eventTS = '') {
+export async function createEventRequest(eventValue, eventFreeText, eventOptions, eventTS) {
 
   let payload = {
     event_value: eventValue,
@@ -255,15 +234,11 @@ export function createEvent(eventValue, eventFreeText = '', eventOptions = [], e
     event_options: eventOptions
   }
 
-  // console.log("eventTS:", eventTS)
   if(eventTS.length > 0){
     payload.ts = eventTS
   }
 
-  // console.log("payload:", payload)
-
-  return function (dispatch) {
-    axios.post(`${API_ROOT_URL}/api/v1/events`,
+  const response = await axios.post(`${API_ROOT_URL}/api/v1/events`,
     payload,
     {
       headers: {
@@ -271,7 +246,67 @@ export function createEvent(eventValue, eventFreeText = '', eventOptions = [], e
       }
     })
     .then((response) => {
-      //console.log("New event successfully created");
+      return { event_id: response.data.insertedId }
+    })
+    .catch((error)=>{
+      console.log(error);
+    });
+
+  return response
+}
+
+export function createEvent(eventValue, eventFreeText = '', eventOptions = [], eventTS = '') {
+
+  return async dispatch => {
+    try {
+      const event = await createEventRequest(eventValue, eventFreeText, eventOptions, eventTS);
+      return event
+    } catch (e) {
+      console(e)
+    }
+  }
+}
+
+export function updateEvent(event_id, eventValue, eventFreeText = '', eventOptions = [], eventTS = '') {
+
+  let payload = {
+    event_value: eventValue,
+    event_free_text: eventFreeText,
+    event_options: eventOptions
+  }
+
+  if(eventTS.length > 0){
+    payload.ts = eventTS
+  }
+
+  return function (dispatch) {
+    axios.patch(`${API_ROOT_URL}/api/v1/events/${event_id}`,
+    payload,
+    {
+      headers: {
+        authorization: cookies.get('token')
+      }
+    })
+    .then((response) => {
+      return { event_id: response.data.insertedId }
+    })
+    .catch((error)=>{
+      console.log(error);
+    });
+  }
+}
+
+export function deleteEvent(event_id) {
+
+  return function (dispatch) {
+    axios.delete(`${API_ROOT_URL}/api/v1/events/${event_id}`,
+    {
+      headers: {
+        authorization: cookies.get('token')
+      }
+    })
+    .then((response) => {
+      return { event_id: response.data.insertedId }
     })
     .catch((error)=>{
       console.log(error);
@@ -283,21 +318,13 @@ export function registerUser({username, fullname, password = '', email}) {
   return function (dispatch) {
     axios.post(`${API_ROOT_URL}/api/v1/register`, {username, fullname, password, email})
     .then((response) => {
-
-      //console.log("New user successfully created");
       dispatch(registerUserSuccess('User created'));
-      //dispatch(leaveRegisterForm());
-
-      // Redirect to login
-      //dispatch(push(`${ROOT_PATH}/login`));
     })
     .catch((error) => {
-
       console.log(error);
 
       // If request is unauthenticated
       dispatch(registerUserError(error.response.data.message));
-
     });
   }
 }
@@ -313,21 +340,13 @@ export function createUser({username, fullname, password = '', email, roles, sys
       }
     })
     .then((response) => {
-
-      //console.log("New user successfully created");
       dispatch(createUserSuccess('Account created'));
       dispatch(fetchUsers());
-//      dispatch(hideAddNewUserForm());
-
-      // Redirect to login
-      //this.context.router.history.push(`${ROOT_PATH}/login`);
     })
     .catch((error) => {
-
       // If request is unauthenticated
       console.log(error);
       dispatch(createUserError(error.response.data.message));
-
     });
   }
 }
@@ -341,19 +360,15 @@ export function createCruise({cruise_id, cruise_name, start_ts, stop_ts, cruise_
         authorization: cookies.get('token'),
         'content-type': 'application/json'
       }
-    })
-    .then((response) => {
-
+    }).then((response) => {
       //console.log("New user successfully created");
       dispatch(createCruiseSuccess('Cruise created'));
       dispatch(fetchCruises());
-    })
-    .catch((error) => {
+    }).catch((error) => {
 
       // If request is unauthenticated
       console.log(error);
       dispatch(createCruiseError(error.response.data.message));
-
     });
   }
 }
@@ -367,19 +382,13 @@ export function createLowering({lowering_id, lowering_name, start_ts, stop_ts, l
         authorization: cookies.get('token'),
         'content-type': 'application/json'
       }
-    })
-    .then((response) => {
-
-      //console.log("New user successfully created");
+    }).then((response) => {
       dispatch(createLoweringSuccess('Lowering created'));
       dispatch(fetchLowerings());
-    })
-    .catch((error) => {
-
+    }).catch((error) => {
       // If request is unauthenticated
       console.log(error);
       dispatch(createLoweringError(error.response.data.message));
-
     });
   }
 }
@@ -446,25 +455,14 @@ export function createEventTemplate(formProps) {
       }      
     )
     .then((response) => {
-
       dispatch(fetchEventTemplates());
       dispatch(createEventTemplateSuccess('Event Template created'));
-
-      // if you change yourself, you have to re-login
-      //if(cookies.get('id') === formProps.id) {
-      //  dispatch(logout());
-      //}
-
-      // Redirect to login
-      //this.context.router.history.push(`${ROOT_PATH}/login`);
     })
     .catch((error) => {
-
       console.log(error);
 
       // If request is unauthenticated
       dispatch(createEventTemplateError(error.response.data.message));
-
     });
   }
 }
@@ -535,8 +533,6 @@ export function hideCruise(id) {
 
 export function updateCruise(formProps) {
 
-  // console.log(formProps)
-
   let fields = {}
 
   if(formProps.cruise_id) {
@@ -579,8 +575,6 @@ export function updateCruise(formProps) {
     fields.cruise_hidden = formProps.cruise_hidden;
   }
 
-  // console.log(fields)
-
   return function (dispatch) {
     axios.patch(`${API_ROOT_URL}/api/v1/cruises/${formProps.id}`,
       fields,
@@ -589,19 +583,14 @@ export function updateCruise(formProps) {
         authorization: cookies.get('token')
         }
       }      
-    )
-    .then((response) => {
-
+    ).then((response) => {
       dispatch(fetchCruises());
       dispatch(updateCruiseSuccess('Cruise updated'));
-    })
-    .catch((error) => {
-
+    }).catch((error) => {
       console.log(error);
 
       // If request is unauthenticated
       dispatch(updateCruiseError(error.response.data.message));
-
     });
   }
 }
@@ -668,19 +657,15 @@ export function updateLowering(formProps) {
         authorization: cookies.get('token')
         }
       }      
-    )
-    .then((response) => {
+    ).then((response) => {
 
       dispatch(fetchLowerings());
       dispatch(updateLoweringSuccess('Lowering updated'));
-    })
-    .catch((error) => {
-
+    }).catch((error) => {
       console.log(error);
 
       // If request is unauthenticated
       dispatch(updateLoweringError(error.response.data.message));
-
     });
   }
 }
@@ -723,27 +708,14 @@ export function updateUser(formProps) {
         authorization: cookies.get('token')
         }
       }      
-    )
-    .then((response) => {
-
+    ).then((response) => {
       dispatch(fetchUsers());
       dispatch(updateUserSuccess('Account updated'));
-
-      // if you change yourself, you have to re-login
-      //if(cookies.get('id') === formProps.id) {
-      //  dispatch(logout());
-      //}
-
-      // Redirect to login
-      //this.context.router.history.push(`${ROOT_PATH}/login`);
-    })
-    .catch((error) => {
-
+    }).catch((error) => {
       console.log(error);
 
       // If request is unauthenticated
       dispatch(updateUserError(error.response.data.message));
-
     });
   }
 }
@@ -803,8 +775,6 @@ export function updateEventTemplate(formProps) {
     })
   }
 
-  //console.log(fields);
-
   return function (dispatch)
 
    {
@@ -815,27 +785,14 @@ export function updateEventTemplate(formProps) {
         authorization: cookies.get('token')
         }
       }      
-    )
-    .then((response) => {
-
+    ).then((response) => {
       dispatch(fetchEventTemplates());
       dispatch(updateEventTemplateSuccess('Event template updated'));
-
-      // if you change yourself, you have to re-login
-      //if(cookies.get('id') === formProps.id) {
-      //  dispatch(logout());
-      //}
-
-      // Redirect to login
-      //this.context.router.history.push(`${ROOT_PATH}/login`);
-    })
-    .catch((error) => {
-
+    }).catch((error) => {
       console.log(error);
 
       // If request is unauthenticated
       dispatch(updateEventTemplateError(error.response.data.message));
-
     });
   }
 }
@@ -849,19 +806,14 @@ export function deleteCruise(id) {
         authorization: cookies.get('token')
         }
       }      
-    )
-    .then((response) => {
-
+    ).then((response) => {
       dispatch(fetchCruises());
 
       if(getState().cruise.cruise.id == id) {
         dispatch(leaveUpdateCruiseForm());
       }
-    })
-    .catch((error) => {
-
+    }).catch((error) => {
       console.log(error);
-
     });
   }
 }
@@ -875,19 +827,14 @@ export function deleteLowering(id) {
         authorization: cookies.get('token')
         }
       }      
-    )
-    .then((response) => {
-
+    ).then((response) => {
       dispatch(fetchLowerings());
 
       if(getState().lowering.lowering.id == id) {
         dispatch(leaveUpdateLoweringForm());
       }
-    })
-    .catch((error) => {
-
+    }).catch((error) => {
       console.log(error);
-
     });
   }
 }
@@ -901,22 +848,10 @@ export function deleteUser(id) {
         authorization: cookies.get('token')
         }
       }      
-    )
-    .then((response) => {
-
+    ).then((response) => {
       dispatch(fetchUsers());
-//      dispatch(updateUserEditSuccess('Account updated'));
-
-      // Redirect to login
-      //this.context.router.history.push(`${ROOT_PATH}/login`);
-    })
-    .catch((error) => {
-
+    }).catch((error) => {
       console.log(error);
-
-      // If request is unauthenticated
-      //dispatch(updateUserEditError(error.response.data.message));
-
     });
   }
 }
@@ -930,23 +865,10 @@ export function deleteEventTemplate(id) {
         authorization: cookies.get('token')
         }
       }      
-    )
-    .then((response) => {
-
-      // console.log(response);
+    ).then((response) => {
       dispatch(fetchEventTemplates());
-//      dispatch(updateUserEditSuccess('Account updated'));
-
-      // Redirect to login
-      //this.context.router.history.push(`${ROOT_PATH}/login`);
-    })
-    .catch((error) => {
-
+    }).catch((error) => {
       console.log(error);
-
-      // If request is unauthenticated
-      //dispatch(updateUserEditError(error.response.data.message));
-
     });
   }
 }
@@ -1167,11 +1089,8 @@ export function fetchCustomVars() {
   return function (dispatch) {
     
     request.then(({data}) => {
-
-      // console.log("custom_vars_data:", data)
       dispatch({type: FETCH_CUSTOM_VARS, payload: data})
-    })
-    .catch((error) => {
+    }).catch((error) => {
       console.log(error);
     });
   }
@@ -1187,12 +1106,10 @@ export function updateCustomVars(id, value) {
         authorization: cookies.get('token')
         }
       }      
-    )
-    .then((response) => {
+    ).then((response) => {
 
       dispatch(fetchCustomVars());
-    })
-    .catch((error) => {
+    }).catch((error) => {
       console.log(error);
     });
   }
@@ -1226,8 +1143,7 @@ export function fetchEventTemplatesForMain() {
     request.then(({data}) => {
       //console.log(data);
       dispatch({type: FETCH_EVENT_TEMPLATES_FOR_MAIN, payload: data})
-    })
-    .catch((error) => {
+    }).catch((error) => {
       console.log(error);
     });
   }
@@ -1248,8 +1164,7 @@ export function fetchFilteredEvents(filterParams={}) {
     
     request.then(({data}) => {
       dispatch({type: FETCH_FILTERED_EVENTS, payload: data})
-    })
-    .catch((error) => {
+    }).catch((error) => {
       if(error.response.status !== 404) {
         console.log(error);
       } else {
@@ -1271,8 +1186,7 @@ export function fetchEvents() {
     
     request.then(({data}) => {
       dispatch({type: FETCH_EVENTS, payload: data})
-    })
-    .catch((error) => {
+    }).catch((error) => {
       if(error.response.status !== 404) {
         console.log(error);
       } else {
@@ -1292,12 +1206,10 @@ export function fetchSelectedEvent(id) {
         authorization: cookies.get('token')
         }
       }      
-    )
-    .then((response) => {
+    ).then((response) => {
       // console.log("response:", response.data)
       dispatch({type: SET_SELECTED_EVENT, payload: response.data})
-    })
-    .catch((error) => {
+    }).catch((error) => {
       console.log(error);
       dispatch({type: SET_SELECTED_EVENT, payload: {}})
     });
@@ -1328,8 +1240,7 @@ export function fetchEventHistory(asnap = false) {
     
     request.then(({data}) => {
       dispatch({type: FETCH_EVENT_HISTORY, payload: data})
-    })
-    .catch((error) => {
+    }).catch((error) => {
       if(error.response.status !== 404) {
         console.log(error);
       } else {
@@ -1353,8 +1264,7 @@ export function fetchEventTemplates() {
     request.then(({data}) => {
       // console.log("data:", data)
       dispatch({type: FETCH_EVENT_TEMPLATES, payload: data})
-    })
-    .catch((error) => {
+    }).catch((error) => {
       console.log("error:", error)
       if(error.response.data.statusCode == 404) {
         dispatch({type: FETCH_EVENT_TEMPLATES, payload: []})
@@ -1433,7 +1343,6 @@ export function initLoweringReplay(id, hideASNAP = false) {
         dispatch(advanceLoweringReplayTo(response.data[0].id))
       }
       dispatch({ type: EVENT_FETCHING, payload: false})
-
     }).catch((error)=>{
       console.log(error);
       dispatch({ type: EVENT_FETCHING, payload: false})
@@ -1458,17 +1367,13 @@ export function advanceLoweringReplayTo(id) {
 
 
 export function updateEventFilterForm(formProps, lowering_id, hideASNAP = false) {
-
   return function (dispatch) {
-
     dispatch({type: UPDATE_EVENT_FILTER_FORM, payload: formProps})
     dispatch(eventUpdateLoweringReplay(lowering_id, hideASNAP))
   }
 }
 
 export function updateEventHistory(update) {
-  //console.log(update);
-
   return function (dispatch) {
     dispatch({type: UPDATE_EVENT_HISTORY, payload: update})
   }
@@ -1565,7 +1470,6 @@ export function showModal(modal, props) {
 }
 
 export function eventUpdate() {
-  // console.log("event export update")
   return function (dispatch, getState) {
     let startTS = (getState().event.eventFilter.startTS)? `startTS=${getState().event.eventFilter.startTS}` : ''
     let stopTS = (getState().event.eventFilter.stopTS)? `&stopTS=${getState().event.eventFilter.stopTS}` : ''
@@ -1581,7 +1485,6 @@ export function eventUpdate() {
         authorization: cookies.get('token')
       }
     }).then((response) => {
-      // console.log("search results:", response.data)
       dispatch({ type: UPDATE_EVENT, payload: response.data })
       dispatch({ type: EVENT_FETCHING, payload: false})
     }).catch((error)=>{
@@ -1597,7 +1500,6 @@ export function eventUpdate() {
 }
 
 export function eventUpdateLoweringReplay(lowering_id, hideASNAP = false) {
-  // console.log("event export update")
   return function (dispatch, getState) {
     let startTS = (getState().event.eventFilter.startTS)? `startTS=${getState().event.eventFilter.startTS}` : ''
     let stopTS = (getState().event.eventFilter.stopTS)? `&stopTS=${getState().event.eventFilter.stopTS}` : ''
@@ -1614,7 +1516,6 @@ export function eventUpdateLoweringReplay(lowering_id, hideASNAP = false) {
         authorization: cookies.get('token')
       }
     }).then((response) => {
-      // console.log("search results:", response.data)
       dispatch({ type: UPDATE_EVENT, payload: response.data })
       if(response.data.length > 0) {
         dispatch(fetchSelectedEvent(response.data[0].id))
@@ -1642,7 +1543,6 @@ export function eventSetActivePage(page) {
 
 export function eventSetActiveEvent(id) {
   return function(dispatch) {
-    // console.log("set active event to:", id)
     axios.get(`${API_ROOT_URL}/api/v1/events/${id}`,
     {
       headers: {
@@ -1679,7 +1579,6 @@ export function deleteAllEvents() {
 
 export function deleteAllLowerings() {
   return function(dispatch) {
-    // console.log("set active event to:", id)
     axios.delete(`${API_ROOT_URL}/api/v1/lowerings/all`,
     {
       headers: {
@@ -1695,7 +1594,6 @@ export function deleteAllLowerings() {
 
 export function deleteAllCruises() {
   return function(dispatch) {
-    // console.log("set active event to:", id)
     axios.delete(`${API_ROOT_URL}/api/v1/cruises/all`,
     {
       headers: {
@@ -1711,7 +1609,6 @@ export function deleteAllCruises() {
 
 export function deleteAllNonSystemUsers() {
   return function(dispatch) {
-    // console.log("set active event to:", id)
     axios.get(`${API_ROOT_URL}/api/v1/users`,
     {
       headers: {
@@ -1719,9 +1616,7 @@ export function deleteAllNonSystemUsers() {
       }
     }).then((response) => {
       let promises = response.data.filter((user) => {
-        // console.log("user:", user)
         if(!user.system_user) {
-          // console.log("delete")
           return axios.delete(`${API_ROOT_URL}/api/v1/users/${user.id}`,
           {
             headers: {
@@ -1735,7 +1630,6 @@ export function deleteAllNonSystemUsers() {
         }
       });
 
-      // console.log("Promises:", promises)
       Promise.all(promises).then(()=> {
         dispatch(fetchUsers());
       })
@@ -1747,7 +1641,6 @@ export function deleteAllNonSystemUsers() {
 
 export function deleteAllNonSystemEventTemplates() {
   return function(dispatch) {
-    // console.log("set active event to:", id)
     axios.get(`${API_ROOT_URL}/api/v1/event_templates`,
     {
       headers: {
@@ -1755,9 +1648,7 @@ export function deleteAllNonSystemEventTemplates() {
       }
     }).then((response) => {
       let promises = response.data.filter((event_template) => {
-        // console.log("event_template:", event_template)
         if(!event_template.system_template) {
-          // console.log("delete")
           return axios.delete(`${API_ROOT_URL}/api/v1/event_templates/${event_template.id}`,
           {
             headers: {
@@ -1770,7 +1661,6 @@ export function deleteAllNonSystemEventTemplates() {
           });
         }
       });
-      // console.log("Promises:", promises)
       Promise.all(promises).then(()=> {
         dispatch(fetchEventTemplates());
       })
