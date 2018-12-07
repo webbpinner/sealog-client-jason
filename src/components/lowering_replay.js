@@ -244,11 +244,10 @@ class LoweringReplay extends Component {
   }
 
   handleEventComment(index) {
-    console.log("comment:", index)
     this.handleLoweringReplayPause();
     this.setState({replayEventIndex: index})
     this.props.advanceLoweringReplayTo(this.props.event.events[index].id)
-    this.props.showModal('eventComment', { id: this.props.event.events[index].id });
+    this.props.showModal('eventComment', { event: this.props.event.events[index], handleUpdateEvent: this.props.updateEvent });
   }
 
   handlePageSelect(eventKey) {
