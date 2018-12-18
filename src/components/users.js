@@ -93,7 +93,7 @@ class Users extends Component {
   renderUsers() {
 
     const editTooltip = (<Tooltip id="editTooltip">Edit this user.</Tooltip>)
-    const tokenTooltip = (<Tooltip id="deleteTooltip">Show user's JWT token.</Tooltip>)
+    const tokenTooltip = (<Tooltip id="viewTooltip">Show user's JWT token.</Tooltip>)
     const deleteTooltip = (<Tooltip id="deleteTooltip">Delete this user.</Tooltip>)
 
     if(this.props.users){

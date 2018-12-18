@@ -106,7 +106,7 @@ class CruiseMenu extends Component {
 
   renderCruiseList() {
 
-    if(this.props.cruises && this.props.cruises.length > 1){
+    if(this.props.cruises && this.props.cruises.length > 0){
       return (
         <PanelGroup id="accordion-controlled-example" accordion activeKey={this.state.activeKey} onSelect={this.handleSelect}>
           {this.renderCruiseListItems()}

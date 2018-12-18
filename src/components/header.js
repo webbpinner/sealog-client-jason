@@ -7,7 +7,7 @@ import { LinkContainer } from 'react-router-bootstrap';
 import { ROOT_PATH } from '../url_config';
 import * as actions from '../actions';
 
-const heading = "Sealog - JASON Edition"
+const heading = "Sealog - ISC Test"
 
 class Header extends Component {
 
@@ -49,6 +49,16 @@ class Header extends Component {
       return (
         <LinkContainer to={ `/cruise_menu` }>
           <NavItem>Review Cruises/Lowerings</NavItem>
+        </LinkContainer>
+      );
+    }
+  }
+
+  renderEventManagementOptions() {
+    if(this.props.roles.includes('admin')) {
+      return (
+        <LinkContainer to={ `/event_management` }>
+          <NavItem>Event Management</NavItem>
         </LinkContainer>
       );
     }
@@ -107,6 +117,7 @@ class Header extends Component {
       return (
         <NavDropdown eventKey={3} title={'System Management'} id="basic-nav-dropdown">
           {this.renderCruiseOptions()}
+          {this.renderEventManagementOptions()}
           {this.renderEventTemplateOptions()}
           {this.renderLoweringOptions()}
           {this.renderTaskOptions()}
@@ -125,11 +136,13 @@ class Header extends Component {
           <MenuItem key="profile" eventKey={3.1} >User Profile</MenuItem>
         </LinkContainer>
         <MenuItem key="logout" eventKey={3.3} onClick={ () => this.handleLogout() } >Log Out</MenuItem>
-        {(this.props.fullname != 'Guest')? (<MenuItem key="switch2Guest" eventKey={3.3} onClick={ () => this.handleSwitchToGuest() } >Switch to Guest</MenuItem>) : null }
       </NavDropdown>
       );
     }
   }
+
+//        {(this.props.fullname != 'Guest')? (<MenuItem key="switch2Guest" eventKey={3.3} onClick={ () => this.handleSwitchToGuest() } >Switch to Guest</MenuItem>) : null }
+
 
   handleLogout() {
     this.props.logout();

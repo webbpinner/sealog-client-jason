@@ -54,6 +54,7 @@ import {
   UPDATE_EVENT_FILTER_FORM,
   LEAVE_EVENT_FILTER_FORM,
   UPDATE_EVENT,
+  UPDATE_EVENTS,
   FETCH_CUSTOM_VARS,
   UPDATE_CUSTOM_VAR,
   INIT_CRUISE,
@@ -267,7 +268,7 @@ export function createEvent(eventValue, eventFreeText = '', eventOptions = [], e
   }
 }
 
-export function updateEvent(event_id, eventValue, eventFreeText = '', eventOptions = [], eventTS = '') {
+export async function updateEventRequest(event_id, eventValue, eventFreeText = '', eventOptions = [], eventTS = '') {
 
   let payload = {
     event_value: eventValue,
@@ -279,8 +280,7 @@ export function updateEvent(event_id, eventValue, eventFreeText = '', eventOptio
     payload.ts = eventTS
   }
 
-  return function (dispatch) {
-    axios.patch(`${API_ROOT_URL}/api/v1/events/${event_id}`,
+  const response = await axios.patch(`${API_ROOT_URL}/api/v1/events/${event_id}`,
     payload,
     {
       headers: {
@@ -288,31 +288,76 @@ export function updateEvent(event_id, eventValue, eventFreeText = '', eventOptio
       }
     })
     .then((response) => {
-      return { event_id: response.data.insertedId }
+      return { response }
     })
     .catch((error)=>{
       console.log(error);
     });
+  
+  return response;
+}
+
+export function updateEvent(eventValue, eventFreeText = '', eventOptions = [], eventTS = '') {
+
+  return async dispatch => {
+    try {
+      const event = await updateEventRequest(eventValue, eventFreeText, eventOptions, eventTS);
+      return event
+    } catch (e) {
+      console(e)
+    }
   }
+}
+
+export function updateLoweringReplayEvent(event_id) {
+  const request = axios.get(API_ROOT_URL + '/api/v1/events/' + event_id, {
+    headers: {
+      authorization: cookies.get('token')
+    },
+  });
+
+  return function (dispatch) {
+    
+    request.then(({data}) => {
+      dispatch({type: UPDATE_EVENT, payload: data})
+    }).catch((error) => {
+      if(error.response.status !== 404) {
+        console.log(error);
+      }
+    });
+  }
+}
+
+export async function deleteEventRequest(event_id) {
+
+  const response = await axios.delete(`${API_ROOT_URL}/api/v1/events/${event_id}`,
+  {
+    headers: {
+      authorization: cookies.get('token')
+    }
+  })
+  .then((response) => {
+    return { response }
+  })
+  .catch((error)=>{
+    console.log(error);
+  });
+
+  return response;
 }
 
 export function deleteEvent(event_id) {
 
-  return function (dispatch) {
-    axios.delete(`${API_ROOT_URL}/api/v1/events/${event_id}`,
-    {
-      headers: {
-        authorization: cookies.get('token')
-      }
-    })
-    .then((response) => {
-      return { event_id: response.data.insertedId }
-    })
-    .catch((error)=>{
-      console.log(error);
-    });
+  return async dispatch => {
+    try {
+      const response = await deleteEventRequest(event_id);
+      return response
+    } catch (e) {
+      console(e)
+    }
   }
 }
+
 
 export function registerUser({username, fullname, password = '', email}) {
   return function (dispatch) {
@@ -1366,10 +1411,9 @@ export function advanceLoweringReplayTo(id) {
 }
 
 
-export function updateEventFilterForm(formProps, lowering_id, hideASNAP = false) {
+export function updateEventFilterForm(formProps) {
   return function (dispatch) {
     dispatch({type: UPDATE_EVENT_FILTER_FORM, payload: formProps})
-    dispatch(eventUpdateLoweringReplay(lowering_id, hideASNAP))
   }
 }
 
@@ -1485,12 +1529,12 @@ export function eventUpdate() {
         authorization: cookies.get('token')
       }
     }).then((response) => {
-      dispatch({ type: UPDATE_EVENT, payload: response.data })
+      dispatch({ type: UPDATE_EVENTS, payload: response.data })
       dispatch({ type: EVENT_FETCHING, payload: false})
     }).catch((error)=>{
       console.log(error);
       if(error.response.data.statusCode == 404) {
-        dispatch({type: UPDATE_EVENT, payload: []})
+        dispatch({type: UPDATE_EVENTS, payload: []})
       } else {
         console.log(error.response);
       }
@@ -1516,7 +1560,7 @@ export function eventUpdateLoweringReplay(lowering_id, hideASNAP = false) {
         authorization: cookies.get('token')
       }
     }).then((response) => {
-      dispatch({ type: UPDATE_EVENT, payload: response.data })
+      dispatch({ type: UPDATE_EVENTS, payload: response.data })
       if(response.data.length > 0) {
         dispatch(fetchSelectedEvent(response.data[0].id))
       }
@@ -1524,7 +1568,7 @@ export function eventUpdateLoweringReplay(lowering_id, hideASNAP = false) {
     }).catch((error)=>{
       console.log(error);
       if(error.response.data.statusCode == 404) {
-        dispatch({type: UPDATE_EVENT, payload: []})
+        dispatch({type: UPDATE_EVENTS, payload: []})
         dispatch({ type: SET_SELECTED_EVENT, payload: {} })
 
       } else {

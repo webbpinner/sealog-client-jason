@@ -75,6 +75,7 @@ export const EVENT_FETCHING = 'event_fetching';
 export const UPDATE_EVENT_FILTER_FORM = 'update_event_filter_form';
 export const LEAVE_EVENT_FILTER_FORM = 'leave_event_filter_form';
 export const UPDATE_EVENT = 'update_event';
+export const UPDATE_EVENTS = 'update_events';
 
 export const FETCH_CUSTOM_VARS = 'fetch_custom_vars';
 export const UPDATE_CUSTOM_VAR = 'update_custom_var';

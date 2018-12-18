@@ -181,16 +181,18 @@ class EventHistory extends Component {
       for (let i = 0; i < this.props.history.length; i++) {
 
         let event = this.props.history[i]
-        let commentTooltip = (<Tooltip id={`commentTooltip_${event.id}`}>Add Comment</Tooltip>)
 
         // if(this.state.hideASNAP && event.event_value == "ASNAP") {
         //   continue
         // }
 
         let eventOptionsArray = [];
+        let comment_exists = false;
         event.event_options.map((option) => {
           if(option.event_option_name != 'event_comment') {
             eventOptionsArray.push(option.event_option_name.replace(/\s+/g, "_") + ": \"" + option.event_option_value + "\"");
+          } else {
+            comment_exists = (option.event_option_value !== '')? true : false;
           }
         })
         
@@ -199,8 +201,10 @@ class EventHistory extends Component {
         } 
 
         let eventOptions = (eventOptionsArray.length > 0)? '--> ' + eventOptionsArray.join(', '): ''
+        let comment_icon = (comment_exists)? <FontAwesomeIcon icon='comment' fixedWidth transform="grow-4"/> : <span className="fa-layers fa-fw"><FontAwesomeIcon icon='comment' fixedWidth transform="grow-4"/><FontAwesomeIcon icon='plus' fixedWidth inverse transform="shrink-4"/></span>
+        let commentTooltip = (comment_exists)? (<Tooltip id={`commentTooltip_${event.id}`}>Edit/View Comment</Tooltip>) : (<Tooltip id={`commentTooltip_${event.id}`}>Add Comment</Tooltip>)
 
-        eventArray.push(<ListGroupItem key={event.id}><span onClick={() => this.handleEventShowDetails(event.id)}>{event.ts} {`<${event.event_author}>`}: {event.event_value} {eventOptions}</span><span className="pull-right" onClick={() => this.handleEventComment(event)}><OverlayTrigger placement="top" overlay={commentTooltip}><FontAwesomeIcon icon='comment' fixedWidth/></OverlayTrigger></span></ListGroupItem>);
+        eventArray.push(<ListGroupItem key={event.id}><span onClick={() => this.handleEventShowDetails(event.id)}>{event.ts} {`<${event.event_author}>`}: {event.event_value} {eventOptions}</span><span className="pull-right" onClick={() => this.handleEventComment(event)}><OverlayTrigger placement="top" overlay={commentTooltip}>{comment_icon}</OverlayTrigger></span></ListGroupItem>);
       }
       return eventArray
     }

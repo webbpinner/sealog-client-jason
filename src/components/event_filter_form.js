@@ -28,28 +28,25 @@ class EventFilterForm extends Component {
 
   handleFormSubmit(formProps) {
 
-    if(formProps.startTS && typeof(formProps.startTS) === "object") {
-      // console.log("converting")
-      if(formProps.startTS.isBefore(moment(this.props.lowering.start_ts))) {
-        formProps.startTS = this.props.lowering.start_ts
-      } else {
-        formProps.startTS = formProps.startTS.toISOString()
+      if(formProps.startTS && typeof(formProps.startTS) === "object") {
+        // console.log("converting")
+        if(this.props.minDate && formProps.startTS.isBefore(moment(this.props.minDate))) {
+          formProps.startTS = this.props.minDate
+        } else {
+          formProps.startTS = formProps.startTS.toISOString()
+        }
       }
-      // console.log(formProps.startTS)
-    }
-    
-    if(formProps.stopTS && typeof(formProps.stopTS) === "object") {
-      // console.log("converting")
-      if(formProps.stopTS.isAfter(moment(this.props.lowering.stop_ts))) {
-        formProps.stopTS = this.props.lowering.stop_ts
-      } else {
-        formProps.stopTS = formProps.stopTS.toISOString()
-      }
-      // console.log(formProps.stopTS)
-    }
 
-    // console.log("loweringID:",this.props.lowering_id)
-    this.props.updateEventFilterForm(formProps, this.props.lowering_id, this.props.hideASNAP);
+      if(formProps.stopTS && typeof(formProps.stopTS) === "object") {
+        // console.log("converting")
+        if(this.props.maxDate && formProps.stopTS.isAfter(moment(this.props.maxDate))) {
+          formProps.stopTS = this.props.maxDate
+        } else {
+          formProps.stopTS = formProps.stopTS.toISOString()
+        }
+      }
+
+    this.props.updateEventFilterForm(formProps);
     this.props.handlePostSubmit();
   }
 
@@ -107,13 +104,13 @@ class EventFilterForm extends Component {
   render() {
 
     const { handleSubmit, pristine, reset, submitting, valid } = this.props;
-    const loweringSearchEventFilterFormHeader = (<div>Event Filter</div>);
-    const startTS = (this.props.lowering.start_ts)? moment(this.props.lowering.start_ts): null
-    const stopTS = (this.props.lowering.stop_ts)? moment(this.props.lowering.stop_ts): null
+    const eventFilterFormHeader = (<div>Event Filter</div>);
+    const startTS = (this.props.minDate)? moment(this.props.minDate): null
+    const stopTS = (this.props.maxDate)? moment(this.props.maxDate): null
 
     return (
       <Panel>
-        <Panel.Heading>{loweringSearchEventFilterFormHeader}</Panel.Heading>
+        <Panel.Heading>{eventFilterFormHeader}</Panel.Heading>
         <Panel.Body>
           <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
             <Field
@@ -188,7 +185,6 @@ function mapStateToProps(state) {
 
   return {
     initialValues: state.event.eventFilter,
-    lowering: state.lowering.lowering
   };
 
 }

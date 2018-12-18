@@ -20,19 +20,27 @@ class EventLogging extends Component {
   render() {
     return (
       <div>
-        <EventCommentModal />
+        {(this.props.roles && this.props.roles.includes("event_logger"))? <EventCommentModal /> : null }
         <EventShowDetailsModal />
-        <Row>
-          <Col>
-            <EventTemplateList />
-          </Col>
-        </Row>
-        <br />
-        <Row>
-          <Col>
-            <EventInput />
-          </Col>
-        </Row>
+        {
+          (this.props.roles && this.props.roles.includes("event_logger"))?
+            <Row>
+              <Col>
+                <EventTemplateList />
+              </Col>
+            </Row>
+          : null
+        }
+        {(this.props.roles && this.props.roles.includes("event_logger"))? <br /> : null }
+        {
+          (this.props.roles && this.props.roles.includes("event_logger"))?
+            <Row>
+              <Col>
+                <EventInput />
+              </Col>
+            </Row>
+          : null
+        }
         <br />
         <Row>
           <Col>
@@ -45,7 +53,9 @@ class EventLogging extends Component {
 }
 
 function mapStateToProps(state) {
+
   return {
+    roles: state.user.profile.roles
   }
 }
 

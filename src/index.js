@@ -17,6 +17,7 @@ import CruiseMenu from './components/cruise_menu';
 import Users from './components/users';
 import Tasks from './components/tasks';
 import EventLogging from './components/event_logging';
+import EventManagement from './components/event_management';
 import EventTemplates from './components/event_templates';
 import Lowerings from './components/lowerings';
 import LoweringReplay from './components/lowering_replay';
@@ -40,10 +41,11 @@ import { faStepBackward } from '@fortawesome/free-solid-svg-icons/faStepBackward
 import { faBackward } from '@fortawesome/free-solid-svg-icons/faBackward';
 import { faPlay } from '@fortawesome/free-solid-svg-icons/faPlay';
 import { faPause } from '@fortawesome/free-solid-svg-icons/faPause';
+import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import { faForward } from '@fortawesome/free-solid-svg-icons/faForward';
 import { faStepForward } from '@fortawesome/free-solid-svg-icons/faStepForward';
 
-library.add(faUser, faArrowLeft, faArrowRight, faPencilAlt, faTrash, faEye, faEyeSlash, faDownload, faComment, faExpand, faCompress, faStepBackward, faBackward, faPlay, faPause, faForward, faStepForward);
+library.add(faUser, faArrowLeft, faArrowRight, faPencilAlt, faTrash, faEye, faEyeSlash, faDownload, faComment, faExpand, faCompress, faStepBackward, faBackward, faPlay, faPause, faPlus, faForward, faStepForward);
 
 require('typeface-roboto');
 
@@ -78,6 +80,7 @@ ReactDOM.render(
             <Route path={ `/lowerings` } exact={true} component={RequireAuth(Lowerings)} />
             <Route path={ `/lowering_replay/:id` } exact={true} component={RequireAuth(LoweringReplay)} />
             <Route path={ `/lowering_search/:id` } exact={true} component={RequireAuth(LoweringSearch)} />
+            <Route path={ `/event_management` } exact={true} component={RequireAuth(EventManagement)} />
             <Route path={ `/event_templates` } exact={true} component={RequireAuth(EventTemplates)} />
             <Footer />
           </div>

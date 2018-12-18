@@ -12,6 +12,7 @@ class EventInput extends Component {
 
   render() {
     const { handleSubmit, pristine, reset, submitting, valid } = this.props;
+
     return (
       <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
         <InputGroup>
@@ -34,7 +35,7 @@ class EventInput extends Component {
 function mapStateToProps(state) {
   return {
     errorMessage: state.auth.error,
-    successMessage: state.auth.message
+    successMessage: state.auth.message,
   }
 }
 
