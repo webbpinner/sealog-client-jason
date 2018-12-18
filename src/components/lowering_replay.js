@@ -259,13 +259,13 @@ class LoweringReplay extends Component {
     this.props.advanceLoweringReplayTo(this.props.event.events[(eventKey-1)*maxEventsPerPage].id)
   }
 
-  // renderImage(source, filepath) {
-  //   return (
-  //     <Thumbnail onClick={ () => this.handleImageClick(source, filepath) } onError={this.handleMissingImage} src={filepath}>
-  //       <div>{`Source: ${source}`}</div>
-  //     </Thumbnail>
-  //   )
-  // }
+  renderImage(source, filepath) {
+    return (
+      <Thumbnail onClick={ () => this.handleImageClick(source, filepath) } onError={this.handleMissingImage} src={filepath}>
+        <div>{`Source: ${source}`}</div>
+      </Thumbnail>
+    )
+  }
 
   handleMissingImage(ev) {
     ev.target.src = `${ROOT_PATH}images/noimage.jpeg`
@@ -338,229 +338,205 @@ class LoweringReplay extends Component {
     }
   }
 
-  // renderImageryPanel() {
-  //   if(this.props.event && this.props.event.selected_event.aux_data) {
-
-  //     if (this.props.event.selected_event.event_value == "SuliusCam") {
-  //       let tmpData =[]
-
-  //       for (let i = 0; i < this.props.event.selected_event.event_options.length; i++) {
-  //         if (this.props.event.selected_event.event_options[i].event_option_name == "filename") {
-  //           tmpData.push({source: "SuliusCam", filepath: API_ROOT_URL + IMAGE_PATH + '/SuliusCam/' + this.props.event.selected_event.event_options[i].event_option_value} )
-  //         } 
-  //       }
-
-  //       return (
-  //         <Row>
-  //           {
-  //             tmpData.map((camera) => {
-  //               return (
-  //                 <Col key={camera.source} xs={6} sm={3} md={3} lg={3}>
-  //                   {this.renderImage(camera.source, camera.filepath)}
-  //                 </Col>
-  //               )
-  //             })
-  //           }
-  //         </Row>
-  //       )
-  //     } else {
-  //       let frameGrabberData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == 'framegrabber')
-  //       let tmpData = []
-
-  //       if(frameGrabberData.length > 0) {
-  //         for (let i = 0; i < frameGrabberData[0].data_array.length; i+=2) {
-      
-  //           tmpData.push({source: frameGrabberData[0].data_array[i].data_value, filepath: API_ROOT_URL + IMAGE_PATH + '/' + frameGrabberData[0].data_array[i+1].data_value.split('/').pop()} )
-  //         }
-
-  //         return (
-  //           <Row>
-  //             {
-  //               tmpData.map((camera) => {
-  //                 return (
-  //                   <Col key={camera.source} xs={6} sm={3} md={3} lg={3}>
-  //                     {this.renderImage(camera.source, camera.filepath)}
-  //                   </Col>
-  //                 )
-  //               })
-  //             }
-  //           </Row>
-  //         )
-  //       }
-  //     }
-  //   }
-  // }
-
-  // renderSciCamPanel() {
-  //   if(this.props.event && this.props.event.selected_event.event_value == 'SCICAM') {
-
-  //     let sciCamData = this.props.event.selected_event.event_options.filter(event_option => event_option.event_option_name == 'filepath')
-
-  //     if(sciCamData.length > 0) {
-  //       return (
-  //         <Row>
-  //           <Col key='sciCamImage' xs={6} sm={3} md={3} lg={3}>
-  //             {this.renderImage("SciCAM", IMAGE_PATH + '/SCICAM_Images/' + sciCamData[0].event_option_value.split('/').pop())}
-  //           </Col>
-  //         </Row>
-  //       )
-  //     }
-  //   }
-  // }
-
-  // renderNavLatLonPanel() {
-
-  //   let latitude = 'n/a'
-  //   let longitude = 'n/a'
-  //   let depth = 'n/a'
-  //   let altitude = 'n/a'
-
-  //   if(this.props.event && this.props.event.selected_event.aux_data) {
-  //     let vehicleRealtimeNavData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == "vehicleRealtimeNavData")
-  //     if(vehicleRealtimeNavData.length > 0) {
-  //       let latObj = vehicleRealtimeNavData[0].data_array.filter(data => data.data_name == "latitude")
-  //       latitude = (latObj.length > 0)? `${latObj[0].data_value} ${latObj[0].data_uom}` : 'n/a'
-
-  //       let lonObj = vehicleRealtimeNavData[0].data_array.filter(data => data.data_name == "longitude")
-  //       longitude = (lonObj.length > 0)? `${lonObj[0].data_value} ${lonObj[0].data_uom}` : 'n/a'
-
-  //       let depthObj = vehicleRealtimeNavData[0].data_array.filter(data => data.data_name == "depth")
-  //       depth = (depthObj.length > 0)? `${depthObj[0].data_value} ${depthObj[0].data_uom}` : 'n/a'
-
-  //       let altObj = vehicleRealtimeNavData[0].data_array.filter(data => data.data_name == "altitude")
-  //       altitude = (altObj.length > 0)? `${altObj[0].data_value} ${altObj[0].data_uom}` : 'n/a'
-
-  //     }
-  //   }  
-
-  //   return (
-  //     <ListGroup>
-  //       <ListGroupItem>Lat:<span className="pull-right">{`${latitude}`}</span></ListGroupItem>
-  //       <ListGroupItem>Lng:<span className="pull-right">{`${longitude}`}</span></ListGroupItem>
-  //       <ListGroupItem>Depth:<span className="pull-right">{`${depth}`}</span></ListGroupItem>
-  //       <ListGroupItem>Alt:<span className="pull-right">{`${altitude}`}</span></ListGroupItem>
-  //     </ListGroup>
-  //   );
-  // }
-
-  // renderNavAlvCoordPanel() {
-
-  //   let alvin_x = 'n/a'
-  //   let alvin_y = 'n/a'
-  //   let alvin_z = 'n/a'
-
-  //   if(this.props.event && this.props.event.selected_event.aux_data) {
-  //     let alvinRealtimeAlvinCoordData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == "vehicleRealtimeNavData")
-  //     if(alvinRealtimeAlvinCoordData.length > 0) {
-  //       let xObj = alvinRealtimeAlvinCoordData[0].data_array.filter(data => data.data_name == "alvin_x")
-  //       alvin_x = (xObj.length > 0)? `${xObj[0].data_value} ${xObj[0].data_uom}` : 'n/a'
-
-  //       let yObj = alvinRealtimeAlvinCoordData[0].data_array.filter(data => data.data_name == "alvin_y")
-  //       alvin_y = (yObj.length > 0)? `${yObj[0].data_value} ${yObj[0].data_uom}` : 'n/a'
-
-  //       let zObj = alvinRealtimeAlvinCoordData[0].data_array.filter(data => data.data_name == "alvin_z")
-  //       alvin_z = (zObj.length > 0)? `${zObj[0].data_value} ${zObj[0].data_uom}` : 'n/a'
-
-  //     }
-  //   }
-
-  //   return (
-  //     <ListGroup>
-  //       <ListGroupItem>X:<span className="pull-right">{`${alvin_x}`}</span></ListGroupItem>
-  //       <ListGroupItem>Y:<span className="pull-right">{`${alvin_y}`}</span></ListGroupItem>
-  //       <ListGroupItem>Z:<span className="pull-right">{`${alvin_z}`}</span></ListGroupItem>
-  //     </ListGroup>
-  //   );
-  // }
-
-  // renderAttitudePanel() {
-  //   let hdg = 'n/a'
-  //   let pitch = 'n/a'
-  //   let roll = 'n/a'
-
-  //   if(this.props.event && this.props.event.selected_event.aux_data) {
-  //     let vehicleRealtimeNavData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == "vehicleRealtimeNavData")
-  //     if(vehicleRealtimeNavData.length > 0) {
-  //       let hdgObj = vehicleRealtimeNavData[0].data_array.filter(data => data.data_name == "heading")
-  //       hdg = (hdgObj.length > 0)? `${hdgObj[0].data_value} ${hdgObj[0].data_uom}` : 'n/a'
-
-  //       let pitchObj = vehicleRealtimeNavData[0].data_array.filter(data => data.data_name == "pitch")
-  //       pitch = (pitchObj.length > 0)? `${pitchObj[0].data_value} ${pitchObj[0].data_uom}` : 'n/a'
-
-  //       let rollObj = vehicleRealtimeNavData[0].data_array.filter(data => data.data_name == "roll")
-  //       roll = (rollObj.length > 0)? `${rollObj[0].data_value} ${rollObj[0].data_uom}` : 'n/a'
-
-  //     }
-  //   }  
-
-  //   return (
-  //     <ListGroup>
-  //       <ListGroupItem>Hdg:<span className="pull-right">{`${hdg}`}</span></ListGroupItem>
-  //       <ListGroupItem>Pitch:<span className="pull-right">{`${pitch}`}</span></ListGroupItem>
-  //       <ListGroupItem>Roll:<span className="pull-right">{`${roll}`}</span></ListGroupItem>
-  //     </ListGroup>
-  //   );
-  // }
-
-  // renderDataPanel() {
-  //   let ctd_c = 'n/a'
-  //   let ctd_t = 'n/a'
-  //   let ctd_d = 'n/a'
-  //   let temp_probe = 'n/a'
-
-  //   if(this.props.event && this.props.event.selected_event.aux_data) {
-  //     let vehicleCTDData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == "vehicleCTDData")
-  //     if(vehicleCTDData.length > 0) {
-  //       let ctd_cObj = vehicleCTDData[0].data_array.filter(data => data.data_name == "ctd_c")
-  //       ctd_c = (ctd_cObj.length > 0)? `${ctd_cObj[0].data_value} ${ctd_cObj[0].data_uom}` : 'n/a'
-
-  //       let ctd_tObj = vehicleCTDData[0].data_array.filter(data => data.data_name == "ctd_t")
-  //       ctd_t = (ctd_tObj.length > 0)? `${ctd_tObj[0].data_value} ${ctd_tObj[0].data_uom}` : 'n/a'
-
-  //       let ctd_dObj = vehicleCTDData[0].data_array.filter(data => data.data_name == "ctd_d")
-  //       ctd_d = (ctd_dObj.length > 0)? `${ctd_dObj[0].data_value} ${ctd_dObj[0].data_uom}` : 'n/a'
-
-  //     }
-
-  //     let vehicleTempProbeData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == "vehicleTempProbeData")
-  //     if(vehicleTempProbeData.length > 0) {
-  //       let temp_probeObj = vehicleTempProbeData[0].data_array.filter(data => data.data_name == "ctd_c")
-  //       temp_probe = (temp_probeObj.length > 0)? `${temp_probeObj[0].data_value} ${temp_probeObj[0].data_uom}` : 'n/a'
-  //     }
-  //   }  
-
-  //   return (
-  //     <ListGroup>
-  //       <ListGroupItem>CTD C:<span className="pull-right">{`${ctd_c}`}</span></ListGroupItem>
-  //       <ListGroupItem>CTD T:<span className="pull-right">{`${ctd_t}`}</span></ListGroupItem>
-  //       <ListGroupItem>CTD D:<span className="pull-right">{`${ctd_d}`}</span></ListGroupItem>
-  //       <ListGroupItem>Temp Probe:<span className="pull-right">{`${temp_probe}`}</span></ListGroupItem>
-  //     </ListGroup>
-  //   );
-  // }
-
-  renderAuxDataPanel() {
-
-    let return_aux_data = []
+  renderImageryPanel() {
     if(this.props.event && this.props.event.selected_event.aux_data) {
-      return this.props.event.selected_event.aux_data.map((aux_data, index) => {
-        let return_data = aux_data.data_array.map((data, index) => {
-          return (<div key={`${aux_data.data_source}_data_point_${index}`}><label>{data.data_name}:</label><span> {data.data_value} {data.data_uom}</span></div>)
-        })
+
+      if (this.props.event.selected_event.event_value == "SuliusCam") {
+        let tmpData =[]
+
+        for (let i = 0; i < this.props.event.selected_event.event_options.length; i++) {
+          if (this.props.event.selected_event.event_options[i].event_option_name == "filename") {
+            tmpData.push({source: "SuliusCam", filepath: API_ROOT_URL + IMAGE_PATH + '/SuliusCam/' + this.props.event.selected_event.event_options[i].event_option_value} )
+          } 
+        }
+
         return (
-          <Col key={`${aux_data.data_source}`} xs={12} md={6}>
-            <Panel>
-              <label>{aux_data.data_source}:</label>
-              <ul>
-                {return_data}
-                </ul>
-            </Panel>
-          </Col>
+          <Row>
+            {
+              tmpData.map((camera) => {
+                return (
+                  <Col key={camera.source} xs={6} sm={3} md={3} lg={3}>
+                    {this.renderImage(camera.source, camera.filepath)}
+                  </Col>
+                )
+              })
+            }
+          </Row>
         )
-      })
+      } else {
+        let frameGrabberData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == 'framegrabber')
+        let tmpData = []
+
+        if(frameGrabberData.length > 0) {
+          for (let i = 0; i < frameGrabberData[0].data_array.length; i+=2) {
+      
+            tmpData.push({source: frameGrabberData[0].data_array[i].data_value, filepath: API_ROOT_URL + IMAGE_PATH + '/' + frameGrabberData[0].data_array[i+1].data_value.split('/').pop()} )
+          }
+
+          return (
+            <Row>
+              {
+                tmpData.map((camera) => {
+                  return (
+                    <Col key={camera.source} xs={6} sm={3} md={3} lg={3}>
+                      {this.renderImage(camera.source, camera.filepath)}
+                    </Col>
+                  )
+                })
+              }
+            </Row>
+          )
+        }
+      }
+    }
+  }
+
+  renderSciCamPanel() {
+    if(this.props.event && this.props.event.selected_event.event_value == 'SCICAM') {
+
+      let sciCamData = this.props.event.selected_event.event_options.filter(event_option => event_option.event_option_name == 'filepath')
+
+      if(sciCamData.length > 0) {
+        return (
+          <Row>
+            <Col key='sciCamImage' xs={6} sm={3} md={3} lg={3}>
+              {this.renderImage("SciCAM", IMAGE_PATH + '/SCICAM_Images/' + sciCamData[0].event_option_value.split('/').pop())}
+            </Col>
+          </Row>
+        )
+      }
+    }
+  }
+
+  renderNavLatLonPanel() {
+
+    let latitude = 'n/a'
+    let longitude = 'n/a'
+    let depth = 'n/a'
+    let altitude = 'n/a'
+
+    if(this.props.event && this.props.event.selected_event.aux_data) {
+      let vehicleRealtimeNavData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == "vehicleRealtimeNavData")
+      if(vehicleRealtimeNavData.length > 0) {
+        let latObj = vehicleRealtimeNavData[0].data_array.filter(data => data.data_name == "latitude")
+        latitude = (latObj.length > 0)? `${latObj[0].data_value} ${latObj[0].data_uom}` : 'n/a'
+
+        let lonObj = vehicleRealtimeNavData[0].data_array.filter(data => data.data_name == "longitude")
+        longitude = (lonObj.length > 0)? `${lonObj[0].data_value} ${lonObj[0].data_uom}` : 'n/a'
+
+        let depthObj = vehicleRealtimeNavData[0].data_array.filter(data => data.data_name == "depth")
+        depth = (depthObj.length > 0)? `${depthObj[0].data_value} ${depthObj[0].data_uom}` : 'n/a'
+
+        let altObj = vehicleRealtimeNavData[0].data_array.filter(data => data.data_name == "altitude")
+        altitude = (altObj.length > 0)? `${altObj[0].data_value} ${altObj[0].data_uom}` : 'n/a'
+
+      }
     }  
 
-    return null
+    return (
+      <ListGroup>
+        <ListGroupItem>Lat:<span className="pull-right">{`${latitude}`}</span></ListGroupItem>
+        <ListGroupItem>Lng:<span className="pull-right">{`${longitude}`}</span></ListGroupItem>
+        <ListGroupItem>Depth:<span className="pull-right">{`${depth}`}</span></ListGroupItem>
+        <ListGroupItem>Alt:<span className="pull-right">{`${altitude}`}</span></ListGroupItem>
+      </ListGroup>
+    );
+  }
+
+  renderNavAlvCoordPanel() {
+
+    let alvin_x = 'n/a'
+    let alvin_y = 'n/a'
+    let alvin_z = 'n/a'
+
+    if(this.props.event && this.props.event.selected_event.aux_data) {
+      let alvinRealtimeAlvinCoordData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == "vehicleRealtimeNavData")
+      if(alvinRealtimeAlvinCoordData.length > 0) {
+        let xObj = alvinRealtimeAlvinCoordData[0].data_array.filter(data => data.data_name == "alvin_x")
+        alvin_x = (xObj.length > 0)? `${xObj[0].data_value} ${xObj[0].data_uom}` : 'n/a'
+
+        let yObj = alvinRealtimeAlvinCoordData[0].data_array.filter(data => data.data_name == "alvin_y")
+        alvin_y = (yObj.length > 0)? `${yObj[0].data_value} ${yObj[0].data_uom}` : 'n/a'
+
+        let zObj = alvinRealtimeAlvinCoordData[0].data_array.filter(data => data.data_name == "alvin_z")
+        alvin_z = (zObj.length > 0)? `${zObj[0].data_value} ${zObj[0].data_uom}` : 'n/a'
+
+      }
+    }
+
+    return (
+      <ListGroup>
+        <ListGroupItem>X:<span className="pull-right">{`${alvin_x}`}</span></ListGroupItem>
+        <ListGroupItem>Y:<span className="pull-right">{`${alvin_y}`}</span></ListGroupItem>
+        <ListGroupItem>Z:<span className="pull-right">{`${alvin_z}`}</span></ListGroupItem>
+      </ListGroup>
+    );
+  }
+
+  renderAttitudePanel() {
+    let hdg = 'n/a'
+    let pitch = 'n/a'
+    let roll = 'n/a'
+
+    if(this.props.event && this.props.event.selected_event.aux_data) {
+      let vehicleRealtimeNavData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == "vehicleRealtimeNavData")
+      if(vehicleRealtimeNavData.length > 0) {
+        let hdgObj = vehicleRealtimeNavData[0].data_array.filter(data => data.data_name == "heading")
+        hdg = (hdgObj.length > 0)? `${hdgObj[0].data_value} ${hdgObj[0].data_uom}` : 'n/a'
+
+        let pitchObj = vehicleRealtimeNavData[0].data_array.filter(data => data.data_name == "pitch")
+        pitch = (pitchObj.length > 0)? `${pitchObj[0].data_value} ${pitchObj[0].data_uom}` : 'n/a'
+
+        let rollObj = vehicleRealtimeNavData[0].data_array.filter(data => data.data_name == "roll")
+        roll = (rollObj.length > 0)? `${rollObj[0].data_value} ${rollObj[0].data_uom}` : 'n/a'
+
+      }
+    }  
+
+    return (
+      <ListGroup>
+        <ListGroupItem>Hdg:<span className="pull-right">{`${hdg}`}</span></ListGroupItem>
+        <ListGroupItem>Pitch:<span className="pull-right">{`${pitch}`}</span></ListGroupItem>
+        <ListGroupItem>Roll:<span className="pull-right">{`${roll}`}</span></ListGroupItem>
+      </ListGroup>
+    );
+  }
+
+  renderDataPanel() {
+    let ctd_c = 'n/a'
+    let ctd_t = 'n/a'
+    let ctd_d = 'n/a'
+    let temp_probe = 'n/a'
+
+    if(this.props.event && this.props.event.selected_event.aux_data) {
+      let vehicleCTDData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == "vehicleCTDData")
+      if(vehicleCTDData.length > 0) {
+        let ctd_cObj = vehicleCTDData[0].data_array.filter(data => data.data_name == "ctd_c")
+        ctd_c = (ctd_cObj.length > 0)? `${ctd_cObj[0].data_value} ${ctd_cObj[0].data_uom}` : 'n/a'
+
+        let ctd_tObj = vehicleCTDData[0].data_array.filter(data => data.data_name == "ctd_t")
+        ctd_t = (ctd_tObj.length > 0)? `${ctd_tObj[0].data_value} ${ctd_tObj[0].data_uom}` : 'n/a'
+
+        let ctd_dObj = vehicleCTDData[0].data_array.filter(data => data.data_name == "ctd_d")
+        ctd_d = (ctd_dObj.length > 0)? `${ctd_dObj[0].data_value} ${ctd_dObj[0].data_uom}` : 'n/a'
+
+      }
+
+      let vehicleTempProbeData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == "vehicleTempProbeData")
+      if(vehicleTempProbeData.length > 0) {
+        let temp_probeObj = vehicleTempProbeData[0].data_array.filter(data => data.data_name == "ctd_c")
+        temp_probe = (temp_probeObj.length > 0)? `${temp_probeObj[0].data_value} ${temp_probeObj[0].data_uom}` : 'n/a'
+      }
+    }  
+
+    return (
+      <ListGroup>
+        <ListGroupItem>CTD C:<span className="pull-right">{`${ctd_c}`}</span></ListGroupItem>
+        <ListGroupItem>CTD T:<span className="pull-right">{`${ctd_t}`}</span></ListGroupItem>
+        <ListGroupItem>CTD D:<span className="pull-right">{`${ctd_d}`}</span></ListGroupItem>
+        <ListGroupItem>Temp Probe:<span className="pull-right">{`${temp_probe}`}</span></ListGroupItem>
+      </ListGroup>
+    );
   }
 
   renderControlsPanel() {
@@ -804,7 +780,25 @@ class LoweringReplay extends Component {
           </Col>
         </Row>
         <Row>
-                {this.renderAuxDataPanel()}
+          <Col sm={12}>
+            {this.renderImageryPanel()}
+          </Col>
+        </Row>
+        <Row>
+          <Col sm={12}>
+            {this.renderSciCamPanel()}
+          </Col>
+        </Row>
+        <Row>
+          <Col sm={4} md={3} lg={3}>
+            {this.renderNavLatLonPanel()}
+          </Col>
+          <Col sm={4} md={3} lg={3}>
+            {this.renderNavAlvCoordPanel()}
+          </Col>
+          <Col sm={4} md={3} lg={3}>
+            {this.renderAttitudePanel()}
+          </Col>
         </Row>
         <Row>
           <Col md={9} lg={9}>
@@ -820,28 +814,6 @@ class LoweringReplay extends Component {
     )
   }
 }
-
-        // <Row>
-          // <Col sm={12}>
-            // {this.renderImageryPanel()}
-          // </Col>
-        // </Row>
-        // <Row>
-          // <Col sm={12}>
-            // {this.renderSciCamPanel()}
-          // </Col>
-        // </Row>
-        // <Row>
-          // <Col sm={4} md={3} lg={3}>
-            // {this.renderNavLatLonPanel()}
-          // </Col>
-          // <Col sm={4} md={3} lg={3}>
-            // {this.renderNavAlvCoordPanel()}
-          // </Col>
-          // <Col sm={4} md={3} lg={3}>
-            // {this.renderAttitudePanel()}
-          // </Col>
-        // </Row>
         // <Row>
           // <Col lg={12}>
             // {this.renderPopoutMapButton()}

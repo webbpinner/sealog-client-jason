@@ -7,7 +7,7 @@ import { LinkContainer } from 'react-router-bootstrap';
 import { ROOT_PATH } from '../url_config';
 import * as actions from '../actions';
 
-const heading = "Sealog - ISC Test"
+const heading = "Sealog - JASON Edition"
 
 class Header extends Component {
 
