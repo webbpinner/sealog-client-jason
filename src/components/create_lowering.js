@@ -1,6 +1,5 @@
 import moment from 'moment';
 import Datetime from 'react-datetime';
-// import 'react-datetime/css/react-datetime.css';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { reduxForm, Field, initialize, reset } from 'redux-form';
@@ -17,6 +16,7 @@ class CreateLowering extends Component {
   }
 
   handleFormSubmit(formProps) {
+    formProps.lowering_observers = (formProps.lowering_observers)? formProps.lowering_observers.map(tag => tag.trim()): [];
     formProps.lowering_tags = (formProps.lowering_tags)? formProps.lowering_tags.map(tag => tag.trim()): [];
     this.props.createLowering(formProps);
   }
@@ -48,7 +48,6 @@ class CreateLowering extends Component {
 
   renderDatePicker({ input, label, type, required, meta: { touched, error, warning } }) {
     let requiredField = (required)? <span className='text-danger'> *</span> : ''
-
     return (
       <FormGroup>
         <label>{label}{requiredField}</label>
@@ -183,6 +182,20 @@ class CreateLowering extends Component {
                   required={true}
                 />
                 <Field
+                  name="lowering_pilot"
+                  type="text"
+                  component={this.renderField}
+                  label="Pilot"
+                  placeholder="i.e. Bruce Strickrott"
+                />
+                <Field
+                  name="lowering_observers"
+                  type="text"
+                  component={this.renderField}
+                  label="Observers (comma delimited)"
+                  placeholder="i.e. Adam Soule,Masako Tominaga"
+                />
+                <Field
                   name="lowering_tags"
                   component={this.renderTextArea}
                   type="textarea"
@@ -234,8 +247,16 @@ function validate(formProps) {
   }
 
   if ((formProps.start_ts != '') && (formProps.stop_ts != '')) {
-    if(moment(formProps.stop_ts, dateFormat).isBefore(moment(formProps.start_ts, dateFormat))) {
-      errors.stop_ts = 'Stop date must be later than start data'
+    if(moment(formProps.stop_ts, dateFormat + " " + timeFormat).isBefore(moment(formProps.start_ts, dateFormat + " " + timeFormat))) {
+      errors.stop_ts = 'Stop date/time must be later than start date/time'
+    }
+  }
+
+  if (typeof formProps.lowering_observers == "string") {
+    if (formProps.lowering_observers == '') {
+      formProps.lowering_observers = []
+    } else {
+      formProps.lowering_observers = formProps.lowering_observers.split(',');
     }
   }
 

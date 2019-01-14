@@ -7,7 +7,7 @@ import { LinkContainer } from 'react-router-bootstrap';
 import { ROOT_PATH } from '../url_config';
 import * as actions from '../actions';
 
-const heading = "Sealog - JASON Edition"
+// const heading = "Sealog - Alvin Edition"
 
 class Header extends Component {
 
@@ -19,7 +19,6 @@ class Header extends Component {
     if (this.props.authenticated) {
       this.props.updateProfileState();
     }
-//    this.props.fetchCustomVars()
   }
 
   handleASNAPToggle() {
@@ -43,9 +42,7 @@ class Header extends Component {
   }
 
   renderEventLoggingOptions() {
-
-    // console.log(this.props.roles)
-    if(this.props.roles && (this.props.roles.includes('admin') || this.props.roles.includes('cruise_manager') || this.props.roles.includes('event_manager') || this.props.roles.includes('event_logger') || this.props.roles.includes('event_watcher'))) {
+    if(this.props.authenticated) {
       return (
         <LinkContainer to={ `/cruise_menu` }>
           <NavItem>Review Cruises/Lowerings</NavItem>
@@ -135,14 +132,14 @@ class Header extends Component {
         <LinkContainer to={ `/profile` }>
           <MenuItem key="profile" eventKey={3.1} >User Profile</MenuItem>
         </LinkContainer>
+        {(this.props.fullname != 'Pilot')? (<MenuItem key="switch2Pilot" eventKey={3.1} onClick={ () => this.handleSwitchToPilot() } >Switch to Pilot</MenuItem>) : null }
+        {(this.props.fullname != 'Starboard Obs')? (<MenuItem key="switch2StbdObs" eventKey={3.2} onClick={ () => this.handleSwitchToStbdObs() } >Switch to Stbd Obs</MenuItem>) : null }
+        {(this.props.fullname != 'Port Obs')? (<MenuItem key="switch2Port" eventKey={3.3} onClick={ () => this.handleSwitchToPortObs() } >Switch to Port Obs</MenuItem>) : null }
         <MenuItem key="logout" eventKey={3.3} onClick={ () => this.handleLogout() } >Log Out</MenuItem>
       </NavDropdown>
       );
     }
   }
-
-//        {(this.props.fullname != 'Guest')? (<MenuItem key="switch2Guest" eventKey={3.3} onClick={ () => this.handleSwitchToGuest() } >Switch to Guest</MenuItem>) : null }
-
 
   handleLogout() {
     this.props.logout();
@@ -152,13 +149,25 @@ class Header extends Component {
     this.props.switch2Guest();
   }
 
+  handleSwitchToPilot() {
+    this.props.switch2Pilot();
+  }
+
+  handleSwitchToStbdObs() {
+    this.props.switch2StbdObs();
+  }
+
+  handleSwitchToPortObs() {
+    this.props.switch2PortObs();
+  }
+
   render () {
     return (
       <Row>
       <Navbar fluid collapseOnSelect>
         <Navbar.Header>
           <Navbar.Brand>
-            <Link to={ `/` }>{heading}</Link>
+            <Link to={ `/` }>Sealog <Image responsive src={`${ROOT_PATH}images/Alvin_Front_brand.png`}/> ALVIN Topside Edition</Link>
           </Navbar.Brand>
           <Navbar.Toggle />
         </Navbar.Header>

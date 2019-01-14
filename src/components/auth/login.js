@@ -96,7 +96,7 @@ render() {
 
     return (
       <Row>
-        <Col sm={5} smOffset={1} md={3} mdOffset={2} lg={2} lgOffset={3}>
+        <Col sm={5} md={3} mdOffset={2} lg={2} lgOffset={3}>
           <Panel className="form-signin">
             <Panel.Body>
               {loginPanelHeader}
@@ -125,16 +125,18 @@ render() {
                 </div>
               </form>
               <br/>
+              <Button bsStyle="success" onClick={() => this.props.switch2Pilot()} block>Login as Pilot</Button>
+              <Button bsStyle="success" onClick={() => this.props.switch2StbdObs()} block>Login as Stbd Obs</Button>
+              <Button bsStyle="success" onClick={() => this.props.switch2PortObs()} block>Login as Port Obs</Button>
+              <br/>
               <div className="text-right">
                 <Link to={ `/register` }>Register New User {<FontAwesomeIcon icon="arrow-right" />}</Link>
               </div>
-              <br/>
-              <Button bsStyle="success" onClick={() => this.props.switch2Guest()} block>Login as guest</Button>
             </Panel.Body>
           </Panel>
         </Col>
         <Col>
-          <Image className="form-signin" responsive src={`/images/Jason_silhouette.png`}/>
+          <Image className="form-signin" responsive src={`${ROOT_PATH}images/Alvin_Profile.png`}/>
         </Col>
       </Row>
     )

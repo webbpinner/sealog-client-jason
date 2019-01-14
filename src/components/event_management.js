@@ -30,12 +30,14 @@ class EventManagement extends Component {
       hideASNAP: true,
       activePage: 1,
       fetching: false,
-      events: null
+      events: null,
+      eventFilter: {},
     }
 
     this.handleEventUpdate = this.handleEventUpdate.bind(this);
     this.handleEventDelete = this.handleEventDelete.bind(this);
     this.handlePageSelect = this.handlePageSelect.bind(this);
+    this.updateEventFilter = this.updateEventFilter.bind(this);
   }
 
   componentWillMount(){
@@ -44,19 +46,17 @@ class EventManagement extends Component {
     }
   }
 
-  componentDidUpdate() {
-  }
-
-  componentWillUnmount() {
-  }
-
   handlePageSelect(eventKey) {
-    // console.log("eventKey:", eventKey)
     this.setState({activePage: eventKey});
   }
 
   handleEventCommentModal(event) {
     this.props.showModal('eventComment', { event: event, handleUpdateEvent: this.handleEventUpdate });
+  }
+
+  updateEventFilter(filter = {}) {
+    this.setState({ activePage: 1, eventFilter: filter });
+    this.fetchEventsForDisplay(filter);
   }
 
   async handleEventUpdate(event_id, event_value, event_free_text, event_options, event_ts) {
@@ -86,26 +86,24 @@ class EventManagement extends Component {
     }
   }
 
-  handleEventShowDetails(id) {
-    this.props.showModal('eventShowDetails', { id: id });
+  handleEventShowDetailsModal(event) {
+    this.props.showModal('eventShowDetails', { event: event, handleUpdateEvent: this.handleEventUpdate });
   }
 
-  async fetchEventsForDisplay(format = 'json') {
-
-    const cookies = new Cookies();
-    // console.log("event export update")
-    format = `format=${format}`
-    let startTS = (this.props.event.eventFilter.startTS)? `&startTS=${this.props.event.eventFilter.startTS}` : ''
-    let stopTS = (this.props.event.eventFilter.stopTS)? `&stopTS=${this.props.event.eventFilter.stopTS}` : ''
-    let value = (this.props.event.eventFilter.value)? `&value=${this.props.event.eventFilter.value.split(',').join("&value=")}` : ''
-    value = (this.state.hideASNAP)? `&value=!ASNAP${value}` : value;
-    let author = (this.props.event.eventFilter.author)? `&author=${this.props.event.eventFilter.author.split(',').join("&author=")}` : ''
-    let freetext = (this.props.event.eventFilter.freetext)? `&freetext=${this.props.event.eventFilter.freetext}` : ''
-    let datasource = (this.props.event.eventFilter.datasource)? `&datasource=${this.props.event.eventFilter.datasource}` : ''
+  async fetchEventsForDisplay(eventFilter = this.state.eventFilter) {
 
     this.setState({fetching: true})
 
-    await axios.get(`${API_ROOT_URL}/api/v1/events?${format}${startTS}${stopTS}${value}${author}${freetext}${datasource}`,
+    const cookies = new Cookies();
+    let startTS = (eventFilter.startTS)? `&startTS=${eventFilter.startTS}` : ''
+    let stopTS = (eventFilter.stopTS)? `&stopTS=${eventFilter.stopTS}` : ''
+    let value = (eventFilter.value)? `&value=${eventFilter.value.split(',').join("&value=")}` : ''
+    value = (this.state.hideASNAP)? `&value=!ASNAP${value}` : value;
+    let author = (eventFilter.author)? `&author=${eventFilter.author.split(',').join("&author=")}` : ''
+    let freetext = (eventFilter.freetext)? `&freetext=${eventFilter.freetext}` : ''
+    let datasource = (eventFilter.datasource)? `&datasource=${eventFilter.datasource}` : ''
+
+    await axios.get(`${API_ROOT_URL}/api/v1/events?${startTS}${stopTS}${value}${author}${freetext}${datasource}`,
       {
         headers: {
           authorization: cookies.get('token')
@@ -114,6 +112,9 @@ class EventManagement extends Component {
         this.setState({fetching: false})
         this.setState({events: response.data})
       }).catch((error)=>{
+        console.log(error)
+
+        console.log("?? 1")
         if(error.response.data.statusCode == 404){
           this.setState({fetching: false})
           this.setState({events: []})
@@ -126,18 +127,19 @@ class EventManagement extends Component {
     );
   }
 
-  fetchEvents() {
+  fetchEvents(format = 'json', eventFilter = this.state.eventFilter) {
 
     const cookies = new Cookies();
-    let startTS = (this.props.event.eventFilter.startTS)? `startTS=${this.props.event.eventFilter.startTS}` : ''
-    let stopTS = (this.props.event.eventFilter.stopTS)? `&stopTS=${this.props.event.eventFilter.stopTS}` : ''
-    let value = (this.props.event.eventFilter.value)? `&value=${this.props.event.eventFilter.value.split(',').join("&value=")}` : ''
+    format = `format=${format}`
+    let startTS = (eventFilter.startTS)? `&startTS=${eventFilter.startTS}` : ''
+    let stopTS = (eventFilter.stopTS)? `&stopTS=${eventFilter.stopTS}` : ''
+    let value = (eventFilter.value)? `&value=${eventFilter.value.split(',').join("&value=")}` : ''
     value = (this.state.hideASNAP)? `&value=!ASNAP${value}` : value;
-    let author = (this.props.event.eventFilter.author)? `&author=${this.props.event.eventFilter.author.split(',').join("&author=")}` : ''
-    let freetext = (this.props.event.eventFilter.freetext)? `&freetext=${this.props.event.eventFilter.freetext}` : ''
-    let datasource = (this.props.event.eventFilter.datasource)? `&datasource=${this.props.event.eventFilter.datasource}` : ''
+    let author = (eventFilter.author)? `&author=${eventFilter.author.split(',').join("&author=")}` : ''
+    let freetext = (eventFilter.freetext)? `&freetext=${eventFilter.freetext}` : ''
+    let datasource = (eventFilter.datasource)? `&datasource=${eventFilter.datasource}` : ''
 
-    return axios.get(`${API_ROOT_URL}/api/v1/events?${startTS}${stopTS}${value}${author}${freetext}${datasource}`,
+    return axios.get(`${API_ROOT_URL}/api/v1/events?${format}${startTS}${stopTS}${value}${author}${freetext}${datasource}`,
       {
         headers: {
           authorization: cookies.get('token')
@@ -155,16 +157,16 @@ class EventManagement extends Component {
     );
   }
 
-  fetchEventAuxData() {
+  fetchEventAuxData(eventFilter = this.state.eventFilter) {
 
     const cookies = new Cookies();
-    let startTS = (this.props.event.eventFilter.startTS)? `startTS=${this.props.event.eventFilter.startTS}` : ''
-    let stopTS = (this.props.event.eventFilter.stopTS)? `&stopTS=${this.props.event.eventFilter.stopTS}` : ''
-    let value = (this.props.event.eventFilter.value)? `&value=${this.props.event.eventFilter.value.split(',').join("&value=")}` : ''
+    let startTS = (eventFilter.startTS)? `startTS=${eventFilter.startTS}` : ''
+    let stopTS = (eventFilter.stopTS)? `&stopTS=${eventFilter.stopTS}` : ''
+    let value = (eventFilter.value)? `&value=${eventFilter.value.split(',').join("&value=")}` : ''
     value = (this.state.hideASNAP)? `&value=!ASNAP${value}` : value;
-    let author = (this.props.event.eventFilter.author)? `&author=${this.props.event.eventFilter.author.split(',').join("&author=")}` : ''
-    let freetext = (this.props.event.eventFilter.freetext)? `&freetext=${this.props.event.eventFilter.freetext}` : ''
-    let datasource = (this.props.event.eventFilter.datasource)? `&datasource=${this.props.event.eventFilter.datasource}` : ''
+    let author = (eventFilter.author)? `&author=${eventFilter.author.split(',').join("&author=")}` : ''
+    let freetext = (eventFilter.freetext)? `&freetext=${eventFilter.freetext}` : ''
+    let datasource = (eventFilter.datasource)? `&datasource=${eventFilter.datasource}` : ''
 
     return axios.get(`${API_ROOT_URL}/api/v1/event_aux_data?${startTS}${stopTS}${value}${author}${freetext}${datasource}`,
       {
@@ -184,18 +186,17 @@ class EventManagement extends Component {
     );
   }
 
-  fetchEventsWithAuxData(format = 'json') {
+  fetchEventsWithAuxData(format = 'json', eventFilter = this.state.eventFilter) {
 
     const cookies = new Cookies();
-    // console.log("event export update")
     format = `format=${format}`
-    let startTS = (this.props.event.eventFilter.startTS)? `&startTS=${this.props.event.eventFilter.startTS}` : ''
-    let stopTS = (this.props.event.eventFilter.stopTS)? `&stopTS=${this.props.event.eventFilter.stopTS}` : ''
-    let value = (this.props.event.eventFilter.value)? `&value=${this.props.event.eventFilter.value.split(',').join("&value=")}` : ''
+    let startTS = (eventFilter.startTS)? `&startTS=${eventFilter.startTS}` : ''
+    let stopTS = (eventFilter.stopTS)? `&stopTS=${eventFilter.stopTS}` : ''
+    let value = (eventFilter.value)? `&value=${eventFilter.value.split(',').join("&value=")}` : ''
     value = (this.state.hideASNAP)? `&value=!ASNAP${value}` : value;
-    let author = (this.props.event.eventFilter.author)? `&author=${this.props.event.eventFilter.author.split(',').join("&author=")}` : ''
-    let freetext = (this.props.event.eventFilter.freetext)? `&freetext=${this.props.event.eventFilter.freetext}` : ''
-    let datasource = (this.props.event.eventFilter.datasource)? `&datasource=${this.props.event.eventFilter.datasource}` : ''
+    let author = (eventFilter.author)? `&author=${eventFilter.author.split(',').join("&author=")}` : ''
+    let freetext = (eventFilter.freetext)? `&freetext=${eventFilter.freetext}` : ''
+    let datasource = (eventFilter.datasource)? `&datasource=${eventFilter.datasource}` : ''
 
     return axios.get(`${API_ROOT_URL}/api/v1/event_exports/?${format}${startTS}${stopTS}${value}${author}${freetext}${datasource}`,
       {
@@ -234,7 +235,6 @@ class EventManagement extends Component {
   }
 
   exportEventsWithAuxDataToJSON() {
-
     this.fetchEventsWithAuxData().then((results) => {
       let prefix = moment.utc(this.state.events[0].ts).format(dateFormat + "_" + timeFormat)
       fileDownload(JSON.stringify(results, null, 2), `${prefix}.sealog_export.json`);
@@ -270,7 +270,7 @@ class EventManagement extends Component {
   renderEventListHeader() {
 
     const Label = "Filtered Events"
-    const exportTooltip = (<Tooltip id="deleteTooltip">Export these events</Tooltip>)
+    const exportTooltip = (<Tooltip id="exportTooltip">Export these events</Tooltip>)
     const toggleASNAPTooltip = (<Tooltip id="toggleASNAPTooltip">Show/Hide ASNAP Events</Tooltip>)
 
     const ASNAPToggleIcon = (this.state.hideASNAP)? "Show ASNAP" : "Hide ASNAP"
@@ -296,79 +296,68 @@ class EventManagement extends Component {
     );
   }
 
+  renderEvents() {
+
+    if(this.state.events && this.state.events.length > 0){
+
+      let eventArray = []
+
+      for (let i = (this.state.activePage-1) * maxEventsPerPage; i < this.state.activePage * maxEventsPerPage; i++) {
+
+        if(i >= this.state.events.length)
+          break
+
+        let event = this.state.events[i]
+        
+        let comment_exists = false;
+
+        let eventOptionsArray = event.event_options.reduce((filtered, option) => {
+          if(option.event_option_name == 'event_comment') {
+            comment_exists = (option.event_option_value !== '')? true : false;
+          } else {
+            filtered.push(`${option.event_option_name}: \"${option.event_option_value}\"`);
+          }
+          return filtered
+        },[])
+        
+        if (event.event_free_text) {
+          eventOptionsArray.push(`free_text: \"${event.event_free_text}\"`)
+        } 
+
+        let eventOptions = (eventOptionsArray.length > 0)? '--> ' + eventOptionsArray.join(', '): ''
+        let commentIcon = (comment_exists)? <FontAwesomeIcon onClick={() => this.handleEventCommentModal(event)} icon='comment' fixedWidth transform="grow-4"/> : <span onClick={() => this.handleEventCommentModal(event)} className="fa-layers fa-fw"><FontAwesomeIcon icon='comment' fixedWidth transform="grow-4"/><FontAwesomeIcon icon='plus' fixedWidth inverse transform="shrink-4"/></span>
+        let commentTooltip = (comment_exists)? (<OverlayTrigger placement="top" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Edit/View Comment</Tooltip>}>{commentIcon}</OverlayTrigger>) : (<OverlayTrigger placement="top" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Add Comment</Tooltip>}>{commentIcon}</OverlayTrigger>)
+
+        let deleteIcon = <FontAwesomeIcon className={"text-danger"} onClick={() => this.handleEventDeleteModal(event)} icon='trash' fixedWidth/>
+        let deleteTooltip = (<OverlayTrigger placement="top" overlay={<Tooltip id={`deleteTooltip_${event.id}`}>Delete this event</Tooltip>}>{deleteIcon}</OverlayTrigger>)
+
+        eventArray.push(<ListGroupItem key={event.id}><Row><Col xs={11} onClick={() => this.handleEventShowDetailsModal(event)}>{event.ts} {`<${event.event_author}>`}: {event.event_value} {eventOptions}</Col><Col>{deleteTooltip} {commentTooltip}</Col></Row></ListGroupItem>);
+      }
+      return eventArray
+    }
+
+    return (<ListGroupItem>No events found</ListGroupItem>)
+  }
+
   renderEventPanel() {
 
-    if(this.state.fetching) {
+    if (!this.state.events) {
       return (
         <Panel>
-        <Panel.Heading>{ this.renderEventListHeader() }</Panel.Heading>
-        <ListGroup>
-          <ListGroupItem>Loading...</ListGroupItem>
-        </ListGroup>
-        </Panel>
-      )
-    } else if(this.state.events && this.state.events.length > 0) {
-
-      let eventList = (this.state.hideASNAP)? this.state.events.filter(event => (event.event_value != "ASNAP")) : this.state.events
-
-      if(eventList.length == 0){
-        return (
-          <Panel>
-            <Panel.Heading>{ this.renderEventListHeader() }</Panel.Heading>
-            <Panel.Body>No events found!</Panel.Body>
-          </Panel>
-        )
-      }
-
-      // console.log(this.props.event.selected_event)
-
-      return (          
-        <Panel>
-        <Panel.Heading>{ this.renderEventListHeader() }</Panel.Heading>
-        <ListGroup>
-          {
-            eventList.map((event, index) => {
-              if(index >= (this.state.activePage-1) * maxEventsPerPage && index < (this.state.activePage * maxEventsPerPage)) {
-                let eventOptionsArray = [];
-                let comment_exists = false;
-                event.event_options.map((option) => {
-                  if (option.event_option_name != 'event_comment') {
-                    eventOptionsArray.push(option.event_option_name.replace(/\s+/g, "_") + ": \"" + option.event_option_value + "\"");
-                  } else {
-                    comment_exists = (option.event_option_value !== '')? true : false;
-                  }
-                })
-                
-                if (event.event_free_text) {
-                  eventOptionsArray.push("text: \"" + event.event_free_text + "\"")
-                }
-
-                let comment_icon = (comment_exists)? <FontAwesomeIcon icon='comment' fixedWidth transform="grow-4"/> : <span className="fa-layers fa-fw"><FontAwesomeIcon icon='comment' fixedWidth transform="grow-4"/><FontAwesomeIcon icon='plus' fixedWidth inverse transform="shrink-4"/></span>
-
-                let eventOptions = (eventOptionsArray.length > 0)? '--> ' + eventOptionsArray.join(', '): ''
-                let deleteTooltip = (<Tooltip id={`deleteTooltip_${event.id}`}>Delete Event</Tooltip>)
-                let commentTooltip = (comment_exists)? (<Tooltip id={`commentTooltip_${event.id}`}>Edit/View Comment</Tooltip>) : (<Tooltip id={`commentTooltip_${event.id}`}>Add Comment</Tooltip>)
-                let eventDetailsTooltip = (<Tooltip id={`commentTooltip_${event.id}`}>View Event Details</Tooltip>)
-                
-                return (
-                  <ListGroupItem key={event.id} ><span onClick={() => this.handleEventShowDetails(event.id)}>{`${event.ts} <${event.event_author}>: ${event.event_value} ${eventOptions}`}</span><span className="pull-right" onClick={() => this.handleEventCommentModal(event)}><OverlayTrigger placement="top" overlay={commentTooltip}>{comment_icon}</OverlayTrigger></span><span className="pull-right text-danger" onClick={() => this.handleEventDeleteModal(event)}><OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesomeIcon icon='trash' fixedWidth/></OverlayTrigger></span></ListGroupItem>
-                )
-              }
-            })
-          }
-        </ListGroup>
-        </Panel>
-      );
-    } else {
-      return (
-        <Panel>
-        <Panel.Heading>{ this.renderEventListHeader() }</Panel.Heading>
-          <ListGroup>
-            <ListGroupItem>No events found!</ListGroupItem>
-          </ListGroup>
+          <Panel.Heading>{ this.renderEventListHeader() }</Panel.Heading>
+          <Panel.Body>Loading...</Panel.Body>
         </Panel>
       )
     }
+
+    return (
+      <Panel>
+        <Panel.Heading>{ this.renderEventListHeader() }</Panel.Heading>
+        <ListGroup>
+          {this.renderEvents()}
+        </ListGroup>
+      </Panel>
+    );
   }
 
   renderPagination() {
@@ -415,6 +404,8 @@ class EventManagement extends Component {
 
   render(){
 
+    // console.log(this.props.event.eventFilter)
+
     return (
       <div>
         <EventCommentModal />
@@ -426,7 +417,7 @@ class EventManagement extends Component {
             {this.renderPagination()}
           </Col>
           <Col sm={5} md={4} lg={3}>
-            <EventFilterForm disabled={this.state.fetching} hideASNAP={this.state.hideASNAP} handlePostSubmit={ () => { this.setState({ activePage: 1}); this.fetchEvents() } } lowering_id={null}/>
+            <EventFilterForm disabled={this.state.fetching} hideASNAP={this.state.hideASNAP} handlePostSubmit={ this.updateEventFilter } lowering_id={null}/>
           </Col>
         </Row>
       </div>

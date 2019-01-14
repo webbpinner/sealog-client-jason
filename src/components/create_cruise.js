@@ -200,7 +200,7 @@ class CreateCruise extends Component {
                   name="cruise_participants"
                   component={this.renderTextArea}
                   type="textarea"
-                  label="Cruise Particpants, comma delimited"
+                  label="Cruise Participants, comma delimited"
                   placeholder="A comma-delimited list of names, i.e. Dave Butterfield,Sharon Walker"
                 />
                 <Field

@@ -15,7 +15,7 @@ export default function(state={ cruise: {}, cruises: [], cruise_message: '', cru
   switch(action.type){
 
     case INIT_CRUISE:
-      return { ...state, cruise: action.payload };
+      return { ...state, cruise: action.payload, cruise_message: '', cruise_error: '' };
 
     case UPDATE_CRUISE:
       return { ...state, cruise: action.payload };
@@ -39,8 +39,8 @@ export default function(state={ cruise: {}, cruises: [], cruise_message: '', cru
       return { ...state, cruise_error: '', cruise_message: '' }
 
     case FETCH_CRUISES:
-      return { ...state, cruises: action.payload };
-
+      let cruise = (state.cruise.id)? action.payload.find((cruise) => cruise.id == state.cruise.id) : {}
+      return { ...state, cruise: cruise, cruises: action.payload };
   }    
   return state;
 }

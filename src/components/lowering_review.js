@@ -32,6 +32,7 @@ class LoweringSearch extends Component {
 
     this.handleEventUpdate = this.handleEventUpdate.bind(this);
     this.handlePageSelect = this.handlePageSelect.bind(this);
+    this.updateEventFilter = this.updateEventFilter.bind(this)
   }
 
   componentWillMount(){
@@ -44,8 +45,13 @@ class LoweringSearch extends Component {
   componentWillUnmount(){
   }
 
+  updateEventFilter(filter = {}) {
+    this.setState({ activePage: 1 });
+    this.props.updateEventFilterForm(filter);
+    this.props.eventUpdateLoweringReplay(this.props.match.params.id, this.state.hideASNAP)
+  }
+
   handlePageSelect(eventKey) {
-    // console.log("eventKey:", eventKey)
     this.setState({activePage: eventKey});
   }
 
@@ -60,10 +66,8 @@ class LoweringSearch extends Component {
     }
   }
 
-  handleEventShowDetails(id) {
-    // console.log("id:", id)
-    this.props.advanceLoweringReplayTo(id);
-    this.props.showModal('eventShowDetails', { id: id });
+  handleEventShowDetailsModal(event) {
+    this.props.showModal('eventShowDetails', { event: event, handleUpdateEvent: this.props.updateEvent });
   }
 
   fetchEventAuxData() {
@@ -83,7 +87,6 @@ class LoweringSearch extends Component {
           authorization: cookies.get('token')
         }
       }).then((response) => {
-        console.log(response)
         return response.data
       }).catch((error)=>{
         if(error.response.data.statusCode == 404){
@@ -99,7 +102,6 @@ class LoweringSearch extends Component {
   fetchEventsWithAuxData(format = 'json') {
 
     const cookies = new Cookies();
-    // console.log("event export update")
     format = `format=${format}`
     let startTS = (this.props.event.eventFilter.startTS)? `&startTS=${this.props.event.eventFilter.startTS}` : ''
     let stopTS = (this.props.event.eventFilter.stopTS)? `&stopTS=${this.props.event.eventFilter.stopTS}` : ''
@@ -130,7 +132,6 @@ class LoweringSearch extends Component {
   fetchEvents(format = 'json') {
 
     const cookies = new Cookies();
-    // console.log("event export update")
     format = `format=${format}`
     let startTS = (this.props.event.eventFilter.startTS)? `&startTS=${this.props.event.eventFilter.startTS}` : ''
     let stopTS = (this.props.event.eventFilter.stopTS)? `&stopTS=${this.props.event.eventFilter.stopTS}` : ''
@@ -264,8 +265,6 @@ class LoweringSearch extends Component {
         )
       }
 
-      // console.log(this.props.event.selected_event)
-
       return (          
         <Panel>
         <Panel.Heading>{ this.renderEventListHeader() }</Panel.Heading>
@@ -273,28 +272,33 @@ class LoweringSearch extends Component {
           {
             eventList.map((event, index) => {
               if(index >= (this.state.activePage-1) * maxEventsPerPage && index < (this.state.activePage * maxEventsPerPage)) {
-                let eventOptionsArray = [];
+
                 let comment_exists = false;
-                event.event_options.map((option) => {
-                  if (option.event_option_name != 'event_comment') {
-                    eventOptionsArray.push(option.event_option_name.replace(/\s+/g, "_") + ": \"" + option.event_option_value + "\"");
+
+                let eventOptionsArray = event.event_options.reduce((filtered, option) => {
+                  if(option.event_option_name == 'event_comment') {
+                    comment_exists = (option.event_option_value !== '')? true : false;
+                  // } else if(edu_event && option.event_option_name == 'seatube_permalink') {
+                  //   seatube_exists = (option.event_option_value !== '')? true : false;
+                  //   seatube_permalink = option.event_option_value;
+                  // } else if(edu_event && option.event_option_name == 'youtube_material') {
+                  //   youtube_material = (option.event_option_value == 'Yes')? true : false;
                   } else {
-                      comment_exists = (option.event_option_value !== '')? true : false;
+                    filtered.push(`${option.event_option_name}: \"${option.event_option_value}\"`);
                   }
-                })
+                  return filtered
+                },[])
                 
                 if (event.event_free_text) {
                   eventOptionsArray.push("text: \"" + event.event_free_text + "\"")
-                }
-
-                let comment_icon = (comment_exists)? <FontAwesomeIcon icon='comment' fixedWidth transform="grow-4"/> : <span className="fa-layers fa-fw"><FontAwesomeIcon icon='comment' fixedWidth transform="grow-4"/><FontAwesomeIcon icon='plus' fixedWidth inverse transform="shrink-4"/></span>
+                } 
 
                 let eventOptions = (eventOptionsArray.length > 0)? '--> ' + eventOptionsArray.join(', '): ''
-                let commentTooltip = (comment_exists)? (<Tooltip id={`commentTooltip_${event.id}`}>Edit/View Comment</Tooltip>) : (<Tooltip id={`commentTooltip_${event.id}`}>Add Comment</Tooltip>)
-                let eventDetailsTooltip = (<Tooltip id={`commentTooltip_${event.id}`}>View Event Details</Tooltip>)
+                let commentIcon = (comment_exists)? <FontAwesomeIcon onClick={() => this.handleEventCommentModal(event)} icon='comment' fixedWidth transform="grow-4"/> : <span onClick={() => this.handleEventCommentModal(event)} className="fa-layers fa-fw"><FontAwesomeIcon icon='comment' fixedWidth transform="grow-4"/><FontAwesomeIcon icon='plus' fixedWidth inverse transform="shrink-4"/></span>
+                let commentTooltip = (comment_exists)? (<OverlayTrigger placement="top" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Edit/View Comment</Tooltip>}>{commentIcon}</OverlayTrigger>) : (<OverlayTrigger placement="top" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Add Comment</Tooltip>}>{commentIcon}</OverlayTrigger>)
                 
                 return (
-                  <ListGroupItem key={event.id} ><span onClick={() => this.handleEventShowDetails(event.id)}>{`${event.ts} <${event.event_author}>: ${event.event_value} ${eventOptions}`}</span><span className="pull-right" onClick={() => this.handleEventCommentModal(event)}><OverlayTrigger placement="top" overlay={commentTooltip}>{comment_icon}</OverlayTrigger></span></ListGroupItem>
+                  <ListGroupItem key={event.id}><Row><Col xs={11} onClick={() => this.handleEventShowDetailsModal(event)}>{event.ts} {`<${event.event_author}>`}: {event.event_value} {eventOptions}</Col><Col>{commentTooltip}</Col></Row></ListGroupItem>
                 )
               }
             })
@@ -367,7 +371,7 @@ class LoweringSearch extends Component {
           <Col lg={12}>
             <div>
               <Well bsSize="small">
-                {`Lowerings / ${lowering_id} / Search`}{' '}
+                {`Lowerings / ${lowering_id} / Review`}{' '}
                 <span className="pull-right">
                   <LinkContainer to={ `/lowering_replay/${this.props.match.params.id}` }><Button disabled={this.props.event.fetching} bsSize={'xs'}>Goto Replay</Button></LinkContainer>
                 </span>
@@ -381,7 +385,7 @@ class LoweringSearch extends Component {
             {this.renderPagination()}
           </Col>
           <Col sm={5} md={4} lg={3}>
-            <EventFilterForm disabled={this.props.event.fetching} hideASNAP={this.state.hideASNAP} handlePostSubmit={ () => { this.setState({ activePage: 1});this.props.eventUpdateLoweringReplay(this.props.lowering.id, this.props.hideASNAP)} } minDate={this.props.lowering.start_ts} maxDate={this.props.lowering.stop_ts}/>
+            <EventFilterForm disabled={this.props.event.fetching} hideASNAP={this.state.hideASNAP} handlePostSubmit={ this.updateEventFilter } minDate={this.props.lowering.start_ts} maxDate={this.props.lowering.stop_ts}/>
           </Col>
         </Row>
       </div>
