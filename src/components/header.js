@@ -7,8 +7,6 @@ import { LinkContainer } from 'react-router-bootstrap';
 import { ROOT_PATH } from '../url_config';
 import * as actions from '../actions';
 
-// const heading = "Sealog - Alvin Edition"
-
 class Header extends Component {
 
   constructor (props) {
@@ -132,9 +130,7 @@ class Header extends Component {
         <LinkContainer to={ `/profile` }>
           <MenuItem key="profile" eventKey={3.1} >User Profile</MenuItem>
         </LinkContainer>
-        {(this.props.fullname != 'Pilot')? (<MenuItem key="switch2Pilot" eventKey={3.1} onClick={ () => this.handleSwitchToPilot() } >Switch to Pilot</MenuItem>) : null }
-        {(this.props.fullname != 'Starboard Obs')? (<MenuItem key="switch2StbdObs" eventKey={3.2} onClick={ () => this.handleSwitchToStbdObs() } >Switch to Stbd Obs</MenuItem>) : null }
-        {(this.props.fullname != 'Port Obs')? (<MenuItem key="switch2Port" eventKey={3.3} onClick={ () => this.handleSwitchToPortObs() } >Switch to Port Obs</MenuItem>) : null }
+        {(this.props.fullname != 'Guest')? (<MenuItem key="switch2Guest" eventKey={3.1} onClick={ () => this.handleSwitchToPilot() } >Switch to Guest</MenuItem>) : null }
         <MenuItem key="logout" eventKey={3.3} onClick={ () => this.handleLogout() } >Log Out</MenuItem>
       </NavDropdown>
       );

@@ -11,7 +11,7 @@ For installation instruction please look at [INSTALL.md](./INSTALL.md)
 **sealog-client-alvin-topside** is based off [sealog-client-alvin](https://github.com/webbpinner/sealog-client-alvin)
 
 # Current Users
-Sealog-Alvin_Topside is currently in-use with the Alvin HOV operated by the Woods Hole Oceanographic Institution.
+Sealog-Alvin-Topside is currently in-use with the Alvin HOV operated by the Woods Hole Oceanographic Institution.
 
 # Thanks and acknowledgments
 Sealog is in ongoing development thanks to the generosity of the Schmidt Ocean Institute (SOI) who have supported the project since 2018. Thank also to the Woods Hole Oceanographic Institution who provided the initial inspiration for the project and are it's first user.

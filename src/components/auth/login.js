@@ -125,9 +125,7 @@ render() {
                 </div>
               </form>
               <br/>
-              <Button bsStyle="success" onClick={() => this.props.switch2Pilot()} block>Login as Pilot</Button>
-              <Button bsStyle="success" onClick={() => this.props.switch2StbdObs()} block>Login as Stbd Obs</Button>
-              <Button bsStyle="success" onClick={() => this.props.switch2PortObs()} block>Login as Port Obs</Button>
+              <Button bsStyle="success" onClick={() => this.props.switch2Guest()} block>Login as Guest</Button>
               <br/>
               <div className="text-right">
                 <Link to={ `/register` }>Register New User {<FontAwesomeIcon icon="arrow-right" />}</Link>
