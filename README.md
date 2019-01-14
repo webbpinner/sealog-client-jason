@@ -8,7 +8,7 @@ For installation instruction please look at [INSTALL.md](./INSTALL.md)
 - admin account for demo: admin:password
 - guest account for demo: guest:<no password>
 
-**sealog-client-alvin** is based off [sealog-client-alvin](https://github.com/webbpinner/sealog-client-alvin-topside)
+**sealog-client-alvin-topside** is based off [sealog-client-alvin](https://github.com/webbpinner/sealog-client-alvin)
 
 # Current Users
 Sealog-Alvin_Topside is currently in-use with the Alvin HOV operated by the Woods Hole Oceanographic Institution.
