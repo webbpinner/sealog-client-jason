@@ -1,10 +1,10 @@
 {
-  "name": "sealog-client-alvin",
+  "name": "sealog-client-jason",
   "version": "0.3.0",
   "license": "GPLv3",
-  "description": "Sealog event-logging client built for sealog-server-alvin",
+  "description": "Sealog event-logging client built for sealog-server-jason",
   "bugs": {
-    "url": "https://github.com/webbpinner/sealog-client-alvin/issues"
+    "url": "https://github.com/webbpinner/sealog-client-jason/issues"
   },
   "main": "index.js",
   "scripts": {
@@ -17,7 +17,7 @@
   "private": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/webbpinner/sealog-client-alvin.git"
+    "url": "https://github.com/webbpinner/sealog-client-jason.git"
   },
   "keywords": [
     "react",

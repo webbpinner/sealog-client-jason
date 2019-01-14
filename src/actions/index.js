@@ -418,10 +418,10 @@ export function createCruise({cruise_id, cruise_name, start_ts, stop_ts, cruise_
   }
 }
 
-export function createLowering({lowering_id, lowering_name, start_ts, stop_ts, lowering_pilot = '', lowering_observers = [], lowering_description = '', lowering_location = '', lowering_tags = [], lowering_hidden = false}) {
+export function createLowering({lowering_id, lowering_name, start_ts, stop_ts, lowering_description = '', lowering_location = '', lowering_tags = [], lowering_hidden = false}) {
   return function (dispatch) {
     axios.post(`${API_ROOT_URL}/api/v1/lowerings`,
-    {lowering_id, lowering_name, start_ts, stop_ts, lowering_pilot, lowering_observers, lowering_description, lowering_location, lowering_tags, lowering_hidden},
+    {lowering_id, lowering_name, start_ts, stop_ts, lowering_description, lowering_location, lowering_tags, lowering_hidden},
     {
       headers: {
         authorization: cookies.get('token'),
@@ -670,14 +670,6 @@ export function updateLowering(formProps) {
 
   if(formProps.lowering_name) {
     fields.lowering_name = formProps.lowering_name;
-  }
-
-  if(formProps.lowering_pilot) {
-    fields.lowering_pilot = formProps.lowering_pilot;
-  }
-
-  if(formProps.lowering_observers) {
-    fields.lowering_observers = formProps.lowering_observers;
   }
 
   if(formProps.lowering_description) {
@@ -937,21 +929,9 @@ export function logout() {
   }
 }
 
-export function switch2Pilot() {
+export function switch2Guest() {
   return function(dispatch) {
-    dispatch(login( { username:"pilot", password: "" } ) );
-  }
-}
-
-export function switch2StbdObs() {
-  return function(dispatch) {
-    dispatch(login( { username:"stbd_obs", password: "" } ) );
-  }
-}
-
-export function switch2PortObs() {
-  return function(dispatch) {
-    dispatch(login( { username:"port_obs", password: "" } ) );
+    dispatch(login( { username:"guest", password: "" } ) );
   }
 }
 

@@ -134,7 +134,7 @@ render() {
           </Panel>
         </Col>
         <Col>
-          <Image className="form-signin" responsive src={`${ROOT_PATH}images/Alvin_Profile.png`}/>
+          <Image className="form-signin" responsive src={`${ROOT_PATH}images/Jason_Profile.png`}/>
         </Col>
       </Row>
     )

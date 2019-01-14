@@ -163,7 +163,7 @@ class Header extends Component {
       <Navbar fluid collapseOnSelect>
         <Navbar.Header>
           <Navbar.Brand>
-            <Link to={ `/` }>Sealog <Image responsive src={`${ROOT_PATH}images/Alvin_Front_brand.png`}/> ALVIN Topside Edition</Link>
+            <Link to={ `/` }>Sealog - JASON Edition</Link>
           </Navbar.Brand>
           <Navbar.Toggle />
         </Navbar.Header>

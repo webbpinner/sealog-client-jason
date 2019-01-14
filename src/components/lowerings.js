@@ -117,7 +117,7 @@ class Lowerings extends Component {
         return (
           <tr key={lowering.id}>
             <td>{lowering.lowering_id}</td>
-            <td>{lowering.lowering_location}<br/>Pilot: {lowering.lowering_pilot}<br/>Observers: {lowering.lowering_observers.join(', ')}<br/>Dates: {moment.utc(lowering.start_ts).format("MM-DD-YYYY HH:mm")}<FontAwesomeIcon icon='arrow-right' fixedWidth/>{moment.utc(lowering.stop_ts).format("MM-DD-YYYY HH:mm")}</td>
+            <td>{lowering.lowering_location}<br/>Dates: {moment.utc(lowering.start_ts).format("MM-DD-YYYY HH:mm")}<FontAwesomeIcon icon='arrow-right' fixedWidth/>{moment.utc(lowering.stop_ts).format("MM-DD-YYYY HH:mm")}</td>
             <td>
               <Link key={`edit_${lowering.id}`} to="#" onClick={ () => this.handleLoweringSelect(lowering.id) }><OverlayTrigger placement="top" overlay={editTooltip}><FontAwesomeIcon icon='pencil-alt' fixedWidth/></OverlayTrigger></Link>
               {' '}
