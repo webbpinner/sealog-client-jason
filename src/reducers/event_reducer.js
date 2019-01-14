@@ -16,7 +16,6 @@ export default function( state={ selected_event: {}, events: [], eventFilter: {}
       return { ...state, events: action.payload, selected_event: action.payload[0] };
 
     case UPDATE_EVENT:
-      // console.log("Update event")
       let newEvents = state.events.map((event) => {
         if(event.id == action.payload.id) {
           return action.payload;
@@ -27,24 +26,19 @@ export default function( state={ selected_event: {}, events: [], eventFilter: {}
       return { ...state, selected_event: {}, events: newEvents };
 
     case UPDATE_EVENTS:
-      // console.log("Update event")
       let updateEvents = action.payload
       return { ...state, selected_event: {}, events: updateEvents };
 
     case UPDATE_EVENT_FILTER_FORM:
-      // console.log("Update Filter")
       return { ...state, eventFilter: action.payload }
 
     case LEAVE_EVENT_FILTER_FORM:
-      // console.log("Clear Filter")
       return { ...state, eventFilter: {} }
 
     case SET_SELECTED_EVENT:
-      // console.log("Select event")
       return { ...state, selected_event: action.payload}
 
     case EVENT_FETCHING:
-      // console.log("Set fetch flag to:", action.payload)
       return { ...state, fetching: action.payload }
   }
   

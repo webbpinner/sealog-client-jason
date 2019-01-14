@@ -12,7 +12,7 @@ import ImagePreviewModal from './image_preview_modal';
 
 import * as actions from '../actions';
 
-import { API_ROOT_URL, IMAGE_PATH } from '../url_config';
+import { API_ROOT_URL, IMAGE_PATH, ROOT_PATH } from '../url_config';
 
 const cookies = new Cookies();
 
@@ -23,17 +23,25 @@ class EventShowDetailsModal extends Component {
 
     this.state = { event: {} }
 
-    this.handleImageClick = this.handleImageClick.bind(this);
+    this.handleImagePreviewModal = this.handleImagePreviewModal.bind(this);
 
   }
 
   static propTypes = {
-    id: PropTypes.string.isRequired,
+    event: PropTypes.object.isRequired,
     handleHide: PropTypes.func.isRequired,
+    handleUpdateEvent: PropTypes.func.isRequired
   };
 
   componentWillMount() {
-    axios.get(`${API_ROOT_URL}/api/v1/event_exports/${this.props.id}`,
+    this.initEvent()
+  }
+
+  componentWillUnmount() {
+  }
+
+  initEvent() {
+    axios.get(`${API_ROOT_URL}/api/v1/event_exports/${this.props.event.id}`,
       {
         headers: {
         authorization: cookies.get('token')
@@ -41,7 +49,6 @@ class EventShowDetailsModal extends Component {
       }      
     )
     .then((response) => {
-      // console.log("response:", response.data)
       this.setState({event: response.data})
     })
     .catch((error) => {
@@ -49,20 +56,17 @@ class EventShowDetailsModal extends Component {
     });
   }
 
-  componentWillUnmount() {
-  }
-
   handleMissingImage(ev) {
-    ev.target.src = `/images/noimage.jpeg`
+    ev.target.src = `${ROOT_PATH}images/noimage.jpeg`
   }
 
-  handleImageClick(source, filepath) {
+  handleImagePreviewModal(source, filepath) {
     this.props.showModal('imagePreview', { name: source, filepath: filepath })
   }
 
   renderImage(source, filepath) {
     return (
-      <Thumbnail onError={this.handleMissingImage} src={filepath} onClick={ () => this.handleImageClick(source, filepath)}>
+      <Thumbnail onError={this.handleMissingImage} src={filepath} onClick={ () => this.handleImagePreviewModal(source, filepath)}>
         <div>{`${source}`}</div>
       </Thumbnail>
     )
@@ -93,13 +97,13 @@ class EventShowDetailsModal extends Component {
           </Row>
         )
       } else {
-        let alvinFrameGrabberData = this.state.event.aux_data.filter(aux_data => aux_data.data_source == 'framegrabber')
+        let frameGrabberData = this.state.event.aux_data.filter(aux_data => aux_data.data_source == 'framegrabber')
         let tmpData = []
 
-        if(alvinFrameGrabberData.length > 0) {
-          for (let i = 0; i < alvinFrameGrabberData[0].data_array.length; i+=2) {
+        if(frameGrabberData.length > 0) {
+          for (let i = 0; i < frameGrabberData[0].data_array.length; i+=2) {
       
-            tmpData.push({source: alvinFrameGrabberData[0].data_array[i].data_value, filepath: API_ROOT_URL + IMAGE_PATH + '/' + alvinFrameGrabberData[0].data_array[i+1].data_value.split('/').pop()} )
+            tmpData.push({source: frameGrabberData[0].data_array[i].data_value, filepath: API_ROOT_URL + IMAGE_PATH + '/' + frameGrabberData[0].data_array[i+1].data_value.split('/').pop()} )
           }
 
           return (
@@ -235,22 +239,20 @@ class EventShowDetailsModal extends Component {
     const { show, handleHide } = this.props
 
     let eventOptionsArray = [];
+    let event_free_text = (this.state.event.event_free_text)? (<ListGroup><ListGroupItem>Text: {this.state.event.event_free_text}</ListGroupItem></ListGroup>) : null;
+    let event_comment = null;
 
     if(this.state.event.event_options) {
 
-      // console.log("selected event:", this.state.event)
-      this.state.event.event_options.map((option) => {
-        if (option.event_option_name != 'event_comment') {
-          eventOptionsArray.push(option.event_option_name.replace(/\s+/g, "_") + ": \"" + option.event_option_value + "\"");
+      eventOptionsArray = this.state.event.event_options.reduce((filtered, option) => {
+        if (option.event_option_name == 'event_comment') {
+          event_comment = (<ListGroup><ListGroupItem>Comment: {option.event_option_value}</ListGroupItem></ListGroup>);
+        } else {
+          filtered.push(<ListGroupItem key={`option_${option.event_option_name}`}>{`${option.event_option_name}: "${option.event_option_value}"`}</ListGroupItem>);
         }
-      })
+        return filtered
+      }, [])
       
-      if (this.state.event.event_free_text) {
-        eventOptionsArray.push("text: \"" + this.state.event.event_free_text + "\"")
-      } 
-
-      let eventOptions = (eventOptionsArray.length > 0)? '--> ' + eventOptionsArray.join(', '): ''
-
               // <Row>
                 // <Col xs={12}>
                   // {this.renderSciCamPanel()}
@@ -261,7 +263,9 @@ class EventShowDetailsModal extends Component {
         <Modal bsSize="large" show={show} onHide={handleHide}>
             <ImagePreviewModal />;
             <Modal.Header closeButton>
-              <Modal.Title>Event Details</Modal.Title>
+              <Modal.Title>Event Details: {this.state.event.event_value}</Modal.Title>
+              Date: {this.state.event.ts}<br/>
+              User: {this.state.event.event_author}
             </Modal.Header>
 
             <Modal.Body>
@@ -280,10 +284,18 @@ class EventShowDetailsModal extends Component {
                 <Col xs={12} sm={6} md={3} lg={3}>
                   {this.renderAttitudePanel()}
                 </Col>
+                <Col xs={12} sm={6} md={3} lg={3}>
+                  <ListGroup>
+                    {eventOptionsArray}
+                  </ListGroup>
+                </Col>
               </Row>
               <Row>
                 <Col xs={12}>
-                  {`${this.state.event.ts} <${this.state.event.event_author}>: ${this.state.event.event_value} ${eventOptions}`}
+                  {event_free_text}
+                </Col>
+                <Col xs={12}>
+                  {event_comment}
                 </Col>
               </Row>
             </Modal.Body>
@@ -307,9 +319,8 @@ class EventShowDetailsModal extends Component {
 function mapStateToProps(state) {
 
   return {
-    lowering: state.lowering.lowering,  
+    lowering: state.lowering.lowering,
     roles: state.user.profile.roles,
-    event: state.event
   }
 
 }

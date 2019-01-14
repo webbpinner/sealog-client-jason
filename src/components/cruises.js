@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { reduxForm, Field, reset } from 'redux-form';
 import { FormGroup, Row, Button, Col, Panel, Alert, Table, OverlayTrigger, Tooltip, Pagination } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import { ROOT_PATH } from '../url_config';
+import moment from 'moment';
 import CreateCruise from './create_cruise';
 import UpdateCruise from './update_cruise';
 import DeleteCruiseModal from './delete_cruise_modal';
@@ -31,40 +31,36 @@ class Cruises extends Component {
   }
 
   componentWillMount() {
-      this.props.fetchCruises();
+    this.props.fetchCruises();
   }
 
   handlePageSelect(eventKey) {
-    // console.log("eventKey:", eventKey)
     this.setState({activePage: eventKey});
   }
 
-  handleCruiseDelete(id) {
+  handleCruiseDeleteModal(id) {
     this.props.showModal('deleteCruise', { id: id, handleDelete: this.props.deleteCruise });
   }
 
   handleCruiseSelect(id) {
-    // console.log("Set Cruise:", id)
     this.props.initCruise(id);
+    window.scrollTo(0, 0);
   }
 
   handleCruiseShow(id) {
-    // console.log("Set Cruise:", id)
     this.props.showCruise(id);
   }
 
   handleCruiseHide(id) {
-    // console.log("Set Cruise:", id)
     this.props.hideCruise(id);
   }
 
   handleCruiseCreate() {
-    // console.log("Clear");
     this.props.leaveUpdateCruiseForm()
   }
 
-  handleCruiseImport() {
-    this.props.showModal('importCruises');
+  handleCruiseImportModal() {
+    this.props.showModal('importCruises', { handleHide: this.handleCruiseImportClose });
   }
 
   handleCruiseImportClose() {
@@ -73,23 +69,6 @@ class Cruises extends Component {
 
   exportCruisesToJSON() {
     fileDownload(JSON.stringify(this.props.cruises, null, "\t"), 'seaplay_cruisesExport.json');
-  }
-
-  handleImportCruiseList() {
-    this.props.showModal('importCruises', { });
-
-    // const options = {
-    //   baseUrl: 'http://127.0.0.1',
-    //   query: {
-    //     warrior: 'fight'
-    //   }
-    // }
-
-    // /* Use ReactUploadFile with options */
-    // /* Custom your buttons */
-    // return (
-    //   <ReactUploadFile options={options} uploadFileButton={<FontAwesomeIcon icon='upload' fixedWidth/>} />
-    // );
   }
 
   renderAddCruiseButton() {
@@ -106,7 +85,7 @@ class Cruises extends Component {
     if(this.props.roles.includes("admin")) {
       return (
         <div className="pull-right">
-          <Button bsStyle="primary" bsSize="small" type="button" onClick={ () => this.handleCruiseImport()}>Import From File</Button>
+          <Button bsStyle="primary" bsSize="small" type="button" onClick={ () => this.handleCruiseImportModal()}>Import From File</Button>
         </div>
       );
     }
@@ -121,7 +100,7 @@ class Cruises extends Component {
 
     return this.props.cruises.map((cruise, index) => {
       if(index >= (this.state.activePage-1) * maxCruisesPerPage && index < (this.state.activePage * maxCruisesPerPage)) {
-        let deleteLink = (this.props.roles.includes('admin'))? <Link key={`delete_${cruise.id}`} to="#" onClick={ () => this.handleCruiseDelete(cruise.id) }><OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesomeIcon icon='trash' fixedWidth/></OverlayTrigger></Link>: null
+        let deleteLink = (this.props.roles.includes('admin'))? <Link key={`delete_${cruise.id}`} to="#" onClick={ () => this.handleCruiseDeleteModal(cruise.id) }><OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesomeIcon icon='trash' fixedWidth/></OverlayTrigger></Link>: null
         let hiddenLink = null;
         if(this.props.roles.includes('admin') && cruise.cruise_hidden) {
           hiddenLink = <Link key={`show_${cruise.id}`} to="#" onClick={ () => this.handleCruiseShow(cruise.id) }><OverlayTrigger placement="top" overlay={showTooltip}><FontAwesomeIcon icon='eye-slash' fixedWidth/></OverlayTrigger></Link>
@@ -132,8 +111,7 @@ class Cruises extends Component {
         return (
           <tr key={cruise.id}>
             <td>{cruise.cruise_id}</td>
-            <td>{cruise.cruise_name}</td>
-            <td>{cruise.cruise_pi}</td>
+            <td>{cruise.cruise_name}<br/>PI: {cruise.cruise_pi}<br/>Dates: {moment.utc(cruise.start_ts).format('L')}<FontAwesomeIcon icon='arrow-right' fixedWidth/>{moment.utc(cruise.stop_ts).format('L')}</td>
             <td>
               <Link key={`edit_${cruise.id}`} to="#" onClick={ () => this.handleCruiseSelect(cruise.id) }><OverlayTrigger placement="top" overlay={editTooltip}><FontAwesomeIcon icon='pencil-alt' fixedWidth/></OverlayTrigger></Link>
               {' '}
@@ -153,9 +131,8 @@ class Cruises extends Component {
         <Table responsive bordered striped>
           <thead>
             <tr>
-              <th>Cruise ID</th>
-              <th>Cruise Name</th>
-              <th>P.I.</th>
+              <th>Cruise</th>
+              <th>Details</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -174,13 +151,7 @@ class Cruises extends Component {
   renderCruiseHeader() {
 
     const Label = "Cruises"
-
-    // const importTooltip = (<Tooltip id="importTooltip">Import Cruises</Tooltip>)
     const exportTooltip = (<Tooltip id="exportTooltip">Export Cruises</Tooltip>)
-
-    // <Button bsStyle="default" bsSize="xs" type="button" onClick={ this.handleImportCruiseList }><OverlayTrigger placement="top" overlay={importTooltip}><FontAwesomeIcon icon='upload' fixedWidth/></OverlayTrigger></Button>
-
-
 
     return (
       <div>
@@ -243,7 +214,7 @@ class Cruises extends Component {
 
     if(this.props.roles.includes("admin") || this.props.roles.includes('cruise_manager')) {
 
-      let cruiseForm = (this.props.cruiseid)? <UpdateCruise /> : <CreateCruise />
+      let cruiseForm = (this.props.cruiseid)? <UpdateCruise handleFormSubmit={ this.props.fetchCruises } /> : <CreateCruise handleFormSubmit={ this.props.fetchCruises } />
 
       return (
         <div>
@@ -253,8 +224,8 @@ class Cruises extends Component {
             <Col sm={10} md={7} lgOffset= {1} lg={6}>
               <Panel>
                 <Panel.Heading>{this.renderCruiseHeader()}</Panel.Heading>
-                  {this.renderCruiseTable()}
-                  {this.renderPagination()}
+                {this.renderCruiseTable()}
+                {this.renderPagination()}
               </Panel>
               {this.renderAddCruiseButton()}
               {this.renderImportCruisesButton()}
@@ -280,7 +251,6 @@ function mapStateToProps(state) {
   return {
     cruises: state.cruise.cruises,
     cruiseid: state.cruise.cruise.id,
-    profileid: state.user.profile.id,
     roles: state.user.profile.roles
   }
 }

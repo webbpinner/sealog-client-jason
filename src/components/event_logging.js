@@ -20,7 +20,7 @@ class EventLogging extends Component {
   render() {
     return (
       <div>
-        {(this.props.roles && this.props.roles.includes("event_logger"))? <EventCommentModal /> : null }
+        {(this.props.roles && this.props.roles.includes("event_logger"))? <EventCommentModal/> : null }
         <EventShowDetailsModal />
         {
           (this.props.roles && this.props.roles.includes("event_logger"))?

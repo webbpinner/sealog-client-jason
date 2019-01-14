@@ -2,6 +2,8 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
+const ROOT_PATH = '/sealog/';
+
 module.exports = {
   entry: './src/index.js',
   output: {
@@ -41,7 +43,8 @@ module.exports = {
           loader: 'file-loader',
           options: {
             name: '[name].[ext]',
-            outputPath: '/fonts/'
+            outputPath: '/fonts/',
+            publicPath: ROOT_PATH + 'fonts/'
           }
         }]
       }

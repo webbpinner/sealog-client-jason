@@ -223,7 +223,7 @@ export function gotoLoweringSearch(id) {
 
   return function (dispatch) {
     dispatch(initLowering(id))
-    dispatch(push(`/lowering_search/${id}`));
+    dispatch(push(`/lowering_review/${id}`));
   }
 }
 
@@ -620,8 +620,12 @@ export function updateCruise(formProps) {
     fields.cruise_hidden = formProps.cruise_hidden;
   }
 
-  return function (dispatch) {
-    axios.patch(`${API_ROOT_URL}/api/v1/cruises/${formProps.id}`,
+  if(formProps.cruise_files) {
+    fields.cruise_files = formProps.cruise_files;
+  }
+
+  return async function (dispatch) {
+    await axios.patch(`${API_ROOT_URL}/api/v1/cruises/${formProps.id}`,
       fields,
       {
         headers: {
@@ -632,9 +636,7 @@ export function updateCruise(formProps) {
       dispatch(fetchCruises());
       dispatch(updateCruiseSuccess('Cruise updated'));
     }).catch((error) => {
-      console.log(error);
-
-      // If request is unauthenticated
+      console.log(error)
       dispatch(updateCruiseError(error.response.data.message));
     });
   }
@@ -694,6 +696,10 @@ export function updateLowering(formProps) {
     fields.lowering_hidden = formProps.lowering_hidden;
   }
 
+  if(formProps.lowering_files) {
+    fields.lowering_files = formProps.lowering_files;
+  }
+
   return function (dispatch) {
     axios.patch(`${API_ROOT_URL}/api/v1/lowerings/${formProps.id}`,
       fields,
@@ -703,13 +709,10 @@ export function updateLowering(formProps) {
         }
       }      
     ).then((response) => {
-
       dispatch(fetchLowerings());
       dispatch(updateLoweringSuccess('Lowering updated'));
     }).catch((error) => {
-      console.log(error);
-
-      // If request is unauthenticated
+      console.log(error)
       dispatch(updateLoweringError(error.response.data.message));
     });
   }
@@ -1079,7 +1082,11 @@ export function fetchUsers() {
       dispatch({type: FETCH_USERS, payload: data})
     })
     .catch((error) => {
-      console.log(error);
+      if(error.response.status !== 404) {
+        console.log(error);
+      } else {
+        dispatch({type: FETCH_USERS, payload: []})
+      }
     });
   }
 }
@@ -1098,7 +1105,11 @@ export function fetchCruises() {
       dispatch({type: FETCH_CRUISES, payload: data})
     })
     .catch((error) => {
-      console.log(error);
+      if(error.response.status !== 404) {
+        console.log(error);
+      } else {
+        dispatch({type: FETCH_CRUISES, payload: []})
+      }
     });
   }
 }
@@ -1117,7 +1128,11 @@ export function fetchLowerings() {
       dispatch({type: FETCH_LOWERINGS, payload: data})
     })
     .catch((error) => {
-      console.log(error);
+      if(error.response.status !== 404) {
+        console.log(error);
+      } else {
+        dispatch({type: FETCH_LOWERINGS, payload: []})
+      }
     });
   }
 }
@@ -1136,7 +1151,11 @@ export function fetchCustomVars() {
     request.then(({data}) => {
       dispatch({type: FETCH_CUSTOM_VARS, payload: data})
     }).catch((error) => {
-      console.log(error);
+      if(error.response.status !== 404) {
+        console.log(error);
+      } else {
+        dispatch({type: FETCH_CUSTOM_VARS, payload: []})
+      }
     });
   }
 }
@@ -1189,7 +1208,11 @@ export function fetchEventTemplatesForMain() {
       //console.log(data);
       dispatch({type: FETCH_EVENT_TEMPLATES_FOR_MAIN, payload: data})
     }).catch((error) => {
-      console.log(error);
+      if(error.response.status !== 404) {
+        console.log(error);
+      } else {
+        dispatch({type: FETCH_EVENT_TEMPLATES_FOR_MAIN, payload: []})
+      }
     });
   }
 }
@@ -1389,7 +1412,9 @@ export function initLoweringReplay(id, hideASNAP = false) {
       }
       dispatch({ type: EVENT_FETCHING, payload: false})
     }).catch((error)=>{
-      console.log(error);
+      if(error.response.data.statusCode !== 404) {
+        console.log(error);
+      }
       dispatch({ type: EVENT_FETCHING, payload: false})
     })
   }
@@ -1410,10 +1435,9 @@ export function advanceLoweringReplayTo(id) {
   }
 }
 
-
 export function updateEventFilterForm(formProps) {
-  return function (dispatch) {
-    dispatch({type: UPDATE_EVENT_FILTER_FORM, payload: formProps})
+  return async function (dispatch) {
+    await dispatch({type: UPDATE_EVENT_FILTER_FORM, payload: formProps})
   }
 }
 
@@ -1545,6 +1569,7 @@ export function eventUpdate() {
 
 export function eventUpdateLoweringReplay(lowering_id, hideASNAP = false) {
   return function (dispatch, getState) {
+
     let startTS = (getState().event.eventFilter.startTS)? `startTS=${getState().event.eventFilter.startTS}` : ''
     let stopTS = (getState().event.eventFilter.stopTS)? `&stopTS=${getState().event.eventFilter.stopTS}` : ''
     let value = (getState().event.eventFilter.value)? `&value=${getState().event.eventFilter.value.split(',').join("&value=")}` : ''
@@ -1566,13 +1591,12 @@ export function eventUpdateLoweringReplay(lowering_id, hideASNAP = false) {
       }
       dispatch({ type: EVENT_FETCHING, payload: false})
     }).catch((error)=>{
-      console.log(error);
       if(error.response.data.statusCode == 404) {
         dispatch({type: UPDATE_EVENTS, payload: []})
         dispatch({ type: SET_SELECTED_EVENT, payload: {} })
 
       } else {
-        console.log(error.response);
+        console.log(error);
       }
       dispatch({ type: EVENT_FETCHING, payload: false})
     });
@@ -1713,4 +1737,3 @@ export function deleteAllNonSystemEventTemplates() {
     });
   }
 }
-

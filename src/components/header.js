@@ -7,7 +7,7 @@ import { LinkContainer } from 'react-router-bootstrap';
 import { ROOT_PATH } from '../url_config';
 import * as actions from '../actions';
 
-const heading = "Sealog - JASON Edition"
+const heading = "Sealog - Jason Edition"
 
 class Header extends Component {
 
@@ -19,7 +19,6 @@ class Header extends Component {
     if (this.props.authenticated) {
       this.props.updateProfileState();
     }
-//    this.props.fetchCustomVars()
   }
 
   handleASNAPToggle() {
@@ -43,9 +42,7 @@ class Header extends Component {
   }
 
   renderEventLoggingOptions() {
-
-    // console.log(this.props.roles)
-    if(this.props.roles && (this.props.roles.includes('admin') || this.props.roles.includes('cruise_manager') || this.props.roles.includes('event_manager') || this.props.roles.includes('event_logger') || this.props.roles.includes('event_watcher'))) {
+    if(this.props.authenticated) {
       return (
         <LinkContainer to={ `/cruise_menu` }>
           <NavItem>Review Cruises/Lowerings</NavItem>
@@ -135,14 +132,12 @@ class Header extends Component {
         <LinkContainer to={ `/profile` }>
           <MenuItem key="profile" eventKey={3.1} >User Profile</MenuItem>
         </LinkContainer>
+        {(this.props.fullname != 'Guest')? (<MenuItem key="switch2Guest" eventKey={3.1} onClick={ () => this.handleSwitchToPilot() } >Switch to Guest</MenuItem>) : null }
         <MenuItem key="logout" eventKey={3.3} onClick={ () => this.handleLogout() } >Log Out</MenuItem>
       </NavDropdown>
       );
     }
   }
-
-//        {(this.props.fullname != 'Guest')? (<MenuItem key="switch2Guest" eventKey={3.3} onClick={ () => this.handleSwitchToGuest() } >Switch to Guest</MenuItem>) : null }
-
 
   handleLogout() {
     this.props.logout();
@@ -150,6 +145,18 @@ class Header extends Component {
 
   handleSwitchToGuest() {
     this.props.switch2Guest();
+  }
+
+  handleSwitchToPilot() {
+    this.props.switch2Pilot();
+  }
+
+  handleSwitchToStbdObs() {
+    this.props.switch2StbdObs();
+  }
+
+  handleSwitchToPortObs() {
+    this.props.switch2PortObs();
   }
 
   render () {

@@ -1,9 +1,20 @@
+import axios from 'axios';
 import React, { Component } from 'react';
+import Cookies from 'universal-cookie';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Button, Row, Col, Panel, PanelGroup, ListGroup, ListGroupItem } from 'react-bootstrap';
+import FileDownload from 'js-file-download';
+import { API_ROOT_URL } from '../url_config';
+
 import * as actions from '../actions';
+
+const CRUISE_ROUTE = "/files/cruises";
+const LOWERING_ROUTE = "/files/lowerings";
+
+const cookies = new Cookies();
 
 class CruiseMenu extends Component {
 
@@ -15,6 +26,9 @@ class CruiseMenu extends Component {
     };
 
     this.handleSelect = this.handleSelect.bind(this);
+    this.handleCruiseFileDownload = this.handleCruiseFileDownload.bind(this);
+    this.handleLoweringFileDownload = this.handleLoweringFileDownload.bind(this);
+
   }
 
   componentWillMount(){
@@ -30,7 +44,7 @@ class CruiseMenu extends Component {
   }
 
   handleLoweringSelect(id) {
-    // console.log("Set Lowering:", id)
+    window.scrollTo(0, 0);
     this.props.initLowering(id);
   }
 
@@ -44,13 +58,60 @@ class CruiseMenu extends Component {
     this.props.gotoLoweringSearch(id);
   }
 
+  handleLoweringFileDownload(loweringID, filename) {
+    axios.get(`${API_ROOT_URL}${LOWERING_ROUTE}/${loweringID}/${filename}`,
+    {
+      headers: {
+        authorization: cookies.get('token')
+      }
+    })
+    .then((response) => {
+        FileDownload(response.data, filename);
+     })
+    .catch((error)=>{
+      console.log("JWT is invalid, logging out");
+    });
+  }
+
+  handleCruiseFileDownload(cruiseID, filename) {
+    axios.get(`${API_ROOT_URL}${CRUISE_ROUTE}/${cruiseID}/${filename}`,
+    {
+      headers: {
+        authorization: cookies.get('token')
+      }
+    })
+    .then((response) => {
+        FileDownload(response.data, filename);
+     })
+    .catch((error)=>{
+      console.log("JWT is invalid, logging out");
+    });
+  }
+
+
   handleSelect(activeKey) {
     this.setState({ activeKey });
+  }
+
+  renderCruiseFiles(cruiseID, files) {
+    let output = files.map((file, index) => {
+      return <li style={{ listStyleType: "none" }} key={`file_${index}`}><span onClick={() => this.handleCruiseFileDownload(cruiseID, file)}><FontAwesomeIcon className='text-primary' icon='download' fixedWidth /></span><span> {file}</span></li>
+    })
+    return <div>{output}<br/></div>
+  }
+
+  renderLoweringFiles(loweringID, files) {
+    let output = files.map((file, index) => {
+      return <li style={{ listStyleType: "none" }} key={`file_${index}`}><span onClick={() => this.handleLoweringFileDownload(loweringID, file)}><FontAwesomeIcon className='text-primary' icon='download' fixedWidth /></span><span> {file}</span></li>
+    })
+    return <div>{output}<br/></div>
   }
 
   renderLoweringPanel() {
 
     if(this.props.lowering.id){
+      let lowering_files = (this.props.lowering.lowering_files && this.props.lowering.lowering_files.length > 0)? this.renderLoweringFiles(this.props.lowering.id, this.props.lowering.lowering_files): null
+
       return (          
         <Panel>
           <Panel.Heading>{"Lowering: " + this.props.lowering.lowering_id}</Panel.Heading>
@@ -58,8 +119,9 @@ class CruiseMenu extends Component {
             <p><strong>Description:</strong> {this.props.lowering.lowering_description}</p>
             <p><strong>Location:</strong> {this.props.lowering.lowering_location}</p>
             <p><strong>Date:</strong> {moment.utc(this.props.lowering.start_ts).format("YYYY/MM/DD HH:mm")} - {moment.utc(this.props.lowering.stop_ts).format("YYYY/MM/DD HH:mm")}</p>
+            {lowering_files}
             <Button bsSize={'sm'} bsStyle={'primary'} onClick={ () => this.handleLoweringSelectForReplay(this.props.lowering.id) }>Goto replay...</Button>
-            <Button bsSize={'sm'} bsStyle={'primary'} onClick={ () => this.handleLoweringSelectForSearch(this.props.lowering.id) }>Goto search...</Button>
+            <Button bsSize={'sm'} bsStyle={'primary'} onClick={ () => this.handleLoweringSelectForSearch(this.props.lowering.id) }>Goto review...</Button>
           </Panel.Body>
         </Panel>
       );
@@ -82,8 +144,11 @@ class CruiseMenu extends Component {
 
     return this.props.cruises.map((cruise, index) => {
       let cruiseLowerings = this.renderLoweringList(cruise.start_ts, cruise.stop_ts)
+
+      let cruise_files = (cruise.cruise_files && cruise.cruise_files.length > 0)? this.renderCruiseFiles(cruise.id, cruise.cruise_files): null
+
       return (          
-        <Panel key={`panel_${index}`}eventKey={index.toString()}>
+        <Panel key={`panel_${index}`} eventKey={index.toString()}>
           <Panel.Heading><Panel.Title toggle>{"Cruise: " + cruise.cruise_id}</Panel.Title></Panel.Heading>
           <Panel.Body collapsible>
             <p><strong>Cruise Name:</strong> {cruise.cruise_name}</p>
@@ -91,10 +156,11 @@ class CruiseMenu extends Component {
             <p><strong>Location:</strong> {cruise.cruise_location}</p>
             <p><strong>Description:</strong> {cruise.cruise_description}</p>
             <p><strong>Dates:</strong> {moment.utc(cruise.start_ts).format("YYYY/MM/DD")} - {moment.utc(cruise.stop_ts).format("YYYY/MM/DD")}</p>
+            {cruise_files}
             <p><strong>Lowerings:</strong></p>
             <ul>
               { cruiseLowerings.map(lowering => (
-                  <li key={`select_${lowering.id}`}><Link to="#" onClick={ () => this.handleLoweringSelect(lowering.id) }>{lowering.lowering_id}</Link><br/></li>
+                  <li key={`select_${lowering.id}`} ><Link to="#" onClick={ () => this.handleLoweringSelect(lowering.id) }>{lowering.lowering_id}</Link><br/></li>
                 ))
               }
             </ul>
@@ -108,7 +174,7 @@ class CruiseMenu extends Component {
 
     if(this.props.cruises && this.props.cruises.length > 0){
       return (
-        <PanelGroup id="accordion-controlled-example" accordion activeKey={this.state.activeKey} onSelect={this.handleSelect}>
+        <PanelGroup id="accordion-controlled-example" accordion defaultActiveKey="0" onSelect={this.handleSelect}>
           {this.renderCruiseListItems()}
         </PanelGroup>
       )
@@ -133,7 +199,7 @@ class CruiseMenu extends Component {
         <Row>
           <Col xs={12}>
             <h4>Welcome to Sealog</h4>
-            Sealog provides the NDSF user community with at-sea access to in-situ observations, still imagery, position/attitude data, and sensor data from the JASON ROV for review and analysis<br/><br/>
+            Sealog provides the NDSF user community with at-sea access to in-situ observations, still imagery, position/attitude data, and sensor data from the Alvin HOV for review and analysis<br/><br/>
           </Col>
         </Row>
         <Row>

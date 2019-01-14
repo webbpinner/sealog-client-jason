@@ -15,7 +15,7 @@ export default function(state={ lowering: {}, lowerings: [], lowering_message: '
   switch(action.type){
 
     case INIT_LOWERING:
-      return { ...state, lowering: action.payload };
+      return { ...state, lowering: action.payload, lowering_message: '', lowering_error: '' };
 
     case UPDATE_LOWERING:
       return { ...state, lowering: action.payload };
@@ -39,8 +39,8 @@ export default function(state={ lowering: {}, lowerings: [], lowering_message: '
       return { ...state, lowering_error: '', lowering_message: '' }
 
     case FETCH_LOWERINGS:
-      return { ...state, lowerings: action.payload };
-
+      let lowering = (state.lowering.id)? action.payload.find((lowering) => lowering.id == state.lowering.id) : {}
+      return { ...state, lowering: lowering, lowerings: action.payload };
   }    
   return state;
 }

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { connect } from 'react-redux';
 import { findDOMNode } from 'react-dom';
-import { Button, ListGroup, ListGroupItem, Panel, Tooltip, OverlayTrigger } from 'react-bootstrap';
+import { Button, ListGroup, ListGroupItem, Panel, Tooltip, OverlayTrigger, Row, Col } from 'react-bootstrap';
 import * as actions from '../actions';
 // import $ from 'jquery';
 import { Client } from 'nes/client';
@@ -59,17 +59,13 @@ class EventHistory extends Component {
         }
       })
 
-      // console.log(result)
-
       const updateHandler = (update, flags) => {
-        // console.log(update)
         if(!(this.state.hideASNAP && update.event_value == "ASNAP")) {
           this.props.updateEventHistory(update)
         }
       }
 
       const deleteHandler = (update, flags) => {
-        // console.log(update)
         this.props.fetchEventHistory(!this.state.hideASNAP)
       }
 
@@ -83,13 +79,11 @@ class EventHistory extends Component {
     }
   }
 
-  handleEventShowDetails(id) {
-    // console.log("id:", id)
-    this.props.advanceLoweringReplayTo(id);
-    this.props.showModal('eventShowDetails', { id: id });
+  handleEventShowDetailsModal(event) {
+    this.props.showModal('eventShowDetails', { event: event, handleUpdateEvent: this.props.updateEvent });
   }
 
-  handleEventComment(event) {
+  handleEventCommentModal(event) {
     this.props.showModal('eventComment', { event: event, handleUpdateEvent: this.props.updateEvent });
   }
 
@@ -165,46 +159,36 @@ class EventHistory extends Component {
     this.props.fetchEventHistory(this.state.hideASNAP);
   }
 
-  // scrollToBottom() {
-  //   const eventHistory = findDOMNode(this.refs.eventHistory);
-  //   let desiredHeight = $(eventHistory).prop('scrollHeight');
-  //   $(eventHistory).scrollTop(desiredHeight);
-  // }
-
   renderEventHistory() {
 
     if(this.props.history && this.props.history.length > 0){
 
       let eventArray = []
 
-      // for (let i = this.props.history.length; i > 0; i--) {
       for (let i = 0; i < this.props.history.length; i++) {
 
         let event = this.props.history[i]
-
-        // if(this.state.hideASNAP && event.event_value == "ASNAP") {
-        //   continue
-        // }
-
-        let eventOptionsArray = [];
+        
         let comment_exists = false;
-        event.event_options.map((option) => {
-          if(option.event_option_name != 'event_comment') {
-            eventOptionsArray.push(option.event_option_name.replace(/\s+/g, "_") + ": \"" + option.event_option_value + "\"");
+
+        let eventOptionsArray = event.event_options.reduce((filtered, option) => {
+          if (option.event_option_name == 'event_comment' && option.event_option_value !== '') {
+            comment_exists = true;
           } else {
-            comment_exists = (option.event_option_value !== '')? true : false;
+            filtered.push(`${option.event_option_name}: \"${option.event_option_value}\"`);
           }
-        })
+          return filtered
+        },[])
         
         if (event.event_free_text) {
-          eventOptionsArray.push("text: \"" + event.event_free_text + "\"")
+          eventOptionsArray.push(`free_text: \"${event.event_free_text}\"`)
         } 
 
         let eventOptions = (eventOptionsArray.length > 0)? '--> ' + eventOptionsArray.join(', '): ''
-        let comment_icon = (comment_exists)? <FontAwesomeIcon icon='comment' fixedWidth transform="grow-4"/> : <span className="fa-layers fa-fw"><FontAwesomeIcon icon='comment' fixedWidth transform="grow-4"/><FontAwesomeIcon icon='plus' fixedWidth inverse transform="shrink-4"/></span>
-        let commentTooltip = (comment_exists)? (<Tooltip id={`commentTooltip_${event.id}`}>Edit/View Comment</Tooltip>) : (<Tooltip id={`commentTooltip_${event.id}`}>Add Comment</Tooltip>)
+        let commentIcon = (comment_exists)? <FontAwesomeIcon onClick={() => this.handleEventCommentModal(event)} icon='comment' fixedWidth transform="grow-4"/> : <span onClick={() => this.handleEventCommentModal(event)} className="fa-layers fa-fw"><FontAwesomeIcon icon='comment' fixedWidth transform="grow-4"/><FontAwesomeIcon icon='plus' fixedWidth inverse transform="shrink-4"/></span>
+        let commentTooltip = (comment_exists)? (<OverlayTrigger placement="top" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Edit/View Comment</Tooltip>}>{commentIcon}</OverlayTrigger>) : (<OverlayTrigger placement="top" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Add Comment</Tooltip>}>{commentIcon}</OverlayTrigger>)
 
-        eventArray.push(<ListGroupItem key={event.id}><span onClick={() => this.handleEventShowDetails(event.id)}>{event.ts} {`<${event.event_author}>`}: {event.event_value} {eventOptions}</span><span className="pull-right" onClick={() => this.handleEventComment(event)}><OverlayTrigger placement="top" overlay={commentTooltip}>{comment_icon}</OverlayTrigger></span></ListGroupItem>);
+        eventArray.push(<ListGroupItem key={event.id}><Row><Col xs={11} onClick={() => this.handleEventShowDetailsModal(event)}>{event.ts} {`<${event.event_author}>`}: {event.event_value} {eventOptions}</Col><Col>{commentTooltip}</Col></Row></ListGroupItem>);
       }
       return eventArray
     }

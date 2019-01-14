@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { reduxForm, Field, initialize } from 'redux-form';
 import Datetime from 'react-datetime';
@@ -19,6 +20,11 @@ class EventFilterForm extends Component {
     this.clearForm = this.clearForm.bind(this);
   }
 
+  static propTypes = {
+    handlePostSubmit: PropTypes.func.isRequired,
+    // handleHide: PropTypes.func.isRequired
+  };
+
   componentWillMount() {
   }
 
@@ -29,7 +35,6 @@ class EventFilterForm extends Component {
   handleFormSubmit(formProps) {
 
       if(formProps.startTS && typeof(formProps.startTS) === "object") {
-        // console.log("converting")
         if(this.props.minDate && formProps.startTS.isBefore(moment(this.props.minDate))) {
           formProps.startTS = this.props.minDate
         } else {
@@ -38,7 +43,6 @@ class EventFilterForm extends Component {
       }
 
       if(formProps.stopTS && typeof(formProps.stopTS) === "object") {
-        // console.log("converting")
         if(this.props.maxDate && formProps.stopTS.isAfter(moment(this.props.maxDate))) {
           formProps.stopTS = this.props.maxDate
         } else {
@@ -46,8 +50,7 @@ class EventFilterForm extends Component {
         }
       }
 
-    this.props.updateEventFilterForm(formProps);
-    this.props.handlePostSubmit();
+    this.props.handlePostSubmit(formProps);
   }
 
   clearForm() {
@@ -59,6 +62,7 @@ class EventFilterForm extends Component {
       freetext: '',
       datasource: ''
     });
+    this.props.handlePostSubmit();
   }
 
   renderField({ input, label, type, placeholder, disabled, meta: { touched, error, warning } }) {
@@ -176,7 +180,6 @@ class EventFilterForm extends Component {
 
 function validate(formProps) {
   const errors = {};
-
   return errors;
 
 }

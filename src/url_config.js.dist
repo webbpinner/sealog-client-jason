@@ -8,7 +8,7 @@ export const WS_ROOT_URL = `ws://${window.location.hostname}:8001/ws`;
 // export const WS_ROOT_URL = `wss://${window.location.hostname}:8001/ws`;
 
 // Change this if not hosting the client at the webserver's document root i.e. '/sealog/'
-export const ROOT_PATH = "/";
+export const ROOT_PATH = "/sealog/";
 
 // Where the images are hosted on the webserver.
 export const IMAGE_PATH = "/sealog-images";

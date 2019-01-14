@@ -21,31 +21,32 @@ import EventManagement from './components/event_management';
 import EventTemplates from './components/event_templates';
 import Lowerings from './components/lowerings';
 import LoweringReplay from './components/lowering_replay';
-import LoweringSearch from './components/lowering_search';
+import LoweringReview from './components/lowering_review';
 import Cruises from './components/cruises';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 
-import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft';
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons/faArrowRight';
-import { faPencilAlt } from '@fortawesome/free-solid-svg-icons/faPencilAlt';
-import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
+import { faBackward } from '@fortawesome/free-solid-svg-icons/faBackward';
+import { faComment } from '@fortawesome/free-solid-svg-icons/faComment';
+import { faCompress } from '@fortawesome/free-solid-svg-icons/faCompress';
+import { faDownload } from '@fortawesome/free-solid-svg-icons/faDownload';
+import { faExpand } from '@fortawesome/free-solid-svg-icons/faExpand';
 import { faEye } from '@fortawesome/free-solid-svg-icons/faEye';
 import { faEyeSlash } from '@fortawesome/free-solid-svg-icons/faEyeSlash';
-import { faDownload } from '@fortawesome/free-solid-svg-icons/faDownload';
-import { faComment } from '@fortawesome/free-solid-svg-icons/faComment';
-import { faExpand } from '@fortawesome/free-solid-svg-icons/faExpand';
-import { faCompress } from '@fortawesome/free-solid-svg-icons/faCompress';
-import { faStepBackward } from '@fortawesome/free-solid-svg-icons/faStepBackward';
-import { faBackward } from '@fortawesome/free-solid-svg-icons/faBackward';
-import { faPlay } from '@fortawesome/free-solid-svg-icons/faPlay';
-import { faPause } from '@fortawesome/free-solid-svg-icons/faPause';
-import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import { faForward } from '@fortawesome/free-solid-svg-icons/faForward';
+import { faLink } from '@fortawesome/free-solid-svg-icons/faLink';
+import { faPause } from '@fortawesome/free-solid-svg-icons/faPause';
+import { faPencilAlt } from '@fortawesome/free-solid-svg-icons/faPencilAlt';
+import { faPlay } from '@fortawesome/free-solid-svg-icons/faPlay';
+import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
+import { faStepBackward } from '@fortawesome/free-solid-svg-icons/faStepBackward';
 import { faStepForward } from '@fortawesome/free-solid-svg-icons/faStepForward';
+import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
+import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
 
-library.add(faUser, faArrowLeft, faArrowRight, faPencilAlt, faTrash, faEye, faEyeSlash, faDownload, faComment, faExpand, faCompress, faStepBackward, faBackward, faPlay, faPause, faPlus, faForward, faStepForward);
+library.add(faArrowLeft,faArrowRight,faBackward,faComment,faCompress,faDownload,faExpand,faEye,faEyeSlash,faForward,faLink,faPause,faPencilAlt,faPlay,faPlus,faStepBackward,faStepForward,faTrash,faUser);
 
 require('typeface-roboto');
 
@@ -79,7 +80,7 @@ ReactDOM.render(
             <Route path={ `/cruise_menu` } exact={true} component={RequireAuth(CruiseMenu)} />
             <Route path={ `/lowerings` } exact={true} component={RequireAuth(Lowerings)} />
             <Route path={ `/lowering_replay/:id` } exact={true} component={RequireAuth(LoweringReplay)} />
-            <Route path={ `/lowering_search/:id` } exact={true} component={RequireAuth(LoweringSearch)} />
+            <Route path={ `/lowering_review/:id` } exact={true} component={RequireAuth(LoweringReview)} />
             <Route path={ `/event_management` } exact={true} component={RequireAuth(EventManagement)} />
             <Route path={ `/event_templates` } exact={true} component={RequireAuth(EventTemplates)} />
             <Footer />

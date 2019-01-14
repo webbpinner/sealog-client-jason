@@ -83,6 +83,8 @@ class EventTemplateOptionsModal extends Component {
 
   handleFormSubmit(formProps) {
 
+    formProps.event_free_text = (formProps.event_free_text)? formProps.event_free_text : ""
+
     let temp = JSON.parse(JSON.stringify(formProps));
 
     delete temp.event_free_text

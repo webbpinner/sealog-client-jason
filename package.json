@@ -1,10 +1,10 @@
 {
-  "name": "sealog-jason-client",
-  "version": "0.2.0",
-  "license": "MIT",
-  "description": "Sealog event-logging client built for sealog-jason-client",
+  "name": "sealog-client-alvin",
+  "version": "0.3.0",
+  "license": "GPLv3",
+  "description": "Sealog event-logging client built for sealog-server-alvin",
   "bugs": {
-    "url": "https://github.com/webbpinner/sealog-client-jason/issues"
+    "url": "https://github.com/webbpinner/sealog-client-alvin/issues"
   },
   "main": "index.js",
   "scripts": {
@@ -17,7 +17,7 @@
   "private": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/webbpinner/sealog-client-jason.git"
+    "url": "https://github.com/webbpinner/sealog-client-alvin.git"
   },
   "keywords": [
     "react",
@@ -27,6 +27,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "connected-react-router": "^4.5.0",
+    "filepond": "^3.7.4",
     "js-file-download": "^0.4.4",
     "moment": "^2.22.2",
     "moment-duration-format": "^2.2.2",
@@ -38,6 +39,7 @@
     "react-datetime": "^2.15.0",
     "react-dom": "^16.5.2",
     "react-file-reader": "^1.1.4",
+    "react-filepond": "^5.0.0",
     "react-redux": "^5.0.7",
     "react-router": "^4.3.1",
     "react-router-bootstrap": "^0.24.4",
