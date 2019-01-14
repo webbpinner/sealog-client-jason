@@ -2,13 +2,13 @@
 
 ### Prerequisites
 
- - [sealog-server](https://github.com/webbpinner/sealog-server-alvin)
+ - [sealog-server](https://github.com/webbpinner/sealog-server-jason)
  - [nodeJS](https://nodejs.org)
  - [npm](https://www.npmjs.com)
  - [git](https://git-scm.com)
  
 #### Installing NodeJS/npm on Ubuntu 16.04LTS
-The standard Ubuntu repositories for Ubuntu 16.04 only provide install packages for NodeJS v4.  Sealog-client (and Sealog-Server) require nodeJS >= v8.7
+The standard Ubuntu repositories for Ubuntu 16.04 only provide install packages for NodeJS v4.  Sealog-client-jason (and Sealog-Server-Jason) require nodeJS >= v8.7
  
 To install nodeJS v8.11 on Ubuntu 16.04LTS run the following commands:
  ```
@@ -23,15 +23,15 @@ sudo apt-get install nodejs
 ### Clone the repository
 
 ```
-git clone https://github.com/webbpinner/sealog-client-alvin-topside.git
+git clone https://github.com/webbpinner/sealog-client-jason.git
 ```
 
-This should clone the repo to a directory called `sealog-client-alvin-topside`
+This should clone the repo to a directory called `sealog-client-jason`
 
 ### Create a new configuration file
 
 ```
-cd ~/sealog-client-alvin-topside
+cd ~/sealog-client-jason
 cp ./src/url_config.js.dist ./src/url_config.js
 ```
 
@@ -44,7 +44,7 @@ By default the file assumes the sealog-server is available on ports 8000/8001 on
 ### Create a deployment file
 
 ```
-cd ~/sealog-client-alvin-topside
+cd ~/sealog-client-jason
 cp ./webpack.js.dist ./webpack.js
 ```
 
@@ -54,7 +54,7 @@ If you are deploying the client to somewhere other than `http://<serverIP>/sealo
 
 From a terminal run:
 ```
-cd ~/sealog-client-alvin-topside
+cd ~/sealog-client-jason
 npm install
 ```
 
@@ -63,7 +63,7 @@ npm install
 From a terminal run:
 
 ```
-cd ./sealog-client-alvin-topside
+cd ./sealog-client-jason
 npm run build
 ```
 
@@ -80,10 +80,10 @@ Add the following to your Apache vhosts file:
 
 Create a symbolic link from the repository to the apache document root
 ```
-sudo ln -s /home/sealog/sealog-client-alvin-topside/dist /var/www/html/sealog
+sudo ln -s /home/sealog/sealog-client-jason/dist /var/www/html/sealog
 ```
 
-You will need to tweak this configuration to match your exact installation.  This example assumes the client will live at `http://<serverIP>/sealog` and the git repo is located at: `/home/sealog/sealog-client-alvin-topside`
+You will need to tweak this configuration to match your exact installation.  This example assumes the client will live at `http://<serverIP>/sealog` and the git repo is located at: `/home/sealog/sealog-client-jason`
 
 **Be sure to reload Apache for these changes to take affect.**
 
