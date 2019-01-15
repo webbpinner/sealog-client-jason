@@ -11,4 +11,4 @@ export const WS_ROOT_URL = `ws://${window.location.hostname}:8001/ws`;
 export const ROOT_PATH = "/sealog/";
 
 // Where the images are hosted on the webserver.
-export const IMAGE_PATH = "/sealog-images";
+export const IMAGE_PATH = "/files/images";
