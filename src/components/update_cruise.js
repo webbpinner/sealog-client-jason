@@ -13,7 +13,7 @@ import FileDownload from 'js-file-download';
 import { FilePond, File, registerPlugin } from 'react-filepond';
 import 'filepond/dist/filepond.min.css';
 
-import { API_ROOT_URL } from '../url_config';
+import { API_ROOT_URL } from '../client_config';
 import * as actions from '../actions';
 
 const dateFormat = "YYYY-MM-DD"
@@ -213,7 +213,7 @@ class UpdateCruise extends Component {
     if (this.props.roles && (this.props.roles.includes("admin") || this.props.roles.includes('cruise_manager'))) {
 
       return (
-        <Panel>
+        <Panel className="form-standard">
           <Panel.Heading>{updateCruiseFormHeader}</Panel.Heading>
           <Panel.Body>
             <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>

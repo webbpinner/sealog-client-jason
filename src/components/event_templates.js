@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { reduxForm, Field, reset } from 'redux-form';
 import { FormGroup, Grid, Row, Button, Col, Panel, Alert, Table, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import { ROOT_PATH } from '../url_config';
+import { ROOT_PATH } from '../client_config';
 import CreateEventTemplate from './create_event_template';
 import UpdateEventTemplate from './update_event_template';
 import NonSystemEventTemplatesWipeModal from './non_system_event_templates_wipe_modal';
@@ -238,7 +238,7 @@ class EventTemplates extends Component {
           <NonSystemEventTemplatesWipeModal />
           <ImportEventTemplatesModal handleExit={this.handleEventTemplateImportClose} />
           <Row>
-            <Col sm={8} md={6} lgOffset= {1} lg={5}>
+            <Col sm={7} mdOffset={1} md={6} lgOffset={2} lg={5}>
               <Panel>
                <Panel.Heading>{this.renderSystemEventTemplatesHeader()}</Panel.Heading>
                 {this.renderSystemEventTemplatesTable()}
@@ -250,7 +250,7 @@ class EventTemplates extends Component {
               {this.renderAddEventTemplateButton()}
               {this.renderImportEventTemplatesButton()}
             </Col>
-            <Col sm={8} md={6} lg={5}>
+            <Col sm={5} md={4} lg={3}>
               { eventTemplatesForm }
             </Col>
           </Row>

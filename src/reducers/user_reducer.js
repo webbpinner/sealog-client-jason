@@ -16,10 +16,7 @@ import {
   REGISTER_USER_SUCCESS,
   REGISTER_USER_ERROR,
   LEAVE_REGISTER_USER_FORM,
-  FETCH_USERS,
-  SHOW_USER_ADD_NEW,
-  HIDE_USER_ADD_NEW,
-
+  FETCH_USERS
 } from '../actions/types';
 
 export default function(state={ profile: {}, profile_error: '', profile_message: '', user: {}, user_error: '', user_message: '', users: [] }, action) {

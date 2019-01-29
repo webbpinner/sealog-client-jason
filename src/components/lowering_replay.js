@@ -7,7 +7,7 @@ import Cookies from 'universal-cookie';
 import { Link } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
 import { connect } from 'react-redux';
-import { Button, Row, Col, Panel, Accordion, Pagination, ListGroup, ListGroupItem, MenuItem, Thumbnail, Well, OverlayTrigger, Tooltip, ButtonToolbar, DropdownButton } from 'react-bootstrap';
+import { Button, Row, Col, Grid, Panel, Accordion, Pagination, ListGroup, ListGroupItem, MenuItem, Thumbnail, Well, OverlayTrigger, Tooltip, ButtonToolbar, DropdownButton } from 'react-bootstrap';
 import 'rc-slider/assets/index.css';
 import Slider, { createSliderWithTooltip } from 'rc-slider';
 import { Line } from 'rc-progress';
@@ -15,7 +15,7 @@ import EventFilterForm from './event_filter_form';
 import ImagePreviewModal from './image_preview_modal';
 import EventCommentModal from './event_comment_modal';
 import * as actions from '../actions';
-import { ROOT_PATH, API_ROOT_URL, IMAGE_PATH } from '../url_config';
+import { ROOT_PATH, API_ROOT_URL, IMAGE_PATH } from '../client_config';
 
 let fileDownload = require('js-file-download');
 

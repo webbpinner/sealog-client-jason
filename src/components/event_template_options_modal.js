@@ -8,7 +8,7 @@ import moment from 'moment';
 import momentDurationFormatSetup from 'moment-duration-format';
 import { reduxForm, Field, initialize, formValueSelector } from 'redux-form';
 import Cookies from 'universal-cookie';
-import { API_ROOT_URL } from '../url_config';
+import { API_ROOT_URL } from '../client_config';
 
 const dateFormat = "YYYY-MM-DD"
 const timeFormat = "HH:mm:ss.SSS"
@@ -16,7 +16,6 @@ const timeFormat = "HH:mm:ss.SSS"
 const cookies = new Cookies();
 
 const required =  value => !value ? 'Required' : undefined
-
 const requiredArray =  value => !value || value.length === 0 ? 'At least one required' : undefined
 
 

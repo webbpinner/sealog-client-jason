@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Button, Row, Col, Panel, PanelGroup, ListGroup, ListGroupItem } from 'react-bootstrap';
 import FileDownload from 'js-file-download';
-import { API_ROOT_URL } from '../url_config';
+import { API_ROOT_URL } from '../client_config';
 
 import * as actions from '../actions';
 
@@ -157,13 +157,18 @@ class CruiseMenu extends Component {
             <p><strong>Description:</strong> {cruise.cruise_description}</p>
             <p><strong>Dates:</strong> {moment.utc(cruise.start_ts).format("YYYY/MM/DD")} - {moment.utc(cruise.stop_ts).format("YYYY/MM/DD")}</p>
             {cruise_files}
-            <p><strong>Lowerings:</strong></p>
-            <ul>
-              { cruiseLowerings.map(lowering => (
-                  <li key={`select_${lowering.id}`} ><Link to="#" onClick={ () => this.handleLoweringSelect(lowering.id) }>{lowering.lowering_id}</Link><br/></li>
-                ))
-              }
-            </ul>
+            { (cruiseLowerings.length > 0)? (
+              <div>
+                <p><strong>Lowerings:</strong></p>
+                <ul>
+                  { cruiseLowerings.map(lowering => (
+                      <li key={`select_${lowering.id}`} ><Link to="#" onClick={ () => this.handleLoweringSelect(lowering.id) }>{lowering.lowering_id}</Link><br/></li>
+                    ))
+                  }
+                </ul>
+              </div>
+            ): null
+            }
           </Panel.Body>
         </Panel>
       );
@@ -199,7 +204,7 @@ class CruiseMenu extends Component {
         <Row>
           <Col xs={12}>
             <h4>Welcome to Sealog</h4>
-            Sealog provides the NDSF user community with at-sea access to in-situ observations, still imagery, position/attitude data, and sensor data from the Alvin HOV for review and analysis<br/><br/>
+            Sealog provides the NDSF user community with shore-based access to in-situ observations, still imagery, position/attitude data, and sensor data from the JASON ROV for review and analysis<br/><br/>
           </Col>
         </Row>
         <Row>
@@ -211,7 +216,7 @@ class CruiseMenu extends Component {
           </Col>
         </Row>
         <Row>
-          <Col>
+          <Col xs={12}>
             Please select a cruise from the list above.  Once a cruise is selected please select a lowering from the list of lowerings associated with that cruise that appear at the bottom of the cruise information panel.  Selecting a lowering will open the lowering information panel.  At the bottom of the cruise information panel there will be buttons for proceeding to the lowering replay section of Sealog or the lowering event search section of Sealog.
             If at any time you wish to return to this page please click the "Sealog" text in upper-left part of the window.
           </Col>

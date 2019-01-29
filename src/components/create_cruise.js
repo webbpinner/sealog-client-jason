@@ -139,7 +139,7 @@ class CreateCruise extends Component {
       if(this.props.roles.includes("admin")) {
 
         return (
-          <Panel>
+          <Panel className="form-standard" >
             <Panel.Heading>{createCruiseFormHeader}</Panel.Heading>
             <Panel.Body>
               <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>

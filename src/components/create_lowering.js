@@ -139,7 +139,7 @@ class CreateLowering extends Component {
       if(this.props.roles.includes("admin")) {
 
         return (
-          <Panel>
+          <Panel className="form-standard">
             <Panel.Heading>{createLoweringFormHeader}</Panel.Heading>
             <Panel.Body>
               <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>

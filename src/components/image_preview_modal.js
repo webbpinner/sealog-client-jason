@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Modal, Label, Thumbnail } from 'react-bootstrap';
 import { connectModal } from 'redux-modal';
-import { ROOT_PATH, } from '../url_config';
+import { ROOT_PATH, } from '../client_config';
 
 class ImagePreviewModal extends Component {
 

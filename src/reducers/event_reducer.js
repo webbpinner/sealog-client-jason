@@ -26,8 +26,7 @@ export default function( state={ selected_event: {}, events: [], eventFilter: {}
       return { ...state, selected_event: {}, events: newEvents };
 
     case UPDATE_EVENTS:
-      let updateEvents = action.payload
-      return { ...state, selected_event: {}, events: updateEvents };
+      return { ...state, selected_event: {}, events: action.payload };
 
     case UPDATE_EVENT_FILTER_FORM:
       return { ...state, eventFilter: action.payload }

@@ -12,7 +12,7 @@ import EventCommentModal from './event_comment_modal';
 import DeleteEventModal from './delete_event_modal';
 import EventShowDetailsModal from './event_show_details_modal';
 import * as actions from '../actions';
-import { ROOT_PATH, API_ROOT_URL } from '../url_config';
+import { ROOT_PATH, API_ROOT_URL } from '../client_config';
 
 let fileDownload = require('js-file-download');
 
@@ -412,11 +412,11 @@ class EventManagement extends Component {
         <DeleteEventModal />
         <EventShowDetailsModal />
         <Row>
-          <Col sm={7} md={8} lg={9}>
+          <Col sm={7} md={8} lg={8}>
             {this.renderEventPanel()}
             {this.renderPagination()}
           </Col>
-          <Col sm={5} md={4} lg={3}>
+          <Col sm={5} md={4} lg={4}>
             <EventFilterForm disabled={this.state.fetching} hideASNAP={this.state.hideASNAP} handlePostSubmit={ this.updateEventFilter } lowering_id={null}/>
           </Col>
         </Row>

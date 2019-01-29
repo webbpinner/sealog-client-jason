@@ -8,6 +8,7 @@ import { LinkContainer } from 'react-router-bootstrap';
 import moment from 'moment';
 import CreateCruise from './create_cruise';
 import UpdateCruise from './update_cruise';
+// import AccessCruise from './access_cruise';
 import DeleteCruiseModal from './delete_cruise_modal';
 import ImportCruisesModal from './import_cruises_modal';
 import * as actions from '../actions';
@@ -22,7 +23,9 @@ class Cruises extends Component {
     super(props);
 
     this.state = {
-      activePage: 1
+      activePage: 1,
+      // cruiseAccess: false,
+      cruiseUpdate: false
     }
 
     this.handlePageSelect = this.handlePageSelect.bind(this);
@@ -42,8 +45,17 @@ class Cruises extends Component {
     this.props.showModal('deleteCruise', { id: id, handleDelete: this.props.deleteCruise });
   }
 
-  handleCruiseSelect(id) {
+  handleCruiseUpdate(id) {
     this.props.initCruise(id);
+    // this.setState({cruiseUpdate: true, cruiseAccess: false});
+    this.setState({cruiseUpdate: true});
+    window.scrollTo(0, 0);
+  }
+
+  handleCruiseAccess(id) {
+    this.props.initCruise(id);
+    // this.setState({cruiseUpdate: false, cruiseAccess: true});
+    this.setState({cruiseUpdate: false});
     window.scrollTo(0, 0);
   }
 
@@ -56,7 +68,9 @@ class Cruises extends Component {
   }
 
   handleCruiseCreate() {
-    this.props.leaveUpdateCruiseForm()
+    this.props.leaveUpdateCruiseForm();
+    // this.setState({cruiseUpdate: false, cruiseAccess: false});
+    this.setState({cruiseUpdate: false});
   }
 
   handleCruiseImportModal() {
@@ -95,28 +109,30 @@ class Cruises extends Component {
 
     const editTooltip = (<Tooltip id="editTooltip">Edit this cruise.</Tooltip>)
     const deleteTooltip = (<Tooltip id="deleteTooltip">Delete this cruise.</Tooltip>)
-    const showTooltip = (<Tooltip id="deleteTooltip">Allow users to view this cruise.</Tooltip>)
-    const hideTooltip = (<Tooltip id="deleteTooltip">Hide this cruise from users.</Tooltip>)
+    const showTooltip = (<Tooltip id="showTooltip">Allow users to view this cruise.</Tooltip>)
+    const hideTooltip = (<Tooltip id="hideTooltip">Hide this cruise from users.</Tooltip>)
+    // const userAccessTooltip = (<Tooltip id="acessTooltip">Manage user access to this cruise.</Tooltip>)
 
     return this.props.cruises.map((cruise, index) => {
       if(index >= (this.state.activePage-1) * maxCruisesPerPage && index < (this.state.activePage * maxCruisesPerPage)) {
         let deleteLink = (this.props.roles.includes('admin'))? <Link key={`delete_${cruise.id}`} to="#" onClick={ () => this.handleCruiseDeleteModal(cruise.id) }><OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesomeIcon icon='trash' fixedWidth/></OverlayTrigger></Link>: null
         let hiddenLink = null;
+
         if(this.props.roles.includes('admin') && cruise.cruise_hidden) {
           hiddenLink = <Link key={`show_${cruise.id}`} to="#" onClick={ () => this.handleCruiseShow(cruise.id) }><OverlayTrigger placement="top" overlay={showTooltip}><FontAwesomeIcon icon='eye-slash' fixedWidth/></OverlayTrigger></Link>
         } else if(this.props.roles.includes('admin') && !cruise.cruise_hidden) {
           hiddenLink = <Link key={`show_${cruise.id}`} to="#" onClick={ () => this.handleCruiseHide(cruise.id) }><OverlayTrigger placement="top" overlay={hideTooltip}><FontAwesomeIcon icon='eye' fixedWidth/></OverlayTrigger></Link>  
         }
 
+        // let accessCruiseLink = (this.props.roles.includes('admin'))? <Link key={`access_${cruise.id}`} to="#" onClick={ () => this.handleCruiseAccess(cruise.id) }><OverlayTrigger placement="top" overlay={userAccessTooltip}><FontAwesomeIcon icon='user' fixedWidth/></OverlayTrigger></Link>: null
+
         return (
           <tr key={cruise.id}>
             <td>{cruise.cruise_id}</td>
             <td>{cruise.cruise_name}<br/>PI: {cruise.cruise_pi}<br/>Dates: {moment.utc(cruise.start_ts).format('L')}<FontAwesomeIcon icon='arrow-right' fixedWidth/>{moment.utc(cruise.stop_ts).format('L')}</td>
             <td>
-              <Link key={`edit_${cruise.id}`} to="#" onClick={ () => this.handleCruiseSelect(cruise.id) }><OverlayTrigger placement="top" overlay={editTooltip}><FontAwesomeIcon icon='pencil-alt' fixedWidth/></OverlayTrigger></Link>
-              {' '}
+              <Link key={`edit_${cruise.id}`} to="#" onClick={ () => this.handleCruiseUpdate(cruise.id) }><OverlayTrigger placement="top" overlay={editTooltip}><FontAwesomeIcon icon='pencil-alt' fixedWidth/></OverlayTrigger></Link>
               {deleteLink}
-              {' '}
               {hiddenLink}
             </td>
           </tr>
@@ -124,6 +140,7 @@ class Cruises extends Component {
       }
     })
   }
+              // {accessCruiseLink}
 
   renderCruiseTable() {
     if(this.props.cruises && this.props.cruises.length > 0) {
@@ -214,14 +231,22 @@ class Cruises extends Component {
 
     if(this.props.roles.includes("admin") || this.props.roles.includes('cruise_manager')) {
 
-      let cruiseForm = (this.props.cruiseid)? <UpdateCruise handleFormSubmit={ this.props.fetchCruises } /> : <CreateCruise handleFormSubmit={ this.props.fetchCruises } />
+      let cruiseForm = null;
+  
+      if(this.state.cruiseUpdate) {
+        cruiseForm = <UpdateCruise handleFormSubmit={ this.props.fetchCruises } />
+      } else if(this.state.cruiseAccess) {
+        cruiseForm = <AccessCruise handleFormSubmit={ this.props.fetchCruises } />
+      } else {
+        cruiseForm = <CreateCruise handleFormSubmit={ this.props.fetchCruises } />
+      }
 
       return (
         <div>
           <DeleteCruiseModal />
           <ImportCruisesModal  handleExit={this.handleCruiseImportClose} />
           <Row>
-            <Col sm={10} md={7} lgOffset= {1} lg={6}>
+            <Col sm={7} md={7} lgOffset= {1} lg={7}>
               <Panel>
                 <Panel.Heading>{this.renderCruiseHeader()}</Panel.Heading>
                 {this.renderCruiseTable()}
@@ -230,7 +255,7 @@ class Cruises extends Component {
               {this.renderAddCruiseButton()}
               {this.renderImportCruisesButton()}
             </Col>
-            <Col sm={6} md={5} lg={4}>
+            <Col sm={5} md={5} lg={4}>
               { cruiseForm }
             </Col>
           </Row>

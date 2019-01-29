@@ -243,7 +243,7 @@ class UpdateEventTemplate extends Component {
 
     if (this.props.roles && (this.props.roles.includes("admin") || this.props.roles.includes("event_manager"))) {
       return (
-        <Panel>
+        <Panel className="form-standard">
           <Panel.Heading>{formHeader}</Panel.Heading>
           <Panel.Body>
             <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>

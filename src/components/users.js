@@ -2,10 +2,7 @@ import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { reduxForm, Field, reset } from 'redux-form';
-import { Row, Button, Col, Panel, Alert, Table, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
-import { ROOT_PATH } from '../url_config';
+import { Row, Button, Col, Panel, Table, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import CreateUser from './create_user';
 import UpdateUser from './update_user';
 import DisplayUserTokenModal from './display_user_token_modal';
@@ -18,17 +15,28 @@ const disabledAccounts = ['admin', 'guest', 'pi']
 
 let fileDownload = require('js-file-download');
 
+const maxUsersPerPage = 15
+
 class Users extends Component {
 
   constructor (props) {
     super(props);
 
+    this.state = {
+      activePage: 1
+    }
+
+    this.handlePageSelect = this.handlePageSelect.bind(this);
     this.handleUserImportClose = this.handleUserImportClose.bind(this);
 
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.props.fetchUsers();
+  }
+
+  handlePageSelect(eventKey) {
+    this.setState({activePage: eventKey});
   }
 
   handleUserDelete(id) {
@@ -242,6 +250,48 @@ class Users extends Component {
     );
   }
 
+  renderPagination() {
+    if(this.props.users && this.props.users.length > maxUsersPerPage) {
+
+      let priceCount = this.props.users.length;
+      let last = Math.ceil(priceCount/maxUsersPerPage);
+      let delta = 2
+      let left = this.state.activePage - delta
+      let right = this.state.activePage + delta + 1
+      let range = []
+      let rangeWithDots = []
+      let l = null
+
+      for (let i = 1; i <= last; i++) {
+        if (i == 1 || i == last || i >= left && i < right) {
+            range.push(i);
+        }
+      }
+
+      for (let i of range) {
+        if (l) {
+          if (i - l === 2) {
+            rangeWithDots.push(<Pagination.Item key={l + 1} active={(this.state.activePage === l+1)} onClick={() => this.setState({activePage: (l + 1)})}>{l + 1}</Pagination.Item>)
+          } else if (i - l !== 1) {
+            rangeWithDots.push(<Pagination.Ellipsis />);
+          }
+        }
+        rangeWithDots.push(<Pagination.Item key={i} active={(this.state.activePage === i)} onClick={() => this.setState({activePage: i})}>{i}</Pagination.Item>);
+        l = i;
+      }
+
+      return (
+        <Pagination>
+          <Pagination.First onClick={() => this.setState({activePage: 1})} />
+          <Pagination.Prev onClick={() => { if(this.state.activePage > 1) { this.setState(prevState => ({ activePage: prevState.activePage-1}))}}} />
+          {rangeWithDots}
+          <Pagination.Next onClick={() => { if(this.state.activePage < last) { this.setState(prevState => ({ activePage: prevState.activePage+1}))}}} />
+          <Pagination.Last onClick={() => this.setState({activePage: last})} />
+        </Pagination>
+      )
+    }
+  }
+
   render() {
     if (!this.props.roles) {
         return (
@@ -262,10 +312,9 @@ class Users extends Component {
           <Row>
             <Col sm={6} mdOffset= {1} md={5} lgOffset= {2} lg={4}>
               <Panel>
-                <Panel.Heading>
-                  {this.renderSystemUsersHeader()}
-                </Panel.Heading>
+                <Panel.Heading>{this.renderSystemUsersHeader()}</Panel.Heading>
                 {this.renderSystemUserTable()}
+                {this.renderPagination()}
               </Panel>
               <Panel>
                 <Panel.Heading>

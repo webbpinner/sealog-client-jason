@@ -1,32 +1,22 @@
-// import { createStore, applyMiddleware } from 'redux';
-// import reduxThunk from 'redux-thunk';
-// //import { browserHistory } from "react-router";
-// import { routerMiddleware } from "react-router-redux";
-
-// import reducers from './reducers';
-// import history from './history';
-
-// const reactRouterReduxMiddleware = routerMiddleware(history);
-
-// const middleware = [ reduxThunk, reactRouterReduxMiddleware ]
-
-// const createStoreWithMiddleware = applyMiddleware(...middleware)(createStore);
-
-// export default createStoreWithMiddleware(reducers);
-
-
-import { createStore, applyMiddleware } from 'redux';
-import reduxThunk from 'redux-thunk';
-import { routerMiddleware, connectRouter } from "connected-react-router";
-
-import reducers from './reducers';
 import history from './history';
+import { applyMiddleware, compose, createStore } from 'redux';
+import { routerMiddleware } from "connected-react-router";
+import reduxThunk from 'redux-thunk';
 
-const reactRouterReduxMiddleware = routerMiddleware(history);
+import createRootReducer from './reducers';
 
-const middleware = [ reduxThunk, reactRouterReduxMiddleware ]
+export default function configureStore(preloadedState) {
+  const store = createStore(
+    createRootReducer(history), // root reducer with router state
+    preloadedState,
+    compose(
+      applyMiddleware(
+        routerMiddleware(history), // for dispatching history actions
+        reduxThunk
+        // ... other middlewares ...
+      ),
+    ),
+  )
 
-export default createStore(
-	connectRouter(history)(reducers),
-	applyMiddleware(...middleware)
-)
+  return store
+}

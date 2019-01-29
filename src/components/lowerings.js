@@ -8,6 +8,7 @@ import { LinkContainer } from 'react-router-bootstrap';
 import moment from 'moment';
 import CreateLowering from './create_lowering';
 import UpdateLowering from './update_lowering';
+// import AccessLowering from './access_lowering';
 import DeleteLoweringModal from './delete_lowering_modal';
 import ImportLoweringsModal from './import_lowerings_modal';
 import * as actions from '../actions';
@@ -23,6 +24,8 @@ class Lowerings extends Component {
 
     this.state = {
       activePage: 1,
+      // loweringAccess: false,
+      loweringUpdate: false
     }
 
     this.handlePageSelect = this.handlePageSelect.bind(this);
@@ -34,12 +37,6 @@ class Lowerings extends Component {
       this.props.fetchLowerings();
   }
 
-  // componentDidUpdate() {
-  //   if(this.props.lowerings.length > 0 && !this.state.lowering){
-  //     this.handleLoweringSelect(this.props.lowerings[0].id)
-  //   }
-  // }
-
   handlePageSelect(eventKey) {
     this.setState({activePage: eventKey});
   }
@@ -48,8 +45,17 @@ class Lowerings extends Component {
     this.props.showModal('deleteLowering', { id: id, handleDelete: this.props.deleteLowering });
   }
 
-  handleLoweringSelect(id) {
+  handleLoweringUpdate(id) {
     this.props.initLowering(id);
+    // this.setState({loweringUpdate: true, loweringAccess: false});
+    this.setState({loweringUpdate: true});
+    window.scrollTo(0, 0);
+  }
+
+  handleLoweringAccess(id) {
+    this.props.initLowering(id);
+    // this.setState({loweringUpdate: false, loweringAccess: true});
+    this.setState({loweringUpdate: false });
     window.scrollTo(0, 0);
   }
 
@@ -63,6 +69,8 @@ class Lowerings extends Component {
 
   handleLoweringCreate() {
     this.props.leaveUpdateLoweringForm()
+    this.setState({loweringUpdate: false, loweringAccess: false});
+    this.setState({loweringUpdate: false});
   }
 
   handleLoweringImportModal() {
@@ -101,28 +109,30 @@ class Lowerings extends Component {
 
     const editTooltip = (<Tooltip id="editTooltip">Edit this lowering.</Tooltip>)
     const deleteTooltip = (<Tooltip id="deleteTooltip">Delete this lowering.</Tooltip>)
-    const showTooltip = (<Tooltip id="deleteTooltip">Allow users to view this lowering.</Tooltip>)
-    const hideTooltip = (<Tooltip id="deleteTooltip">Hide this lowering from users.</Tooltip>)
+    const showTooltip = (<Tooltip id="showTooltip">Allow users to view this lowering.</Tooltip>)
+    const hideTooltip = (<Tooltip id="hideTooltip">Hide this lowering from users.</Tooltip>)
+    // const userAccessTooltip = (<Tooltip id="accessTooltip">Manage user access to this lowering.</Tooltip>)
 
     return this.props.lowerings.map((lowering, index) => {
       if(index >= (this.state.activePage-1) * maxLoweringsPerPage && index < (this.state.activePage * maxLoweringsPerPage)) {
         let deleteLink = (this.props.roles.includes('admin'))? <Link key={`delete_${lowering.id}`} to="#" onClick={ () => this.handleLoweringDeleteModal(lowering.id) }><OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesomeIcon icon='trash' fixedWidth/></OverlayTrigger></Link>: null
         let hiddenLink = null;
+
         if(this.props.roles.includes('admin') && lowering.lowering_hidden) {
           hiddenLink = <Link key={`show_${lowering.id}`} to="#" onClick={ () => this.handleLoweringShow(lowering.id) }><OverlayTrigger placement="top" overlay={showTooltip}><FontAwesomeIcon icon='eye-slash' fixedWidth/></OverlayTrigger></Link>
         } else if(this.props.roles.includes('admin') && !lowering.lowering_hidden) {
           hiddenLink = <Link key={`show_${lowering.id}`} to="#" onClick={ () => this.handleLoweringHide(lowering.id) }><OverlayTrigger placement="top" overlay={hideTooltip}><FontAwesomeIcon icon='eye' fixedWidth/></OverlayTrigger></Link>  
         }
 
+        // let accessLoweringLink = (this.props.roles.includes('admin'))? <Link key={`access_${lowering.id}`} to="#" onClick={ () => this.handleLoweringAccess(lowering.id) }><OverlayTrigger placement="top" overlay={userAccessTooltip}><FontAwesomeIcon icon='user' fixedWidth/></OverlayTrigger></Link>: null
+
         return (
           <tr key={lowering.id}>
             <td>{lowering.lowering_id}</td>
             <td>{lowering.lowering_location}<br/>Dates: {moment.utc(lowering.start_ts).format("MM-DD-YYYY HH:mm")}<FontAwesomeIcon icon='arrow-right' fixedWidth/>{moment.utc(lowering.stop_ts).format("MM-DD-YYYY HH:mm")}</td>
             <td>
-              <Link key={`edit_${lowering.id}`} to="#" onClick={ () => this.handleLoweringSelect(lowering.id) }><OverlayTrigger placement="top" overlay={editTooltip}><FontAwesomeIcon icon='pencil-alt' fixedWidth/></OverlayTrigger></Link>
-              {' '}
+              <Link key={`edit_${lowering.id}`} to="#" onClick={ () => this.handleLoweringUpdate(lowering.id) }><OverlayTrigger placement="top" overlay={editTooltip}><FontAwesomeIcon icon='pencil-alt' fixedWidth/></OverlayTrigger></Link>
               {deleteLink}
-              {' '}
               {hiddenLink}
             </td>
           </tr>
@@ -130,6 +140,7 @@ class Lowerings extends Component {
       }
     })      
   }
+              // {accessLoweringLink}
 
   renderLoweringTable() {
     if(this.props.lowerings && this.props.lowerings.length > 0){
@@ -220,14 +231,22 @@ class Lowerings extends Component {
 
     if(this.props.roles.includes("admin") || this.props.roles.includes('cruise_manager')) {
 
-      let loweringForm = (this.props.loweringid)? <UpdateLowering handleFormSubmit={ this.props.fetchLowerings } /> : <CreateLowering handleFormSubmit={ this.props.fetchLowerings } />
+      let loweringForm = null;
+  
+      if(this.state.loweringUpdate) {
+        loweringForm = <UpdateLowering handleFormSubmit={ this.props.fetchLowerings } />
+      } else if(this.state.loweringAccess) {
+        loweringForm = <AccessLowering handleFormSubmit={ this.props.fetchLowerings } />
+      } else {
+        loweringForm = <CreateLowering handleFormSubmit={ this.props.fetchLowerings } />
+      }
 
       return (
         <div>
           <DeleteLoweringModal />
           <ImportLoweringsModal  handleExit={this.handleLoweringImportClose} />
           <Row>
-            <Col sm={10} md={7} lgOffset= {1} lg={6}>
+            <Col sm={7} md={7} lgOffset= {1} lg={6}>
               <Panel>
                 <Panel.Heading>{this.renderLoweringHeader()}</Panel.Heading>
                 {this.renderLoweringTable()}
@@ -236,23 +255,12 @@ class Lowerings extends Component {
               {this.renderAddLoweringButton()}
               {this.renderImportLoweringsButton()}
             </Col>
-            <Col sm={6} md={5} lg={4}>
+            <Col sm={5} md={5} lg={4}>
               { loweringForm }
             </Col>
           </Row>
         </div>
       );
-      // return (
-      //   <div>
-      //     <DeleteLoweringModal />
-      //     <Row>
-      //       <Col sm={6} md={5} lg={4}>
-      //         { loweringForm }
-      //       </Col>
-      //     </Row>
-      //   </div>
-      // );
-
     } else {
       return (
         <div>

@@ -9,9 +9,7 @@ import moment from 'moment';
 import axios from 'axios';
 import { reduxForm, Field, initialize, formValueSelector } from 'redux-form';
 import * as actions from '../actions';
-
-
-import { API_ROOT_URL} from '../url_config';
+import { API_ROOT_URL} from '../client_config';
 
 const cookies = new Cookies();
 

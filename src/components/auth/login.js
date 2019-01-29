@@ -4,8 +4,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Grid, Row, Col, FormGroup, Panel, Button, Alert, Image } from 'react-bootstrap';
+// import ReCAPTCHA from "react-google-recaptcha";
 import * as actions from '../../actions';
-import { ROOT_PATH } from '../../url_config';
+// import { ROOT_PATH, RECAPTCHA_SITE_KEY } from '../../client_config';
+import { ROOT_PATH } from '../../client_config';
 
 class Login extends Component {
  
@@ -13,6 +15,7 @@ class Login extends Component {
     super(props);
 
     this.state = {
+      // reCaptcha: null,
       stdUsers: true
     }
   }
@@ -21,8 +24,14 @@ class Login extends Component {
     this.props.leaveLoginForm();
   }
 
+  // onCaptchaChange(token) {
+  //   this.setState({reCaptcha: token})
+  // }
+
   handleFormSubmit({ username, password }) {
     username = username.toLowerCase();
+    // let reCaptcha = this.state.reCaptcha
+    // this.props.login({username, password, reCaptcha});
     this.props.login({username, password});
   }
 
@@ -43,56 +52,8 @@ class Login extends Component {
   }
  
 render() {
-    const { handleSubmit, pristine, reset, submitting } = this.props;
+    const { handleSubmit, pristine, reset, submitting, valid } = this.props;
     const loginPanelHeader = (<h4 className="form-signin-heading">Please Sign In</h4>);
-
-    // const quickLogin = (
-    //   <Panel header={loginPanelHeader}>
-    //     <Button bsStyle="primary" onClick={() => this.props.switch2Pilot()} block>Pilot</Button>
-    //     <Button bsStyle="primary" onClick={() => this.props.switch2StbdObs()} block>Starboard Observer</Button>
-    //     <Button bsStyle="primary" onClick={() => this.props.switch2PortObs()} block>Port Observer</Button>
-    //     <br/>
-    //     <div className="text-right">
-    //       <Link to={'#'} onClick={ () => this.setState({stdUsers: false})}>Use Custom Login{' '}{<FontAwesome name="arrow-right"/>}</Link>
-    //     </div>
-    //   </Panel>
-    // )
-
-    // const customLogin = (
-    //   <Panel header={loginPanelHeader}>
-    //     <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
-    //       <FormGroup>
-    //         <Field
-    //           name="username"
-    //           component="input"
-    //           type="text"
-    //           placeholder="Username"
-    //           className="form-control"
-    //         />
-    //       </FormGroup>
-    //       <FormGroup>
-    //         <Field
-    //           name="password"
-    //           component="input"
-    //           type="password"
-    //           placeholder="Password"
-    //           className="form-control"
-    //         />
-    //       </FormGroup>
-    //       {this.renderAlert()}
-    //       <div>
-    //         <Button bsStyle="primary" type="submit" block>Submit</Button>
-    //       </div>
-    //     </form>
-    //     <br/>
-    //     <div>
-    //       <Link to={'#'} onClick={ () => this.setState({stdUsers: true})} >{<FontAwesome name="arrow-left"/>}{' '}Back</Link>
-    //       <span className="pull-right">
-    //         <Link to={ `/register` }>Register New User{' '}{<FontAwesome name="arrow-right"/>}</Link>
-    //       </span>
-    //     </div>
-    //   </Panel>
-    // )
 
     return (
       <Row>
@@ -121,14 +82,19 @@ render() {
                 </FormGroup>
                 {this.renderAlert()}
                 <div>
-                  <Button bsStyle="primary" type="submit" block>Submit</Button>
+                  <Button bsStyle="primary" type="submit" block disabled={submitting || !valid}>Login</Button>
                 </div>
               </form>
               <br/>
               <Button bsStyle="success" onClick={() => this.props.switch2Guest()} block>Login as Guest</Button>
               <br/>
-              <div className="text-right">
-                <Link to={ `/register` }>Register New User {<FontAwesomeIcon icon="arrow-right" />}</Link>
+              <div>
+                <span>
+                  <Link to={ `/forgotPassword` }>{<FontAwesomeIcon icon="arrow-left"/>} Forgot Password?</Link>
+                </span>
+                <span className="pull-right">
+                  <Link to={ `/register` }>Register New User {<FontAwesomeIcon icon="arrow-right"/>}</Link>
+                </span>
               </div>
             </Panel.Body>
           </Panel>
@@ -141,6 +107,39 @@ render() {
   }
 }
 
+                // <ReCAPTCHA
+                  // ref={e => reCaptchaInstance = e}
+                  // sitekey={RECAPTCHA_SITE_KEY}
+                  // theme="dark"
+                  // size="normal"
+                  // onChange={this.onCaptchaChange.bind(this)}
+                // />
+                // <br/>
+
+                  // <Button bsStyle="primary" type="submit" block disabled={submitting || !valid || !this.state.reCaptcha}>Login</Button>
+
+
+const validate = values => {
+
+  // console.log(values)
+  const errors = {}
+  if (!values.username) {
+    errors.username = 'Required'
+  }
+
+  if (!values.password) {
+    errors.password = 'Required'
+  }
+
+  return errors
+}
+
+let reCaptchaInstance = null;
+
+const afterSubmit = (result, dispatch) => {
+//  reCaptchaInstance.reset();
+}
+
 function mapStateToProps(state) {
   return {
     errorMessage: state.auth.error,
@@ -149,7 +148,9 @@ function mapStateToProps(state) {
 }
 
 Login = reduxForm({
-  form: 'login'
+  form: 'login',
+  validate: validate,
+  onSubmitSuccess: afterSubmit
 })(Login);
 
 export default connect(mapStateToProps, actions)(Login);

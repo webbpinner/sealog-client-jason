@@ -1,11 +1,11 @@
 # sealog-client-jason
-React-Redux based front-end to the Sealog event logging server customized to support the JASON ROV
+React-Redux based front-end to the Sealog event reviewing server customized to support the JASON ROV
 
 For installation instruction please look at [INSTALL.md](./INSTALL.md)
 
 [Live Demo](https://sealog-jason.oceandatarat.org)
 
-- admin account for demo: admin:password
+- admin account for demo: jason:dsl!jason
 - guest account for demo: guest:<no password>
 
 **sealog-client-jason** is based off [sealog-client](https://github.com/webbpinner/sealog-client)

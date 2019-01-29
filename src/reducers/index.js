@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import { reducer as reduxFormReducer } from 'redux-form';
-// import { routerReducer } from 'react-router-redux';
+import { connectRouter } from 'connected-react-router';
 import { reducer as modalReducer } from 'redux-modal';
 import authReducer from './auth_reducer';
 import cruiseReducer from './cruise_reducer';
@@ -11,9 +11,9 @@ import eventTemplateReducer from './event_template_reducer';
 import loweringReducer from './lowering_reducer';
 import userReducer from './user_reducer';
 
-const rootReducer = combineReducers({
+export default (history) => combineReducers({
   form: reduxFormReducer,
-  // routing: routerReducer,
+  router: connectRouter(history),
   modal: modalReducer,
   auth: authReducer,
   cruise: cruiseReducer,
@@ -24,5 +24,3 @@ const rootReducer = combineReducers({
   lowering: loweringReducer,
   user: userReducer,
 });
-
-export default rootReducer;

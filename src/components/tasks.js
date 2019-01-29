@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Grid, Row, Button, Col, Panel, ListGroup, ListGroupItem } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import { ROOT_PATH } from '../url_config';
+import { ROOT_PATH } from '../client_config';
 import ImportEventsModal from './import_events_modal';
 import ImportAuxDataModal from './import_aux_data_modal';
 import DataWipeModal from './data_wipe_modal';

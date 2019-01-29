@@ -1,45 +1,51 @@
 import React, { Component } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { connect } from 'react-redux';
 import { reduxForm, Field } from 'redux-form';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Link } from 'react-router-dom';
-import { Row, Col, FormGroup, Panel, Button, Image } from 'react-bootstrap';
+import { Grid, Row, Col, FormGroup, Panel, Button, Alert } from 'react-bootstrap';
+// import ReCAPTCHA from "react-google-recaptcha";
+// import { RECAPTCHA_SITE_KEY } from '../../client_config';
 import * as actions from '../../actions';
 
 class Register extends Component {
+
+  constructor (props) {
+    super(props);
+
+    this.state = { 
+      reCaptcha: null
+    }
+  }
 
   componentWillUnmount() {
     this.props.leaveRegisterForm();
   }
 
-  handleFormSubmit(formProps) {
-    //console.log(username, fullName, password, confirmPassword, email);
-    this.props.registerUser(formProps);
+  handleFormSubmit({username, fullname, email, password}) {
+    let reCaptcha = this.state.reCaptcha
+
+    this.props.registerUser({username, fullname, email, password, reCaptcha});
   }
+
+  onCaptchaChange(token) {
+    this.setState({reCaptcha: token})
+  }
+
 
   renderField({ input, label, type, required, meta: { touched, error, warning } }) {
 
     let requiredField = (required)? (<span className='text-danger'> *</span>) : ''    
 
     return (
-      <div className="form-group">
+      <FormGroup>
         <label>{label}{requiredField}</label>
         <div>
           <input className="form-control" {...input} placeholder={label} type={type}/>
           {touched && ((error && <div className='text-danger'>{error}</div>) || (warning && <div className='text-danger'>{warning}</div>))}
         </div>
-      </div>
+      </FormGroup>
     )
-  }
-
-  renderMessage() {
-    if (this.props.message) {
-      return (
-        <Alert bsStyle="success">
-          <strong>Success!</strong> {this.props.message}
-        </Alert>
-      )
-    }
   }
 
   renderSuccess() {
@@ -47,10 +53,12 @@ class Register extends Component {
       const panelHeader = (<h4>New User Registration</h4>);
 
       return (
-        <Panel className="form-signin">
+        <Panel className="form-signin" >
           <Panel.Body>
-            {panelHeader}>
-            {this.renderMessage()}
+            {panelHeader}
+            <div className="alert alert-success">
+              <strong>Success!</strong> {this.props.message}
+            </div>
             <div className="text-right">
               <Link to={ `/login` }>Proceed to Login {<FontAwesomeIcon icon="arrow-right"/>}</Link>
             </div>
@@ -74,16 +82,16 @@ class Register extends Component {
 
     if (!this.props.message) {
 
-      const panelHeader = (<h4>New User Registration</h4>);
+      const panelHeader = (<h4 className="form-signin-heading">New User Registration</h4>);
       const { handleSubmit, pristine, reset, submitting, valid } = this.props;
       //console.log(this.props);
 
       return (
-        <Panel className="form-signin">
+        <Panel className="form-signin" >
           <Panel.Body>
             {panelHeader}
             <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
-              <div className="form-group">
+              <FormGroup>
                 <Field
                   name="username"
                   component={this.renderField}
@@ -91,8 +99,8 @@ class Register extends Component {
                   label="Username"
                   required={true}
                 />
-              </div>
-              <div className="form-group">
+              </FormGroup>
+              <FormGroup>
                 <Field
                   name="fullname"
                   type="text"
@@ -100,8 +108,8 @@ class Register extends Component {
                   label="Full Name"
                   required={true}
                 />
-              </div>
-              <div className="form-group">
+              </FormGroup>
+              <FormGroup>
                 <Field
                   name="email"
                   component={this.renderField}
@@ -109,34 +117,39 @@ class Register extends Component {
                   label="Email"
                   required={true}
                 />
-              </div>
-              <div className="form-group">
+              </FormGroup>
+              <FormGroup>
                 <Field
                   name="password"
                   component={this.renderField}
                   type="password"
                   label="Password"
+                  required={true}
                 />
-              </div>
-              <div className="form-group">
+              </FormGroup>
+              <FormGroup>
                 <Field
                   name="confirmPassword"
                   component={this.renderField}
                   type="password"
                   label="Confirm Password"
+                  required={true}
                 />
-              </div>
+              </FormGroup>
+              <ReCAPTCHA
+                ref={e => recaptchaInstance = e}
+                sitekey={RECAPTCHA_SITE_KEY}
+                theme="dark"
+                size="normal"
+                onChange={this.onCaptchaChange.bind(this)}
+              />
+              <br/>
               {this.renderAlert()}
-              <div className="pull-right">
-                <Button bsStyle="default" bsSize="small" type="button" disabled={pristine || submitting} onClick={reset} >Clear Values</Button>
-                <Button bsStyle="primary" bsSize="small" type="submit" disabled={submitting || !valid} >Register</Button>
-              </div>
+              <Button bsStyle="primary" block type="submit" disabled={submitting || !valid}>Register</Button>
             </form>
             <br/>
-            <br/>
-            <br/>
             <div>
-              <Link to={ `/login` }>{<FontAwesomeIcon icon="arrow-left" />} Back to Login</Link>
+              <Link to={ `/login` }>{<FontAwesomeIcon icon="arrow-left"/>} Back to Login</Link>
             </div>
           </Panel.Body>
         </Panel>
@@ -146,18 +159,15 @@ class Register extends Component {
 
   render() {
 
-    const panelHeader = (<h3>New User Registration</h3>);
-
     return(
+      <Grid>
         <Row>
-          <Col sm={5} smOffset={1} md={3} mdOffset={2} lg={2} lgOffset={3}>
+          <Col>
             {this.renderSuccess()}
             {this.renderForm()}
           </Col>
-          <Col>
-            <Image className="form-signin" responsive src={`/images/Jason_silhouette.png`}/>
-          </Col>
         </Row>
+      </Grid>
     )
   }
 }
@@ -168,11 +178,11 @@ function validate(formProps) {
   if (!formProps.username) {
     errors.username = 'Required'
   } else if (formProps.username.length > 15) {
-    errors.username = 'Must be 15 characters or less'
-  } else if (formProps.username.match(/[A-Z]/)) {
-    errors.username = 'Username must be all lowercase'
+    errors.username = 'Username must be 15 characters or less'
   } else if (formProps.username.match(/[ ]/)) {
     errors.username = 'Username can not include whitespace'
+  } else if (formProps.username.match(/[A-Z]/)) {
+    errors.username = 'Username can NOT include uppercase letters'
   }
 
   if (!formProps.fullname) {
@@ -185,8 +195,16 @@ function validate(formProps) {
     errors.email = 'Invalid email address'
   }
 
+  if (!formProps.password) {
+    errors.password = "Required";
+  } else if (formProps.password.length < 8) {
+    errors.password = 'Password must be 8 characters or more'
+  } else if (formProps.password.match(/[ ]/)) {
+    errors.password = 'Password can not include whitespace'
+  }
+
   if(formProps.password !== formProps.confirmPassword) {
-    errors.password = "Passwords must match";
+    errors.confirmPassword = "Passwords must match";
   }
 
   return errors;
@@ -201,9 +219,16 @@ function mapStateToProps(state) {
 
 }
 
+let recaptchaInstance = null;
+
+const afterSubmit = (result, dispatch) => {
+  recaptchaInstance.reset();
+}
+
 Register = reduxForm({
   form: 'register',
-  validate: validate
+  validate: validate,
+  onSubmitSuccess: afterSubmit
 })(Register);
 
 export default connect(mapStateToProps, actions)(Register);

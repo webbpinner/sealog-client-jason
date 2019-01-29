@@ -11,7 +11,7 @@ import EventFilterForm from './event_filter_form';
 import EventCommentModal from './event_comment_modal';
 import EventShowDetailsModal from './event_show_details_modal';
 import * as actions from '../actions';
-import { ROOT_PATH, API_ROOT_URL } from '../url_config';
+import { ROOT_PATH, API_ROOT_URL } from '../client_config';
 
 let fileDownload = require('js-file-download');
 

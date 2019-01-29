@@ -7,7 +7,7 @@ import * as actions from '../actions';
 // import $ from 'jquery';
 import { Client } from 'nes/client';
 import Cookies from 'universal-cookie';
-import { WS_ROOT_URL } from '../url_config';
+import { WS_ROOT_URL } from '../client_config';
 
 const cookies = new Cookies();
 
@@ -50,14 +50,14 @@ class EventHistory extends Component {
   async connectToWS() {
 
     try {
-      const result = await this.client.connect(
-      {
-        auth: {
-          headers: {
-            authorization: cookies.get('token')
-          }
-        }
-      })
+      const result = await this.client.connect()
+      // {
+      //   auth: {
+      //     headers: {
+      //       authorization: cookies.get('token')
+      //     }
+      //   }
+      // })
 
       const updateHandler = (update, flags) => {
         if(!(this.state.hideASNAP && update.event_value == "ASNAP")) {
