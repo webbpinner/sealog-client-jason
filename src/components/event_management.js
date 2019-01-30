@@ -330,7 +330,7 @@ class EventManagement extends Component {
         }
       });
 
-      return evenList
+      return eventList
     }
 
     return (<ListGroupItem>No events found</ListGroupItem>)
