@@ -49,7 +49,16 @@ class UpdateLowering extends Component {
   handleFormSubmit(formProps) {
     formProps.lowering_tags = (formProps.lowering_tags)? formProps.lowering_tags.map(tag => tag.trim()): [];
 
-    this.props.updateLowering({...formProps, lowering_files: this.pond.getFiles().map(file => file.serverId)});
+    formProps.lowering_additional_meta = {}
+
+    if(formProps.lowering_description) {
+      formProps.lowering_additional_meta.lowering_description = formProps.lowering_description
+      delete formProps.lowering_description
+    }
+
+    formProps.lowering_additional_meta.lowering_files = this.pond.getFiles().map(file => file.serverId)
+
+    this.props.updateLowering({...formProps});
     this.pond.removeFiles();
     this.props.handleFormSubmit()
   }
@@ -176,8 +185,8 @@ class UpdateLowering extends Component {
   }
 
   renderFiles() {
-    if(this.props.lowering.lowering_files && this.props.lowering.lowering_files.length > 0) {
-      let files = this.props.lowering.lowering_files.map((file, index) => {
+    if(this.props.lowering.lowering_additional_meta && this.props.lowering.lowering_additional_meta.lowering_files && this.props.lowering.lowering_additional_meta.lowering_files.length > 0) {
+      let files = this.props.lowering.lowering_additional_meta.lowering_files.map((file, index) => {
         return <li style={{ listStyleType: "none" }} key={`file_${index}`}><span onClick={() => this.handleFileDownload(this.props.lowering.id, file)}><FontAwesomeIcon className='text-primary' icon='download' fixedWidth /></span> <span onClick={() => this.handleFileDelete(this.props.lowering.id, file)}><FontAwesomeIcon className='text-danger' icon='trash' fixedWidth /></span><span> {file}</span></li>
       })
       return <div>{files}<br/></div>
@@ -341,10 +350,21 @@ function validate(formProps) {
 
 function mapStateToProps(state) {
 
+  let initialValues = state.lowering.lowering
+
+  if (initialValues.lowering_additional_meta) {
+
+    if (initialValues.lowering_additional_meta.lowering_description) {
+      initialValues.lowering_description = initialValues.lowering_additional_meta.lowering_description
+    }
+
+    delete initialValues.lowering_additional_meta
+  }
+
   return {
     errorMessage: state.lowering.lowering_error,
     message: state.lowering.lowering_message,
-    initialValues: state.lowering.lowering,
+    initialValues: initialValues,
     lowering: state.lowering.lowering,
     roles: state.user.profile.roles
   };

@@ -15,8 +15,26 @@ class CreateCruise extends Component {
   }
 
   handleFormSubmit(formProps) {
-    formProps.cruise_participants = (formProps.cruise_participants)? formProps.cruise_participants.map(participant => participant.trim()): [];
+
     formProps.cruise_tags = (formProps.cruise_tags)? formProps.cruise_tags.map(tag => tag.trim()): [];
+
+    formProps.cruise_additional_meta = {}
+
+    if(formProps.cruise_participants) {
+      formProps.cruise_additional_meta.cruise_participants = formProps.cruise_participants.map(participant => participant.trim())
+      delete formProps.cruise_participants
+    }
+
+    if(formProps.cruise_name) {
+      formProps.cruise_additional_meta.cruise_name = formProps.cruise_name
+      delete formProps.cruise_name
+    }
+
+    if(formProps.cruise_description) {
+      formProps.cruise_additional_meta.cruise_description = formProps.cruise_description
+      delete formProps.cruise_description
+    }
+
     this.props.createCruise(formProps);
   }
 
@@ -157,7 +175,6 @@ class CreateCruise extends Component {
                   component={this.renderField}
                   label="Cruise Name"
                   placeholder="i.e. Lost City 2018"
-                  required={true}
                 />
                 <Field
                   name="cruise_description"
@@ -240,10 +257,6 @@ function validate(formProps) {
     errors.cruise_id = 'Required'
   } else if (formProps.cruise_id.length > 15) {
     errors.cruise_id = 'Must be 15 characters or less'
-  }
-
-  if (!formProps.cruise_name) {
-    errors.cruise_name = 'Required'
   }
 
   if (!formProps.cruise_pi) {

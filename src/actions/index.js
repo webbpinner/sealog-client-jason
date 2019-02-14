@@ -447,10 +447,10 @@ export function createUser({username, fullname, password = '', email, roles, sys
   }
 }
 
-export function createCruise({cruise_id, cruise_name, start_ts, stop_ts, cruise_description = '', cruise_location = '', cruise_pi, cruise_participants = [], cruise_tags = [], cruise_hidden = false }) {
+export function createCruise({cruise_id, start_ts, stop_ts, cruise_location = '', cruise_pi = '', cruise_tags = [], cruise_hidden = false, cruise_additional_meta = {} }) {
   return function (dispatch) {
     axios.post(`${API_ROOT_URL}/api/v1/cruises`,
-    {cruise_id, cruise_name, start_ts, stop_ts, cruise_description, cruise_location, cruise_pi, cruise_participants, cruise_tags, cruise_hidden},
+    {cruise_id, start_ts, stop_ts, cruise_location, cruise_pi, cruise_tags, cruise_hidden, cruise_additional_meta },
     {
       headers: {
         authorization: cookies.get('token'),
@@ -469,10 +469,10 @@ export function createCruise({cruise_id, cruise_name, start_ts, stop_ts, cruise_
   }
 }
 
-export function createLowering({lowering_id, lowering_name, start_ts, stop_ts, lowering_description = '', lowering_location = '', lowering_tags = [], lowering_hidden = false }) {
+export function createLowering({lowering_id, start_ts, stop_ts, lowering_location = '', lowering_tags = [], lowering_hidden = false, lowering_additional_meta = {}  }) {
   return function (dispatch) {
     axios.post(`${API_ROOT_URL}/api/v1/lowerings`,
-    {lowering_id, lowering_name, start_ts, stop_ts, lowering_description, lowering_location, lowering_tags, lowering_hidden },
+    {lowering_id, start_ts, stop_ts, lowering_location, lowering_tags, lowering_hidden, lowering_additional_meta },
     {
       headers: {
         authorization: cookies.get('token'),
@@ -635,24 +635,12 @@ export function updateCruise(formProps) {
     fields.cruise_id = formProps.cruise_id;
   }
 
-  if(formProps.cruise_name) {
-    fields.cruise_name = formProps.cruise_name;
-  }
-
-  if(formProps.cruise_description) {
-    fields.cruise_description = formProps.cruise_description;
-  }
-
   if(formProps.cruise_location) {
     fields.cruise_location = formProps.cruise_location;
   }
 
   if(formProps.cruise_pi) {
     fields.cruise_pi = formProps.cruise_pi;
-  }
-
-  if(formProps.cruise_participants) {
-    fields.cruise_participants = formProps.cruise_participants;
   }
 
   if(formProps.cruise_tags) {
@@ -671,8 +659,8 @@ export function updateCruise(formProps) {
     fields.cruise_hidden = formProps.cruise_hidden;
   }
 
-  if(formProps.cruise_files) {
-    fields.cruise_files = formProps.cruise_files;
+  if(formProps.cruise_additional_meta) {
+    fields.cruise_additional_meta = formProps.cruise_additional_meta;
   }
 
   // if(formProps.cruise_access_list) {
@@ -723,14 +711,6 @@ export function updateLowering(formProps) {
     fields.lowering_id = formProps.lowering_id;
   }
 
-  if(formProps.lowering_name) {
-    fields.lowering_name = formProps.lowering_name;
-  }
-
-  if(formProps.lowering_description) {
-    fields.lowering_description = formProps.lowering_description;
-  }
-
   if(formProps.lowering_location) {
     fields.lowering_location = formProps.lowering_location;
   }
@@ -751,8 +731,8 @@ export function updateLowering(formProps) {
     fields.lowering_hidden = formProps.lowering_hidden;
   }
 
-  if(formProps.lowering_files) {
-    fields.lowering_files = formProps.lowering_files;
+  if(formProps.lowering_additional_meta) {
+    fields.lowering_additional_meta = formProps.lowering_additional_meta;
   }
 
   // if(formProps.lowering_access_list) {

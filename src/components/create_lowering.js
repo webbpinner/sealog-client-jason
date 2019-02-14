@@ -17,6 +17,14 @@ class CreateLowering extends Component {
 
   handleFormSubmit(formProps) {
     formProps.lowering_tags = (formProps.lowering_tags)? formProps.lowering_tags.map(tag => tag.trim()): [];
+ 
+    formProps.lowering_additional_meta = {}
+
+    if(formProps.lowering_description) {
+      formProps.lowering_additional_meta.lowering_description = formProps.lowering_description
+      delete formProps.lowering_description
+    }
+
     this.props.createLowering(formProps);
   }
 

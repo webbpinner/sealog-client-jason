@@ -8,7 +8,6 @@ import { LinkContainer } from 'react-router-bootstrap';
 import moment from 'moment';
 import CreateCruise from './create_cruise';
 import UpdateCruise from './update_cruise';
-// import AccessCruise from './access_cruise';
 import DeleteCruiseModal from './delete_cruise_modal';
 import ImportCruisesModal from './import_cruises_modal';
 import * as actions from '../actions';
@@ -24,7 +23,7 @@ class Cruises extends Component {
 
     this.state = {
       activePage: 1,
-      // cruiseAccess: false,
+      cruiseAccess: false,
       cruiseUpdate: false
     }
 
@@ -47,15 +46,13 @@ class Cruises extends Component {
 
   handleCruiseUpdate(id) {
     this.props.initCruise(id);
-    // this.setState({cruiseUpdate: true, cruiseAccess: false});
-    this.setState({cruiseUpdate: true});
+    this.setState({cruiseUpdate: true, cruiseAccess: false});
     window.scrollTo(0, 0);
   }
 
   handleCruiseAccess(id) {
     this.props.initCruise(id);
-    // this.setState({cruiseUpdate: false, cruiseAccess: true});
-    this.setState({cruiseUpdate: false});
+    this.setState({cruiseUpdate: false, cruiseAccess: true});
     window.scrollTo(0, 0);
   }
 
@@ -69,8 +66,8 @@ class Cruises extends Component {
 
   handleCruiseCreate() {
     this.props.leaveUpdateCruiseForm();
-    // this.setState({cruiseUpdate: false, cruiseAccess: false});
-    this.setState({cruiseUpdate: false});
+    this.setState({cruiseUpdate: false, cruiseAccess: false});
+
   }
 
   handleCruiseImportModal() {
@@ -82,7 +79,7 @@ class Cruises extends Component {
   }
 
   exportCruisesToJSON() {
-    fileDownload(JSON.stringify(this.props.cruises, null, "\t"), 'seaplay_cruisesExport.json');
+    fileDownload(JSON.stringify(this.props.cruises, null, "\t"), 'sealog_cruisesExport.json');
   }
 
   renderAddCruiseButton() {
@@ -111,7 +108,6 @@ class Cruises extends Component {
     const deleteTooltip = (<Tooltip id="deleteTooltip">Delete this cruise.</Tooltip>)
     const showTooltip = (<Tooltip id="showTooltip">Allow users to view this cruise.</Tooltip>)
     const hideTooltip = (<Tooltip id="hideTooltip">Hide this cruise from users.</Tooltip>)
-    // const userAccessTooltip = (<Tooltip id="acessTooltip">Manage user access to this cruise.</Tooltip>)
 
     return this.props.cruises.map((cruise, index) => {
       if(index >= (this.state.activePage-1) * maxCruisesPerPage && index < (this.state.activePage * maxCruisesPerPage)) {
@@ -124,12 +120,14 @@ class Cruises extends Component {
           hiddenLink = <Link key={`show_${cruise.id}`} to="#" onClick={ () => this.handleCruiseHide(cruise.id) }><OverlayTrigger placement="top" overlay={hideTooltip}><FontAwesomeIcon icon='eye' fixedWidth/></OverlayTrigger></Link>  
         }
 
-        // let accessCruiseLink = (this.props.roles.includes('admin'))? <Link key={`access_${cruise.id}`} to="#" onClick={ () => this.handleCruiseAccess(cruise.id) }><OverlayTrigger placement="top" overlay={userAccessTooltip}><FontAwesomeIcon icon='user' fixedWidth/></OverlayTrigger></Link>: null
+        let cruiseName = (cruise.cruise_additional_meta.cruise_name)? <span>Name: {cruise.cruise_additional_meta.cruise_name}<br/></span> : null
+        let cruiseLocation = (cruise.cruise_location)? <span>Location: {cruise.cruise_location}<br/></span> : null
+        let cruisePi = (cruise.cruise_pi)? <span>PI: {cruise.cruise_pi}<br/></span> : null
 
         return (
           <tr key={cruise.id}>
             <td>{cruise.cruise_id}</td>
-            <td>{cruise.cruise_name}<br/>PI: {cruise.cruise_pi}<br/>Dates: {moment.utc(cruise.start_ts).format('L')}<FontAwesomeIcon icon='arrow-right' fixedWidth/>{moment.utc(cruise.stop_ts).format('L')}</td>
+            <td>{cruiseName}{cruiseLocation}{cruisePi}Dates: {moment.utc(cruise.start_ts).format('L')}<FontAwesomeIcon icon='arrow-right' fixedWidth/>{moment.utc(cruise.stop_ts).format('L')}</td>
             <td>
               <Link key={`edit_${cruise.id}`} to="#" onClick={ () => this.handleCruiseUpdate(cruise.id) }><OverlayTrigger placement="top" overlay={editTooltip}><FontAwesomeIcon icon='pencil-alt' fixedWidth/></OverlayTrigger></Link>
               {deleteLink}
@@ -140,7 +138,6 @@ class Cruises extends Component {
       }
     })
   }
-              // {accessCruiseLink}
 
   renderCruiseTable() {
     if(this.props.cruises && this.props.cruises.length > 0) {

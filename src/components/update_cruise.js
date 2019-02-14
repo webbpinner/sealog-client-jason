@@ -47,10 +47,28 @@ class UpdateCruise extends Component {
   }
 
   handleFormSubmit(formProps) {
-    formProps.cruise_participants = (formProps.cruise_participants)? formProps.cruise_participants.map(participant => participant.trim()): [];
     formProps.cruise_tags = (formProps.cruise_tags)? formProps.cruise_tags.map(tag => tag.trim()): [];
 
-    this.props.updateCruise({...formProps, cruise_files: this.pond.getFiles().map(file => file.serverId)});
+    formProps.cruise_additional_meta = {}
+
+    if(formProps.cruise_participants) {
+      formProps.cruise_additional_meta.cruise_participants = formProps.cruise_participants.map(participant => participant.trim())
+      delete formProps.cruise_participants
+    }
+
+    if(formProps.cruise_name) {
+      formProps.cruise_additional_meta.cruise_name = formProps.cruise_name
+      delete formProps.cruise_name
+    }
+
+    if(formProps.cruise_description) {
+      formProps.cruise_additional_meta.cruise_description = formProps.cruise_description
+      delete formProps.cruise_description
+    }
+
+    formProps.cruise_additional_meta.cruise_files = this.pond.getFiles().map(file => file.serverId)
+
+    this.props.updateCruise({...formProps });
     this.pond.removeFiles();
     this.props.handleFormSubmit()
   }
@@ -176,8 +194,8 @@ class UpdateCruise extends Component {
   }
 
   renderFiles() {
-    if(this.props.cruise.cruise_files && this.props.cruise.cruise_files.length > 0) {
-      let files = this.props.cruise.cruise_files.map((file, index) => {
+    if(this.props.cruise.cruise_additional_meta && this.props.cruise.cruise_additional_meta.cruise_files && this.props.cruise.cruise_additional_meta.cruise_files.length > 0) {
+      let files = this.props.cruise.cruise_additional_meta.cruise_files.map((file, index) => {
         return <li style={{ listStyleType: "none" }} key={`file_${index}`}><span onClick={() => this.handleFileDownload(this.props.cruise.id, file)}><FontAwesomeIcon className='text-primary' icon='download' fixedWidth /></span> <span onClick={() => this.handleFileDelete(this.props.cruise.id, file)}><FontAwesomeIcon className='text-danger' icon='trash' fixedWidth /></span><span> {file}</span></li>
       })
       return <div>{files}<br/></div>
@@ -369,11 +387,29 @@ function validate(formProps) {
 }
 
 function mapStateToProps(state) {
+  let initialValues = state.cruise.cruise
+
+
+  if (initialValues.cruise_additional_meta) {
+    if (initialValues.cruise_additional_meta.cruise_name) {
+      initialValues.cruise_name = initialValues.cruise_additional_meta.cruise_name
+    }
+
+    if (initialValues.cruise_additional_meta.cruise_description) {
+      initialValues.cruise_description = initialValues.cruise_additional_meta.cruise_description
+    }
+
+    if (initialValues.cruise_additional_meta.cruise_participants) {
+      initialValues.cruise_participants = initialValues.cruise_additional_meta.cruise_participants
+    }
+
+    delete initialValues.cruise_additional_meta
+  }
 
   return {
     errorMessage: state.cruise.cruise_error,
     message: state.cruise.cruise_message,
-    initialValues: state.cruise.cruise,
+    initialValues: initialValues,
     cruise: state.cruise.cruise,
     roles: state.user.profile.roles
   };
