@@ -37,7 +37,7 @@ class ImportLoweringsModal extends Component {
     this.props.handleHide()
   }
 
-  async insertLowering({id, lowering_id, lowering_name, start_ts, stop_ts, lowering_description = '', lowering_location = '', lowering_tags = [], lowering_hidden = false }) {
+  async insertLowering({id, lowering_id, start_ts, stop_ts, lowering_location = '', lowering_tags = [], lowering_hidden = false, lowering_access_list = [], lowering_additional_meta = {} }) {
 
     try {
       const result = await axios.get(`${API_ROOT_URL}/api/v1/lowerings/${id}`,
@@ -65,7 +65,7 @@ class ImportLoweringsModal extends Component {
         try {
 
           const result = await axios.post(`${API_ROOT_URL}/api/v1/lowerings`,
-          {id, lowering_id, lowering_name, start_ts, stop_ts, lowering_description, lowering_location, lowering_tags, lowering_hidden},
+          {id, lowering_id, start_ts, stop_ts, lowering_location, lowering_tags, lowering_hidden, lowering_access_list, lowering_additional_meta},
           {
             headers: {
               authorization: cookies.get('token'),
