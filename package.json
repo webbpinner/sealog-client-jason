@@ -1,6 +1,6 @@
 {
   "name": "sealog-client-jason",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "license": "GPLv3",
   "description": "Sealog event-logging client built for sealog-server-jason",
   "bugs": {
