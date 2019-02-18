@@ -142,7 +142,7 @@ class CruiseMenu extends Component {
     return this.props.cruises.map((cruise, index) => {
       let cruiseLowerings = this.renderLoweringList(cruise.start_ts, cruise.stop_ts)
 
-      let cruise_files = (cruise.cruise_files && cruise.cruise_files.length > 0)? this.renderCruiseFiles(cruise.id, cruise.cruise_files): null
+      let cruise_files = (cruise.cruise_additional_meta.cruise_files && cruise.cruise_additional_meta.cruise_files.length > 0)? this.renderCruiseFiles(cruise.id, cruise.cruise_additional_meta.cruise_files): null
 
       let cruiseName = (cruise.cruise_additional_meta.cruise_name)? <p><strong>Cruise Name:</strong> {cruise.cruise_additional_meta.cruise_name}</p> : null
       let cruiseLocation = (cruise.cruise_location)? <p><strong>Location:</strong> {cruise.cruise_location}</p> : null
