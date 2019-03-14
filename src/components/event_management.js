@@ -198,7 +198,7 @@ class EventManagement extends Component {
     let freetext = (eventFilter.freetext)? `&freetext=${eventFilter.freetext}` : ''
     let datasource = (eventFilter.datasource)? `&datasource=${eventFilter.datasource}` : ''
 
-    return axios.get(`${API_ROOT_URL}/api/v1/event_exports/?${format}${startTS}${stopTS}${value}${author}${freetext}${datasource}`,
+    return axios.get(`${API_ROOT_URL}/api/v1/event_exports?${format}${startTS}${stopTS}${value}${author}${freetext}${datasource}`,
       {
         headers: {
           authorization: cookies.get('token')
