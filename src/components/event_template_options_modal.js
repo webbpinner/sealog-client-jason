@@ -23,7 +23,6 @@ class EventTemplateOptionsModal extends Component {
     super(props);
 
     this.state = {
-      ts: "",
       event_id: (this.props.event)?this.props.event.event_id:null
     }
 
@@ -48,29 +47,30 @@ class EventTemplateOptionsModal extends Component {
   }
 
   async getServerTime() {
-    await axios.get(`${API_ROOT_URL}/server_time`,
-    {
-      headers: {
-        authorization: cookies.get('token'),
-        'content-type': 'application/json'
-      }
-    })
-    .then((response) => {
-      this.setState({ts: moment(response.data.ts).toISOString()});
-    })
-    .catch((err) => {
-      console.log(err);
-    })
+    try {
+
+      const response = await axios.get(`${API_ROOT_URL}/server_time`,
+      {
+        headers: {
+          authorization: cookies.get('token'),
+          'content-type': 'application/json'
+        }
+      })
+
+      const data = await response;
+      return data.data.ts;
+    } catch(error) {
+      console.log(error);
+    }
   }
 
-  populateDefaultValues() {
-    let eventDefaultValues = {};
+  async populateDefaultValues() {
+    let eventDefaultValues = {event_ts: await this.getServerTime()};
     this.props.eventTemplate.event_options.forEach((option, index) => {
       if(option.event_option_default_value) {
         eventDefaultValues[`option_${index}`] = option.event_option_default_value;
       }
     });
-
     this.props.initialize(eventDefaultValues);
   }
 
@@ -226,7 +226,7 @@ class EventTemplateOptionsModal extends Component {
     );
   }
 
-  renderDatePicker({ input, defaultValue, required, label, type, disabled, meta: { touched, error } }) {
+  renderDatePicker({ input, required, label, type, disabled, meta: { touched, error } }) {
 
     let requiredField = (required)? <span className='text-danger'> *</span> : ''
 
@@ -236,7 +236,7 @@ class EventTemplateOptionsModal extends Component {
         <Datetime
           {...input}
           utc={true}
-          value={(input.value && moment.utc(input.value).isValid()) ? moment.utc(input.value).format(dateFormat + " " + timeFormat) : moment.utc(defaultValue).format(dateFormat + " " + timeFormat)}
+          value={(input.value && moment.utc(input.value).isValid()) ? moment.utc(input.value).format(dateFormat + " " + timeFormat) : null}
           dateFormat={dateFormat}
           timeFormat={timeFormat}
           selected={(input.value)? moment.utc(input.value, dateFormat + " " + timeFormat) : null }
@@ -339,7 +339,6 @@ class EventTemplateOptionsModal extends Component {
               label="Custom Time (UTC)"
               component={this.renderDatePicker}
               disabled={this.props.disabled}
-              defaultValue={this.state.ts}
               required={true}
             />
           </Modal.Body>
@@ -355,9 +354,11 @@ class EventTemplateOptionsModal extends Component {
 function validate(formProps) {
   const errors = {};
 
-  if (!formProps.event_ts) {
+  if (formProps.event_ts === "") {
     errors.event_ts = 'Required'
-  } else if (!moment.utc(formProps.event_ts).isValid()) {
+  }
+
+  if (formProps.event_ts != "" && !moment.utc(formProps.event_ts).isValid()) {
     errors.event_ts = 'Invalid timestamp'
   }
 
