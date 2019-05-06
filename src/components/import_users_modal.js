@@ -162,7 +162,7 @@ class ImportUsersModal extends Component {
           <Row>
             <Col xs={6}>
               <ReactFileReader fileTypes={[".json"]} handleFiles={this.handleUserRecordImport}>
-                  <Button>Select File</Button>
+                  <Button size="sm">Select File</Button>
               </ReactFileReader>
             </Col>
             <Col xs={3}>
@@ -176,7 +176,7 @@ class ImportUsersModal extends Component {
         </Modal.Body>
 
         <Modal.Footer>
-          <Button onClick={this.quitImport}>Close</Button>
+          <Button variant="secondary" size="sm" onClick={this.quitImport}>Close</Button>
         </Modal.Footer>
       </Modal>
     );

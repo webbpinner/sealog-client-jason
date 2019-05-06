@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
-import { Button, Modal, Grid, Row, Col } from 'react-bootstrap';
+import { Button, Modal, Row, Col } from 'react-bootstrap';
 import { connectModal } from 'redux-modal';
 import ReactFileReader from 'react-file-reader';
 import Cookies from 'universal-cookie';
@@ -172,26 +172,24 @@ class ImportEventTemplatesModal extends Component {
         </Modal.Header>
 
         <Modal.Body>
-          <Grid fluid>
-            <Row>
-              <Col xs={6}>
-                <ReactFileReader fileTypes={[".json"]} handleFiles={this.handleEventTemplateImport}>
-                    <Button>Select File</Button>
-                </ReactFileReader>
-              </Col>
-              <Col xs={3}>
-                Pending: {this.state.pending}
-                <hr/>
-                Imported: {this.state.imported}<br/>
-                Skipped: {this.state.skipped}<br/>
-                Errors: {this.state.errors}<br/>
-              </Col>
-            </Row>
-          </Grid>
+          <Row>
+            <Col xs={6}>
+              <ReactFileReader fileTypes={[".json"]} handleFiles={this.handleEventTemplateImport}>
+                  <Button size="sm">Select File</Button>
+              </ReactFileReader>
+            </Col>
+            <Col xs={3}>
+              Pending: {this.state.pending}
+              <hr/>
+              Imported: {this.state.imported}<br/>
+              Skipped: {this.state.skipped}<br/>
+              Errors: {this.state.errors}<br/>
+            </Col>
+          </Row>
         </Modal.Body>
 
         <Modal.Footer>
-          <Button onClick={this.quitImport}>Close</Button>
+          <Button size="sm" variant="secondary" onClick={this.quitImport}>Close</Button>
         </Modal.Footer>
       </Modal>
     );

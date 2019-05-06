@@ -3,9 +3,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { reduxForm, Field, initialize } from 'redux-form';
 import Datetime from 'react-datetime';
-import 'react-datetime/css/react-datetime.css';
 import moment from 'moment';
-import { Alert, Button, Checkbox, Col, FormGroup, FormControl, FormGroupItem, Panel, Row, Tooltip, OverlayTrigger} from 'react-bootstrap';
+import { Alert, Button, Card, Form, Tooltip, OverlayTrigger} from 'react-bootstrap';
 import * as actions from '../actions';
 
 const dateFormat = "YYYY-MM-DD"
@@ -22,7 +21,6 @@ class EventFilterForm extends Component {
 
   static propTypes = {
     handlePostSubmit: PropTypes.func.isRequired,
-    // handleHide: PropTypes.func.isRequired
   };
 
   componentWillMount() {
@@ -65,30 +63,35 @@ class EventFilterForm extends Component {
     this.props.handlePostSubmit();
   }
 
-  renderField({ input, label, type, placeholder, disabled, meta: { touched, error, warning } }) {
+  renderTextField({ input, label, placeholder, required, meta: { touched, error } }) {
+    let requiredField = (required)? <span className='text-danger'> *</span> : ''
+    let placeholder_txt = (placeholder)? placeholder: label
+
     return (
-      <FormGroup>
-        <label>{label}</label>
-        <FormControl {...input} placeholder={placeholder} type={type} disabled={disabled}/>
-        {touched && ((error && <div className='text-danger'>{error}</div>) || (warning && <div className='text-danger'>{warning}</div>))}
-      </FormGroup>
+      <Form.Group>
+        <Form.Label>{label}{requiredField}</Form.Label>
+        <Form.Control type="text" {...input} placeholder={placeholder_txt} isInvalid={touched && error}/>
+        <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
+      </Form.Group>
     )
   }
 
-  renderDatePicker({ input, defaultValue, label, type, disabled, rows = 4, meta: { touched, error, warning } }) {
+  renderDatePicker({ input, defaultValue, label, type, required, meta: { touched, error } }) {
+    let requiredField = (required)? <span className='text-danger'> *</span> : ''
+    
     return (
-      <FormGroup>
-        <label>{label}</label>
-        <Datetime {...input} utc={true} value={input.value ? moment.utc(input.value).format(dateFormat + " " + timeFormat) : defaultValue} dateFormat={dateFormat} timeFormat={timeFormat} selected={input.value ? moment.utc(input.value, dateFormat + " " + timeFormat) : null } inputProps={ { disabled: disabled}}/>
-        {touched && ((error && <div className='text-danger'>{error}</div>) || (warning && <div className='text-danger'>{warning}</div>))}
-      </FormGroup>
+      <Form.Group>
+        <Form.Label>{label}{requiredField}</Form.Label>
+        <Datetime {...input} utc={true} value={input.value ? moment.utc(input.value).format(dateFormat + ' ' + timeFormat) : defaultValue} dateFormat={dateFormat} timeFormat={timeFormat} selected={input.value ? moment.utc(input.value, dateFormat) : null }/>
+        {touched && (error && <div style={{width: "100%", marginTop: "0.25rem", fontSize: "80%"}} className='text-danger'>{error}</div>)}
+      </Form.Group>
     )
   }
 
   renderAlert() {
     if (this.props.errorMessage) {
       return (
-        <Alert bsStyle="danger">
+        <Alert variant="danger">
           <strong>Opps!</strong> {this.props.errorMessage}
         </Alert>
       )
@@ -98,7 +101,7 @@ class EventFilterForm extends Component {
   renderMessage() {
     if (this.props.message) {
       return (
-        <Alert bsStyle="success">
+        <Alert variant="success">
           <strong>Success!</strong> {this.props.message}
         </Alert>
       )
@@ -113,22 +116,20 @@ class EventFilterForm extends Component {
     const stopTS = (this.props.maxDate)? moment(this.props.maxDate): null
 
     return (
-      <Panel className="form-standard">
-        <Panel.Heading>{eventFilterFormHeader}</Panel.Heading>
-        <Panel.Body>
+      <Card border="secondary" className="form-standard">
+        <Card.Header>{eventFilterFormHeader}</Card.Header>
+        <Card.Body>
           <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
             <Field
               name="value"
-              component={this.renderField}
-              type="text"
+              component={this.renderTextField}
               label="Event Value"
               placeholder="i.e. SAMPLE"
               disabled={this.props.disabled}
             />
             <Field
               name="author"
-              type="text"
-              component={this.renderField}
+              component={this.renderTextField}
               label="Author"
               placeholder="i.e. jsmith"
               disabled={this.props.disabled}
@@ -136,7 +137,6 @@ class EventFilterForm extends Component {
             <Field
               name="startTS"
               component={this.renderDatePicker}
-              type="text"
               defaultValue={startTS}
               label="Start Date/Time (UTC)"
               disabled={this.props.disabled}
@@ -144,36 +144,33 @@ class EventFilterForm extends Component {
             <Field
               name="stopTS"
               component={this.renderDatePicker}
-              type="text"
               defaultValue={stopTS}
               label="Stop Date/Time (UTC)"
               disabled={this.props.disabled}
             />
             <Field
               name="freetext"
-              component={this.renderField}
-              type="text"
+              component={this.renderTextField}
               label="Freeform Text"
               placeholder="i.e. hi mom"
               disabled={this.props.disabled}
             />
             <Field
               name="datasource"
-              component={this.renderField}
-              type="text"
+              component={this.renderTextField}
               label="Aux Data Source"
               placeholder="i.e. Framegrabber"
               disabled={this.props.disabled}
             />
             {this.renderAlert()}
             {this.renderMessage()}
-            <div className="pull-right">
-              <Button bsStyle="default" bsSize="sm" type="button" disabled={submitting || this.props.disabled} onClick={this.clearForm}>Reset</Button>
-              <Button bsStyle="primary" bsSize="sm" type="submit" disabled={submitting || !valid || this.props.disabled}>Update</Button>
+            <div className="float-right">
+              <Button variant="secondary" size="sm" disabled={submitting || this.props.disabled} onClick={this.clearForm}>Reset</Button>
+              <Button variant="primary" size="sm" type="submit" disabled={submitting || !valid || this.props.disabled}>Update</Button>
             </div>
           </form>
-        </Panel.Body>
-      </Panel>
+        </Card.Body>
+      </Card>
     )
   }
 }

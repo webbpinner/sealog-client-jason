@@ -37,8 +37,8 @@ class DeleteCruiseModal extends Component {
         </Modal.Body>
 
         <Modal.Footer>
-          <Button onClick={handleHide}>Cancel</Button>
-          <Button bsStyle="danger" onClick={this.handleConfirm}>Yup!</Button>
+          <Button variant="secondary" onClick={handleHide}>Cancel</Button>
+          <Button variant="danger" onClick={this.handleConfirm}>Yup!</Button>
         </Modal.Footer>
       </Modal>
     );

@@ -3,9 +3,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { reduxForm, Field, reset } from 'redux-form';
-import { FormGroup, Row, Button, Col, Panel, Alert, Table, OverlayTrigger, Tooltip, Pagination } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
+import { Row, Button, Col, Card, Alert, Table, OverlayTrigger, Tooltip, Pagination } from 'react-bootstrap';
 import moment from 'moment';
+import momentDurationFormatSetup from 'moment-duration-format';
 import CreateLowering from './create_lowering';
 import UpdateLowering from './update_lowering';
 import DeleteLoweringModal from './delete_lowering_modal';
@@ -14,7 +14,7 @@ import * as actions from '../actions';
 
 let fileDownload = require('js-file-download');
 
-const maxLoweringsPerPage = 14
+const maxLoweringsPerPage = 8
 
 class Lowerings extends Component {
 
@@ -33,7 +33,7 @@ class Lowerings extends Component {
   }
 
   componentWillMount() {
-      this.props.fetchLowerings();
+    this.props.fetchLowerings();
   }
 
   handlePageSelect(eventKey) {
@@ -84,8 +84,8 @@ class Lowerings extends Component {
   renderAddLoweringButton() {
     if (!this.props.showform && this.props.roles && this.props.roles.includes('admin')) {
       return (
-        <div className="pull-right">
-          <Button bsStyle="primary" bsSize="small" type="button" onClick={ () => this.handleLoweringCreate()}>Add Lowering</Button>
+        <div className="float-right">
+          <Button variant="primary" size="sm" onClick={ () => this.handleLoweringCreate()} disabled={!this.state.loweringUpdate}>Add Lowering</Button>
         </div>
       );
     }
@@ -94,8 +94,8 @@ class Lowerings extends Component {
   renderImportLoweringsButton() {
     if(this.props.roles.includes("admin")) {
       return (
-        <div className="pull-right">
-          <Button bsStyle="primary" bsSize="small" type="button" onClick={ () => this.handleLoweringImportModal()}>Import From File</Button>
+        <div className="float-right">
+          <Button variant="primary" size="sm" onClick={ () => this.handleLoweringImportModal()}>Import From File</Button>
         </div>
       );
     }
@@ -105,29 +105,34 @@ class Lowerings extends Component {
 
     const editTooltip = (<Tooltip id="editTooltip">Edit this lowering.</Tooltip>)
     const deleteTooltip = (<Tooltip id="deleteTooltip">Delete this lowering.</Tooltip>)
-    const showTooltip = (<Tooltip id="showTooltip">Allow users to view this lowering.</Tooltip>)
-    const hideTooltip = (<Tooltip id="hideTooltip">Hide this lowering from users.</Tooltip>)
+    const showTooltip = (<Tooltip id="showTooltip">Cruise is hidden, click to show.</Tooltip>)
+    const hideTooltip = (<Tooltip id="hideTooltip">Cruise is visible, click to hide.</Tooltip>)
 
     return this.props.lowerings.map((lowering, index) => {
       if(index >= (this.state.activePage-1) * maxLoweringsPerPage && index < (this.state.activePage * maxLoweringsPerPage)) {
-        let deleteLink = (this.props.roles.includes('admin'))? <Link key={`delete_${lowering.id}`} to="#" onClick={ () => this.handleLoweringDeleteModal(lowering.id) }><OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesomeIcon icon='trash' fixedWidth/></OverlayTrigger></Link>: null
+        let deleteLink = (this.props.roles.includes('admin'))? <OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesomeIcon className="text-danger" onClick={ () => this.handleLoweringDeleteModal(lowering.id) } icon='trash' fixedWidth/></OverlayTrigger>: null
         let hiddenLink = null;
 
         if(this.props.roles.includes('admin') && lowering.lowering_hidden) {
-          hiddenLink = <Link key={`show_${lowering.id}`} to="#" onClick={ () => this.handleLoweringShow(lowering.id) }><OverlayTrigger placement="top" overlay={showTooltip}><FontAwesomeIcon icon='eye-slash' fixedWidth/></OverlayTrigger></Link>
+          hiddenLink = <OverlayTrigger placement="top" overlay={showTooltip}><FontAwesomeIcon onClick={ () => this.handleLoweringShow(lowering.id) } icon='eye-slash' fixedWidth/></OverlayTrigger>
         } else if(this.props.roles.includes('admin') && !lowering.lowering_hidden) {
-          hiddenLink = <Link key={`show_${lowering.id}`} to="#" onClick={ () => this.handleLoweringHide(lowering.id) }><OverlayTrigger placement="top" overlay={hideTooltip}><FontAwesomeIcon icon='eye' fixedWidth/></OverlayTrigger></Link>  
+          hiddenLink = <OverlayTrigger placement="top" overlay={hideTooltip}><FontAwesomeIcon className="text-success" onClick={ () => this.handleLoweringHide(lowering.id) } icon='eye' fixedWidth/></OverlayTrigger>  
         }
 
-
         let loweringLocation = (lowering.lowering_location)? <span>Location: {lowering.lowering_location}<br/></span> : null
+        let loweringStartTime = moment(lowering.start_ts)
+        let loweringEndTime = moment(lowering.stop_ts)
+        let loweringStarted = <span>Started: {loweringStartTime.format("YYYY-MM-DD hh:mm")}<br/></span>
+        let loweringDuration = loweringEndTime.diff(loweringStartTime)
+
+        let loweringDurationStr = <span>Duration: {moment.duration(loweringDuration).format("d [days] h [hours] m [minutes]")}<br/></span>
 
         return (
           <tr key={lowering.id}>
-            <td>{lowering.lowering_id}</td>
-            <td>{loweringLocation}Dates: {moment.utc(lowering.start_ts).format("MM-DD-YYYY HH:mm")}<FontAwesomeIcon icon='arrow-right' fixedWidth/>{moment.utc(lowering.stop_ts).format("MM-DD-YYYY HH:mm")}</td>
+            <td className={(this.props.loweringid == lowering.id)? "text-warning" : ""}>{lowering.lowering_id}</td>
+            <td>{loweringLocation}{loweringStarted}{loweringDurationStr}</td>
             <td>
-              <Link key={`edit_${lowering.id}`} to="#" onClick={ () => this.handleLoweringUpdate(lowering.id) }><OverlayTrigger placement="top" overlay={editTooltip}><FontAwesomeIcon icon='pencil-alt' fixedWidth/></OverlayTrigger></Link>
+              <OverlayTrigger placement="top" overlay={editTooltip}><FontAwesomeIcon className="text-primary" onClick={ () => this.handleLoweringUpdate(lowering.id) } icon='pencil-alt' fixedWidth/></OverlayTrigger>
               {deleteLink}
               {hiddenLink}
             </td>
@@ -145,7 +150,7 @@ class Lowerings extends Component {
             <tr>
               <th>Lowering</th>
               <th>Details</th>
-              <th>Actions</th>
+              <th style={{width: "80px"}}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -155,7 +160,7 @@ class Lowerings extends Component {
       )
     } else {
       return (
-        <Panel.Body>No Lowerings Found!</Panel.Body>
+        <Card.Body>No Lowerings Found!</Card.Body>
       )
     }
   }
@@ -168,8 +173,8 @@ class Lowerings extends Component {
     return (
       <div>
         { Label }
-        <div className="pull-right">
-          <Button bsStyle="default" bsSize="xs" type="button" onClick={ () => this.exportLoweringsToJSON() }><OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesomeIcon icon='download' fixedWidth/></OverlayTrigger></Button>
+        <div className="float-right">
+          <OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesomeIcon onClick={ () => this.exportLoweringsToJSON() } icon='download' fixedWidth/></OverlayTrigger>
         </div>
       </div>
     );
@@ -198,7 +203,7 @@ class Lowerings extends Component {
           if (i - l === 2) {
             rangeWithDots.push(<Pagination.Item key={l + 1} active={(this.state.activePage === l+1)} onClick={() => this.setState({activePage: (l + 1)})}>{l + 1}</Pagination.Item>)
           } else if (i - l !== 1) {
-            rangeWithDots.push(<Pagination.Ellipsis />);
+            rangeWithDots.push(<Pagination.Ellipsis  key={`ellipsis_${i}`} />);
           }
         }
         rangeWithDots.push(<Pagination.Item key={i} active={(this.state.activePage === i)} onClick={() => this.setState({activePage: i})}>{i}</Pagination.Item>);
@@ -241,16 +246,18 @@ class Lowerings extends Component {
           <DeleteLoweringModal />
           <ImportLoweringsModal  handleExit={this.handleLoweringImportClose} />
           <Row>
-            <Col sm={7} md={7} lgOffset= {1} lg={6}>
-              <Panel>
-                <Panel.Heading>{this.renderLoweringHeader()}</Panel.Heading>
+            <Col sm={12} md={7} lg={6} xl={{span:5, offset:1}}>
+              <Card border="secondary">
+                <Card.Header>{this.renderLoweringHeader()}</Card.Header>
                 {this.renderLoweringTable()}
                 {this.renderPagination()}
-              </Panel>
-              {this.renderAddLoweringButton()}
-              {this.renderImportLoweringsButton()}
+              </Card>
+              <div style={{marginTop: "8px", marginRight: "-8px"}}>
+                {this.renderAddLoweringButton()}
+                {this.renderImportLoweringsButton()}
+              </div>
             </Col>
-            <Col sm={5} md={5} lg={4}>
+            <Col sm={12} md={5} lg={6} xl={5}>
               { loweringForm }
             </Col>
           </Row>

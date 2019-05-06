@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Modal, Label, Thumbnail } from 'react-bootstrap';
+import { Modal, Image } from 'react-bootstrap';
 import { connectModal } from 'redux-modal';
-import { ROOT_PATH, } from '../client_config';
 
 class ImagePreviewModal extends Component {
 
@@ -31,14 +30,14 @@ class ImagePreviewModal extends Component {
     const { show, handleHide } = this.props
 
     return (
-      <Modal bsSize="large" show={show} onHide={handleHide}>
+      <Modal size="lg" show={show} onHide={handleHide}>
         <Modal.Header closeButton>
-          <Modal.Title>Image Preview - {this.props.name}</Modal.Title>
+          <Modal.Title as="h5">Image Preview - {this.props.name}</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
           <div className="text-center">
-            <Thumbnail src={this.props.filepath} onError={this.handleMissingImage} />
+            <Image fluid src={this.props.filepath} onError={this.handleMissingImage} />
           </div>
         </Modal.Body>
       </Modal>

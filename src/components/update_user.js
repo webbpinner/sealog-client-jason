@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { reduxForm, Field } from 'redux-form';
-import { Alert, Button, Checkbox, Col, FormGroup, FormControl, FormGroupItem, Panel, Row, Tooltip, OverlayTrigger} from 'react-bootstrap';
+import { Alert, Button, Col, Card, Form, Row, Tooltip, OverlayTrigger} from 'react-bootstrap';
 import * as actions from '../actions';
 import { standardUserRoleOptions } from '../standard_user_role_options';
 import { systemUserRoleOptions } from '../system_user_role_options';
@@ -9,7 +9,6 @@ import { systemUserRoleOptions } from '../system_user_role_options';
 class UpdateUser extends Component {
 
   componentWillMount() {
-    // console.log(this.props);
     if(this.props.userID) {
       this.props.initUser(this.props.userID);
     }
@@ -20,31 +19,82 @@ class UpdateUser extends Component {
   }
 
   handleFormSubmit(formProps) {
-    // console.log(formProps);
     this.props.updateUser(formProps);
   }
 
-  renderField({ input, label, type, required, meta: { touched, error, warning } }) {
+  renderTextField({ input, label, placeholder, type="text", required, meta: { touched, error } }) {
     let requiredField = (required)? <span className='text-danger'> *</span> : ''
+    let placeholder_txt = (placeholder)? placeholder: label
+
     return (
-      <FormGroup>
-        <label>{label}{requiredField}</label>
-        <FormControl {...input} placeholder={label} type={type}/>
-        {touched && ((error && <div className='text-danger'>{error}</div>) || (warning && <div className='text-danger'>{warning}</div>))}
-      </FormGroup>
+      <Form.Group as={Col} lg="12">
+        <Form.Label>{label}{requiredField}</Form.Label>
+        <Form.Control type={type} {...input} placeholder={placeholder_txt} isInvalid={touched && error}/>
+        <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
+      </Form.Group>
     )
   }
 
-  renderCheckboxGroup({ label, name, options, input, required, meta: { dirty, error, warning } }) {
+  renderTextArea({ input, label, placeholder, required, rows = 4, meta: { touched, error, warning } }) {
+    let requiredField = (required)? <span className='text-danger'> *</span> : ''
+    let placeholder_txt = (placeholder)? placeholder: label
+
+    return (
+      <Form.Group as={Col} lg="12">
+        <Form.Label>{label}{requiredField}</Form.Label>
+        <Form.Control as="textarea" {...input} placeholder={placeholder_txt} rows={rows}/>
+        <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
+      </Form.Group>
+    )
+  }
+
+  renderSelectField({ input, label, placeholder, required, options, meta: { touched, error } }) {
+
+    let requiredField = (required)? <span className='text-danger'> *</span> : ''
+    let placeholder_txt = (placeholder)? placeholder: label
+    let defaultOption = ( <option key={`${input.name}.empty`} value=""></option> );
+    let optionList = options.map((option, index) => {
+      return (
+        <option key={`${input.name}.${index}`} value={`${option}`}>{ `${option}`}</option>
+      );
+    });
+
+    return (
+      <Form.Group as={Col} lg="12">
+        <Form.Label>{label}{requiredField}</Form.Label>
+        <Form.Control as="select" {...input} placeholder={placeholder_txt} isInvalid={touched && error}>
+          { defaultOption }
+          { optionList }
+        </Form.Control>
+        <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
+      </Form.Group>
+    )
+  }
+
+  renderDatePicker({ input, label, type, required, meta: { touched, error } }) {
+    let requiredField = (required)? <span className='text-danger'> *</span> : ''
+    
+    return (
+      <Form.Group as={Col} lg="12">
+        <Form.Label>{label}{requiredField}</Form.Label>
+        <Datetime {...input} utc={true} value={input.value ? moment.utc(input.value).format(dateFormat) : null} dateFormat={dateFormat} timeFormat={false} selected={input.value ? moment.utc(input.value, dateFormat) : null }/>
+        {touched && (error && <div style={{width: "100%", marginTop: "0.25rem", fontSize: "80%"}} className='text-danger'>{error}</div>)}
+      </Form.Group>
+    )
+  }
+
+renderCheckboxGroup({ label, name, options, input, required, meta: { dirty, error } }) {
 
     let requiredField = (required)? (<span className='text-danger'> *</span>) : ''
     let checkboxList = options.map((option, index) => {
 
       let tooltip = (option.description)? (<Tooltip id={`${option.value}_Tooltip`}>{option.description}</Tooltip>) : null
-      let overlay = (tooltip != null)? (<OverlayTrigger placement="right" overlay={tooltip}><span>{option.label}</span></OverlayTrigger>) : option.label
 
       return (
-          <Checkbox
+        <OverlayTrigger key={`${label}.${index}`} placement="top" overlay={tooltip}>
+          <Form.Check
+            inline
+            label={option.value}
             name={`${option.label}[${index}]`}
             key={`${label}.${index}`}
             value={option.value}
@@ -58,33 +108,37 @@ class UpdateUser extends Component {
               }
               return input.onChange(newValue);
             }}
-          > 
-            {overlay}
-          </Checkbox>
+          />
+        </OverlayTrigger>
       );
     });
 
     return (
-      <FormGroup>
-        <label>{label}{requiredField}</label>
-        {checkboxList}
-        {dirty && ((error && <div className='text-danger'>{error}</div>) || (warning && <div className='text-danger'>{warning}</div>))}
-      </FormGroup>
+      <span>
+        <Form.Label>{label}{requiredField}</Form.Label><br/>
+        <Form.Group as={Col} xs="4">
+          {checkboxList}
+        </Form.Group>
+        <Form.Group as={Col} xs="12">
+          {dirty && (error && <div className="text-danger" style={{marginTop: "-16px", fontSize: "80%"}}>{error}</div>)}
+        </Form.Group>
+      </span>
     );
   }
 
-  renderCheckbox({ input, label, meta: { dirty, error, warning } }) {    
-
+  renderCheckbox({ input, label, meta: { dirty, error } }) {    
     return (
-      <FormGroup>
-        <Checkbox
+      <Form.Group as={Col} lg="12">
+        <Form.Check
+          {...input}
+          label={label}
           checked={input.value ? true : false}
           onChange={(e) => input.onChange(e.target.checked)}
+          isInvalid={dirty && error}
         >
-          {label}
-        </Checkbox>
-        {(error && <div className='text-danger'>{error}</div>) || (warning && <div className='text-danger'>{warning}</div>)}
-      </FormGroup>
+        </Form.Check>
+        <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
+      </Form.Group>
     );
   }
 
@@ -92,7 +146,7 @@ class UpdateUser extends Component {
     if(this.props.roles.includes('admin')) {
       return (
         <div>
-          <label>Additional Options:</label>
+          <Form.Label>Additional Options:</Form.Label>
           {this.renderSystemUserOption()}
         </div>
       )
@@ -112,7 +166,7 @@ class UpdateUser extends Component {
   renderAlert() {
     if (this.props.errorMessage) {
       return (
-        <Alert bsStyle="danger">
+        <Alert variant="danger">
           <strong>Opps!</strong> {this.props.errorMessage}
         </Alert>
       )
@@ -122,7 +176,7 @@ class UpdateUser extends Component {
   renderMessage() {
     if (this.props.message) {
       return (
-        <Alert bsStyle="success">
+        <Alert variant="success">
           <strong>Success!</strong> {this.props.message}
         </Alert>
       )
@@ -140,42 +194,39 @@ class UpdateUser extends Component {
       let userRoleOptions = this.props.roles.includes('admin')? systemUserRoleOptions.concat(standardUserRoleOptions): standardUserRoleOptions;
 
       return (
-        <Panel className="form-standard">
-          <Panel.Heading>
+        <Card className="form-standard" className="form-standard">
+          <Card.Header>
           {updateUserFormHeader}
-          </Panel.Heading>
-          <Panel.Body>
-            <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
+          </Card.Header>
+          <Card.Body>
+            <Form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
               <Field
                 name="username"
-                component={this.renderField}
-                type="text"
+                component={this.renderTextField}
                 label="Username"
                 required={true}
               />
               <Field
                 name="fullname"
-                type="text"
-                component={this.renderField}
+                component={this.renderTextField}
                 label="Full Name"
                 required={true}
               />
               <Field
                 name="email"
-                component={this.renderField}
-                type="text"
+                component={this.renderTextField}
                 label="Email"
                 required={true}
               />
               <Field
                 name="password"
-                component={this.renderField}
+                component={this.renderTextField}
                 type="password"
                 label="Password"
               />
               <Field
                 name="confirmPassword"
-                component={this.renderField}
+                component={this.renderTextField}
                 type="password"
                 label="Confirm Password"
               />
@@ -189,13 +240,13 @@ class UpdateUser extends Component {
               {this.renderAdminOptions()}
               {this.renderAlert()}
               {this.renderMessage()}
-              <div className="pull-right">
-                <Button bsStyle="default" type="button" disabled={pristine || submitting} onClick={reset}>Reset Values</Button>
-                <Button bsStyle="primary" type="submit" disabled={submitting || !valid}>Update</Button>
+              <div className="float-right" style={{marginRight: "-20px", marginBottom: "-8px"}}>
+                <Button variant="secondary" size="sm" disabled={pristine || submitting} onClick={reset}>Reset Values</Button>
+                <Button variant="primary" size="sm" type="submit" disabled={submitting || !valid}>Update</Button>
               </div>
-            </form>
-          </Panel.Body>
-        </Panel>
+            </Form>
+          </Card.Body>
+        </Card>
       )
     } else {
       return (

@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
+import { connectModal } from 'redux-modal';
 import PropTypes from 'prop-types';
 import axios from 'axios';
-import { Button, Modal, Row, Col } from 'react-bootstrap';
-import { connectModal } from 'redux-modal';
-import ReactFileReader from 'react-file-reader';
 import Cookies from 'universal-cookie';
+import ReactFileReader from 'react-file-reader';
+import { Button, Modal, Row, Col } from 'react-bootstrap';
 import { API_ROOT_URL } from '../client_config';
 
 
@@ -75,7 +75,6 @@ class ImportAuxDataModal extends Component {
   importAuxDataFromFile = async (e) => {
     try {
 
-      // console.log("processing file")
       let json = JSON.parse(e.target.result);
         this.setState( prevState => (
           {
@@ -86,7 +85,6 @@ class ImportAuxDataModal extends Component {
           }
         ))
 
-      // console.log("done")
       let currentAuxData;
 
       for(let i = 0; i < json.length; i++) {
@@ -95,7 +93,6 @@ class ImportAuxDataModal extends Component {
           break;
         }
         currentAuxData = json[i];
-        // console.log("adding aux data")
         await this.insertAuxData(currentAuxData);
       }
 
@@ -126,7 +123,7 @@ class ImportAuxDataModal extends Component {
           <Row>
             <Col xs={6}>
               <ReactFileReader fileTypes={[".json"]} handleFiles={this.handleAuxDataRecordImport}>
-                  <Button>Select File</Button>
+                  <Button size="sm">Select File</Button>
               </ReactFileReader>
             </Col>
             <Col xs={6}>
@@ -140,7 +137,7 @@ class ImportAuxDataModal extends Component {
         </Modal.Body>
 
         <Modal.Footer>
-          <Button onClick={this.handleHideCustom}>Close</Button>
+          <Button variant="secondary" size="sm" onClick={this.handleHideCustom}>Close</Button>
         </Modal.Footer>
       </Modal>
     );

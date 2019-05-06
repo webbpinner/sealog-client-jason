@@ -136,7 +136,7 @@ class ImportEventsModal extends Component {
           <Row>
             <Col xs={6}>
               <ReactFileReader fileTypes={[".json"]} handleFiles={this.handleEventRecordImport}>
-                <Button>Select File</Button>
+                <Button size="sm" >Select File</Button>
               </ReactFileReader>
             </Col>
             <Col xs={3}>
@@ -150,7 +150,7 @@ class ImportEventsModal extends Component {
         </Modal.Body>
 
         <Modal.Footer>
-          <Button onClick={this.handleHideCustom}>Close</Button>
+          <Button variant="secondary" size="sm" onClick={this.handleHideCustom}>Close</Button>
         </Modal.Footer>
       </Modal>
     );

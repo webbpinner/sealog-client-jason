@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { reduxForm, Field, FieldArray, initialize, formValueSelector, reset } from 'redux-form';
-import { Alert, Button, Checkbox, Col, ControlLabel, FormGroup, FormControl, FormGroupItem, Panel, Row } from 'react-bootstrap';
+import { Alert, Button, Card, Form } from 'react-bootstrap';
 import * as actions from '../actions';
 import { EventTemplateOptionTypes } from '../event_template_option_types';
 
@@ -20,32 +21,30 @@ class CreateEventTemplate extends Component {
   }
 
   handleFormSubmit(formProps) {
-    // console.log(formProps);
     if(typeof(formProps.system_template) === 'undefined'){
       formProps.system_template = false;
     }
     this.props.createEventTemplate(formProps);
   }
 
-  renderField({ input, label, placeholder, required, type, meta: { touched, error, warning } }) {
+  renderTextField({ input, label, placeholder, required, meta: { touched, error } }) {
     let requiredField = (required)? <span className='text-danger'> *</span> : ''
     let placeholder_txt = (placeholder)? placeholder: label
 
     return (
-      <FormGroup>
-        <label>{label}{requiredField}</label>
-        <FormControl {...input} placeholder={placeholder_txt} type={type}/>
-        {touched && (error && <div className='text-danger'>{error}</div>) || (warning && <div className='text-danger'>{warning}</div>)}
-      </FormGroup>
+      <Form.Group>
+        <Form.Label>{label}{requiredField}</Form.Label>
+        <Form.Control type="text" {...input} placeholder={placeholder_txt} isInvalid={touched && error}/>
+        <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
+      </Form.Group>
     )
   }
 
-  renderSelectField({ input, label, type, required, options, meta: { touched, error, warning } }) {
+  renderSelectField({ input, label, placeholder, required, options, meta: { touched, error } }) {
 
     let requiredField = (required)? <span className='text-danger'> *</span> : ''
-  
+    let placeholder_txt = (placeholder)? placeholder: label
     let defaultOption = ( <option key={`${input.name}.default`} value=""></option> );
-
     let optionList = options.map((option, index) => {
       return (
         <option key={`${input.name}.${index}`} value={`${option}`}>{ `${option}`}</option>
@@ -53,67 +52,60 @@ class CreateEventTemplate extends Component {
     });
 
     return (
-      <FormGroup controlId="formControlsSelect">
-        <ControlLabel>{label}{requiredField}</ControlLabel>
-        <FormControl {...input} componentClass={type} placeholder={label}>
+      <Form.Group controlId="formControlsSelect">
+        <Form.Label>{label}{requiredField}</Form.Label>
+        <Form.Control as="select" {...input} placeholder={placeholder_txt} isInvalid={touched && error}>
           { defaultOption }
           { optionList }
-        </FormControl>
-        {touched && (error && <div className='text-danger'>{error}</div>) || (warning && <div className='text-danger'>{warning}</div>)}
-      </FormGroup>
+        </Form.Control>
+        <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
+      </Form.Group>
     )
   }
 
-  renderCheckbox({ input, label, meta: { dirty, error, warning } }) {    
+  renderCheckbox({ input, label, meta: { dirty, error } }) {    
 
     return (
-      <FormGroup>
-        <Checkbox
+      <Form.Group>
+        <Form.Check
+          {...input}
           checked={input.value ? true : false}
           onChange={(e) => input.onChange(e.target.checked)}
+          isInvalid={dirty && error}
+          label={label}
         >
-          {label}
-        </Checkbox>
-        {(error && <div className='text-danger'>{error}</div>) || (warning && <div className='text-danger'>{warning}</div>)}
-      </FormGroup>
+        </Form.Check>
+        <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
+      </Form.Group>
     );
   }
 
-//  { fields, meta: { touched, error } }
-
   renderOptionOptions(prefix, index) {
-    //console.log(this.props.event_options[index]);
 
     if(this.props.event_options[index].event_option_type == 'dropdown') {
       return (
-        <ul>
-          <li>
-            <Field
-              name={`${prefix}.event_option_values`}
-              type="text"
-              component={this.renderField}
-              label="Dropdown Options"
-            />
-            <Field
-              name={`${prefix}.event_option_default_value`}
-              type="text"
-              component={this.renderField}
-              label="Default Value"/>
-          </li>
-        </ul>
+        <div>
+          <Field
+            name={`${prefix}.event_option_values`}
+            component={this.renderTextField}
+            label="Dropdown Options"
+          />
+          <Field
+            name={`${prefix}.event_option_default_value`}
+            component={this.renderTextField}
+            label="Default Value"
+          />
+        </div>
       );
     } else if(this.props.event_options[index].event_option_type == 'checkboxes') {
       return (
-        <ul>
-          <li>
-            <Field
-              name={`${prefix}.event_option_values`}
-              type="text"
-              component={this.renderField}
-              label="Checkbox Options"
-            />
-          </li>
-        </ul>
+        <div>
+          <Field
+            name={`${prefix}.event_option_values`}
+            component={this.renderTextField}
+            label="Checkbox Options"
+          />
+        </div>
       );
     } else {
       return;
@@ -121,47 +113,54 @@ class CreateEventTemplate extends Component {
   }
 
   renderOptions({ fields, meta: { touched, error } }) {
+
+    const promote = (index, fields) => {
+      if(index > 0) {
+        return(<FontAwesomeIcon className="text-primary float-right" icon='chevron-up' fixedWidth onClick={() => fields.swap(index, index-1)}/>)
+      }
+    }
+
+    const demote = (index, fields) => {
+      if(index < fields.length-1) {
+        return(<FontAwesomeIcon className="text-primary float-right" icon='chevron-down' fixedWidth onClick={() => fields.swap(index, index+1)}/>)
+      }
+    }
+
     return (
       <div>
-        <ul>
-          {fields.map((options, index) =>
-            <li key={index}>
-              <span>
-                <label>Option #{index + 1}</label>
-                <div className="pull-right">
-                  <Button bsStyle="danger" bsSize="xs" type="button" onClick={() => fields.remove(index)}>Remove</Button>
-                </div>
-              </span>
-              <Field
-                name={`${options}.event_option_name`}
-                type="text"
-                component={this.renderField}
-                label="Name"
-                required={true}
-              />
-              <Field
-                name={`${options}.event_option_type`}
-                type="select"
-                component={this.renderSelectField}
-                options={EventTemplateOptionTypes}
-                label="Type"
-                required={true}
-              />
-              { this.renderOptionOptions(options, index) }
-              <div>
-                <label>Required?</label>
-                <span>{'  '}</span>
-                <Field
-                  name={`${options}.event_option_required`}
-                  id={`${options}.event_option_required`}
-                  component="input"
-                  type="checkbox"
-                />
-              </div>
-            </li>
-          )}
-        </ul>
-        <Button bsStyle="primary" bsSize="xs" type="button" onClick={() => fields.push({})}>Add Option</Button>
+        {fields.map((options, index) =>
+          <div key={`option_${index}`}>
+            <hr className="border-secondary" />
+            <span>
+              <Form.Label>Option #{index + 1}</Form.Label>
+              <FontAwesomeIcon className="text-danger float-right" icon='trash' fixedWidth onClick={() => fields.remove(index)}/>
+              {promote(index, fields)}
+              {demote(index, fields)}
+            </span>
+            <Field
+              name={`${options}.event_option_name`}
+              component={this.renderTextField}
+              label="Name"
+              required={true}
+            />
+            <Field
+              name={`${options}.event_option_type`}
+              component={this.renderSelectField}
+              options={EventTemplateOptionTypes}
+              label="Type"
+              required={true}
+            />
+            { this.renderOptionOptions(options, index) }
+            <Field
+              name={`${options}.event_option_required`}
+              component={this.renderCheckbox}
+              label="Required?"
+            />
+          </div>
+        )}
+      <span className="text-primary" onClick={() => fields.push({})}>
+          <FontAwesomeIcon icon='plus' fixedWidth/> Add Option
+        </span>
         {touched && error && <span>{error}</span>}
       </div>
     )
@@ -180,16 +179,11 @@ class CreateEventTemplate extends Component {
 
   renderSystemEventTemplateOption() {
     return (
-      <div>
-        <label>System Template?</label>
-        <span>{'  '}</span>
-        <Field
-          name='system_template'
-          id='system_template'
-          component="input"
-          type="checkbox"
-        />
-      </div>
+      <Field
+        name='system_template'
+        component={this.renderCheckbox}
+        label="System Template?"
+      />
     )
   }
 
@@ -197,7 +191,7 @@ class CreateEventTemplate extends Component {
   renderAlert() {
     if (this.props.errorMessage) {
       return (
-        <Alert bsStyle="danger">
+        <Alert variant="danger">
           <strong>Opps!</strong> {this.props.errorMessage}
         </Alert>
       )
@@ -207,7 +201,7 @@ class CreateEventTemplate extends Component {
   renderMessage() {
     if (this.props.message) {
       return (
-        <Alert bsStyle="success">
+        <Alert variant="success">
           <strong>Success!</strong> {this.props.message}
         </Alert>
       )
@@ -222,13 +216,13 @@ class CreateEventTemplate extends Component {
 
     if (this.props.roles && (this.props.roles.includes("admin") || this.props.roles.includes("event_manager"))) {
       return (
-        <Panel className="form-standard">
-          <Panel.Heading>{formHeader}</Panel.Heading>
-          <Panel.Body>
+        <Card border="secondary" className="form-standard">
+          <Card.Header>{formHeader}</Card.Header>
+          <Card.Body>
             <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
               <Field
                 name="event_name"
-                component={this.renderField}
+                component={this.renderTextField}
                 type="text"
                 label="Button Name"
                 required={true}
@@ -236,33 +230,27 @@ class CreateEventTemplate extends Component {
               <Field
                 name="event_value"
                 type="text"
-                component={this.renderField}
+                component={this.renderTextField}
                 label="Event Value"
                 required={true}
               />
+              <Field
+                name='event_free_text_required'
+                component={this.renderCheckbox}
+                label={"Free text Required?"}
+              />
               {this.renderAdminOptions()}
-              <div>
-                <label>Free text Required?</label>
-                <span>{'  '}</span>
-                <Field
-                  name='event_free_text_required'
-                  id='event_free_text_required'
-                  component="input"
-                  type="checkbox"
-                />
-              </div>
-
               <FieldArray name="event_options" component={this.renderOptions}/>
               <br/>
               {this.renderAlert()}
               {this.renderMessage()}
-              <div className="pull-right">
-                <Button bsStyle="default" type="button" bsSize="small" disabled={pristine || submitting} onClick={reset}>Reset Values</Button>
-                <Button bsStyle="primary" type="submit" bsSize="small" disabled={pristine || submitting || !valid}>Create</Button>
+              <div className="float-right" style={{marginRight: "-20px", marginBottom: "-8px"}}>
+                <Button variant="secondary" size="sm" disabled={pristine || submitting} onClick={reset}>Reset Form</Button>
+                <Button variant="primary" type="submit" size="sm" disabled={pristine || submitting || !valid}>Create</Button>
               </div>
             </form>
-          </Panel.Body>
-        </Panel>
+          </Card.Body>
+        </Card>
       )
     } else {
       return (

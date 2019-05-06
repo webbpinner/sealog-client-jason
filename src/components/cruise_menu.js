@@ -3,9 +3,9 @@ import React, { Component } from 'react';
 import Cookies from 'universal-cookie';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
-import { Link } from 'react-router-dom';
+import momentDurationFormatSetup from 'moment-duration-format';
 import { connect } from 'react-redux';
-import { Button, Row, Col, Panel, PanelGroup, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Accordion, Button, Container, Row, Col, Card, CardGroup } from 'react-bootstrap';
 import FileDownload from 'js-file-download';
 import { API_ROOT_URL, MAIN_SCREEN_TXT } from '../client_config';
 
@@ -22,40 +22,96 @@ class CruiseMenu extends Component {
     super(props);
 
     this.state = {
-      activeKey: "0"
+      activeCruiseKey: null,
+      cruiseLowerings: null,
+      activeCruise: null,
+      activeLowering: null
+
     };
 
-    this.handleSelect = this.handleSelect.bind(this);
+    this.handleCruiseSelect = this.handleCruiseSelect.bind(this);
+    this.handleLoweringSelect = this.handleLoweringSelect.bind(this);
     this.handleCruiseFileDownload = this.handleCruiseFileDownload.bind(this);
     this.handleLoweringFileDownload = this.handleLoweringFileDownload.bind(this);
 
   }
 
-  componentWillMount(){
-    this.props.clearSelectedCruise();
-    this.props.clearSelectedLowering();
-    this.props.leaveEventFilterForm();
+  componentDidMount(){
     this.props.fetchCruises();
     this.props.fetchLowerings();
   }
 
+  componentDidUpdate(){
+
+    if(this.props.cruise.id && this.props.lowerings.length > 0 && this.state.activeCruise === null) {
+      // console.log("selected cruise but no active cruise")
+      this.handleCruiseSelect(this.props.cruise.id)
+      this.buildLoweringList(this.props.cruise.start_ts, this.props.cruise.stop_ts)
+    }
+    // else if(this.props.cruises.length > 0 && this.props.lowerings.length > 0 && this.state.activeCruise === null) {
+    //   console.log("cruiselist but no active cruise")
+    //   this.handleCruiseSelect(this.props.cruises[0].id)
+    //   this.buildLoweringList(this.props.cruises[0].start_ts, this.props.cruises[0].stop_ts)
+    // }
+
+    if(this.props.lowering.id && this.props.lowerings.length > 0 && this.state.activeLowering === null) {
+      // console.log("selected lowering but there is no active lowering")
+      this.handleLoweringSelect(this.props.lowering.id)
+    }
+
+    if(this.state.activeCruise != null && this.state.cruiseLowerings === null) {
+      // console.log("active cruise but null cruise lowerings")
+      this.buildLoweringList(this.state.activeCruise.start_ts, this.state.activeCruise.stop_ts)
+    }
+
+    if(this.state.activeCruise === null && this.state.activeLowering != null) {
+      // console.log("no active cruise but there is an active lowering")
+      this.handleLoweringSelect();
+    }
+  }
+
   componentWillUnmount(){
-    this.props.leaveUpdateLoweringForm();
   }
 
-  handleLoweringSelect(id) {
+  handleCruiseSelect(id) {
+    if(this.state.activeCruise === null || this.state.activeCruise && this.state.activeCruise.id != id) {
+      window.scrollTo(0, 0);
+      const activeCruise = this.props.cruises.find(cruise => cruise.id === id)
+      this.buildLoweringList(activeCruise.start_ts, activeCruise.stop_ts)
+      this.setState({activeCruiseKey: activeCruise.id, activeCruise: activeCruise});
+      this.handleLoweringSelect()
+    }
+  }
+
+  handleLoweringSelect(id = null) {
     window.scrollTo(0, 0);
-    this.props.initLowering(id);
+    if(id != null) {
+      this.setState({activeLowering: this.props.lowerings.find(lowering => lowering.id === id)});
+    } else {
+      this.props.clearSelectedLowering()
+      this.setState({activeLowering: null});
+    }
   }
 
-  handleLoweringSelectForReplay(id) {
-    // console.log("loweringID:", id)
-    this.props.gotoLoweringReplay(id);
+  handleLoweringSelectForReplay() {
+    if(this.state.activeLowering) {
+      this.props.clearEvents()
+      this.props.gotoLoweringReplay(this.state.activeLowering.id);
+    }
   }
 
-  handleLoweringSelectForSearch(id) {
-    // console.log("loweringID:", id)
-    this.props.gotoLoweringSearch(id);
+  handleLoweringSelectForReview() {
+    if(this.state.activeLowering) {
+      this.props.clearEvents()
+      this.props.gotoLoweringReview(this.state.activeLowering.id);
+    }
+  }
+
+  handleLoweringSelectForGallery() {
+    if(this.state.activeLowering) {
+      this.props.clearEvents()
+      this.props.gotoLoweringGallery(this.state.activeLowering.id);
+    }
   }
 
   handleLoweringFileDownload(loweringID, filename) {
@@ -64,7 +120,7 @@ class CruiseMenu extends Component {
       headers: {
         authorization: cookies.get('token')
       },
-      responseType: arraybuffer
+      responseType: 'arraybuffer'
     })
     .then((response) => {
         FileDownload(response.data, filename);
@@ -80,7 +136,7 @@ class CruiseMenu extends Component {
       headers: {
         authorization: cookies.get('token')
       },
-      responseType: arraybuffer
+      responseType: 'arraybuffer'
     })
     .then((response) => {
         FileDownload(response.data, filename);
@@ -88,11 +144,6 @@ class CruiseMenu extends Component {
     .catch((error)=>{
       console.log("JWT is invalid, logging out");
     });
-  }
-
-
-  handleSelect(activeKey) {
-    this.setState({ activeKey });
   }
 
   renderCruiseFiles(cruiseID, files) {
@@ -109,71 +160,94 @@ class CruiseMenu extends Component {
     return <div>{output}<br/></div>
   }
 
-  renderLoweringPanel() {
+  renderLoweringCard() {
 
-    if(this.props.lowering.id){
-      let loweringDescription = (this.props.lowering.lowering_additional_meta.lowering_description)? <p><strong>Description:</strong> {this.props.lowering.lowering_additional_meta.lowering_description}</p> : null
-      let loweringLocation = (this.props.lowering.lowering_location)? <p><strong>Location:</strong> {this.props.lowering.lowering_location}</p> : null
-      let lowering_files = (this.props.lowering.lowering_additional_meta.lowering_files && this.props.lowering.lowering_additional_meta.lowering_files.length > 0)? this.renderLoweringFiles(this.props.lowering.id, this.props.lowering.lowering_additional_meta.lowering_files): null
+    if(this.state.activeLowering){
+      let loweringStartTime = moment(this.state.activeLowering.start_ts)
+      let loweringEndTime = moment(this.state.activeLowering.stop_ts)
+      let loweringDurationValue = loweringEndTime.diff(loweringStartTime)
+
+      let loweringDescription = (this.state.activeLowering.lowering_additional_meta.lowering_description)? <span><strong>Description:</strong> {this.state.activeLowering.lowering_additional_meta.lowering_description}<br/></span> : null
+      let loweringLocation = (this.state.activeLowering.lowering_location)? <span><strong>Location:</strong> {this.state.activeLowering.lowering_location}<br/></span> : null
+      let loweringStarted = <span><strong>Started:</strong> {loweringStartTime.format("YYYY-MM-DD hh:mm")}<br/></span>
+      let loweringDuration = <span><strong>Duration:</strong> {moment.duration(loweringDurationValue).format("d [days] h [hours] m [minutes]")}<br/></span>
+      let loweringFiles = (this.state.activeLowering.lowering_additional_meta.lowering_files && this.state.activeLowering.lowering_additional_meta.lowering_files.length > 0)? <span><strong>Files:</strong><br/>{this.renderLoweringFiles(this.state.activeLowering.id, this.state.activeLowering.lowering_additional_meta.lowering_files)}</span>: null
+
 
       return (          
-        <Panel>
-          <Panel.Heading>{"Lowering: " + this.props.lowering.lowering_id}</Panel.Heading>
-          <Panel.Body>
+        <Card border="secondary" key={`lowering_card`}>
+          <Card.Header>Lowering: <span className="text-primary">{this.state.activeLowering.lowering_id}</span></Card.Header>
+          <Card.Body>
             {loweringDescription}
             {loweringLocation}
-            <p><strong>Date:</strong> {moment.utc(this.props.lowering.start_ts).format("YYYY/MM/DD HH:mm")} - {moment.utc(this.props.lowering.stop_ts).format("YYYY/MM/DD HH:mm")}</p>
-            {lowering_files}
-            <Button bsSize={'sm'} bsStyle={'primary'} onClick={ () => this.handleLoweringSelectForReplay(this.props.lowering.id) }>Goto replay...</Button>
-            <Button bsSize={'sm'} bsStyle={'primary'} onClick={ () => this.handleLoweringSelectForSearch(this.props.lowering.id) }>Goto review...</Button>
-          </Panel.Body>
-        </Panel>
+            {loweringStarted}
+            {loweringDuration}
+            {loweringFiles}
+            <br/>
+            <ul>
+              <li className="text-primary" onClick={ () => this.handleLoweringSelectForGallery() }>Goto gallery...</li>
+              <li className="text-primary" onClick={ () => this.handleLoweringSelectForReplay() }>Goto replay...</li>
+              <li className="text-primary" onClick={ () => this.handleLoweringSelectForSearch() }>Goto review...</li>
+            </ul>
+          </Card.Body>
+        </Card>
       );
     }
   }
 
 
-  renderLoweringList(start_ts, stop_ts) {
-
-    let cruiseLowerings = this.props.lowerings.filter(lowering => moment.utc(lowering.start_ts).isBetween(start_ts, stop_ts) )
-    return cruiseLowerings
+  buildLoweringList(start_ts, stop_ts) {
+    this.setState({ cruiseLowerings: this.props.lowerings.filter(lowering => moment.utc(lowering.start_ts).isBetween(start_ts, stop_ts)) })
   }
 
   renderCruiseListItems() {
 
     return this.props.cruises.map((cruise, index) => {
-      let cruiseLowerings = this.renderLoweringList(cruise.start_ts, cruise.stop_ts)
 
-      let cruise_files = (cruise.cruise_additional_meta.cruise_files && cruise.cruise_additional_meta.cruise_files.length > 0)? this.renderCruiseFiles(cruise.id, cruise.cruise_additional_meta.cruise_files): null
+      let cruiseName = (cruise.cruise_additional_meta.cruise_name)? <span><strong>Cruise Name:</strong> {cruise.cruise_additional_meta.cruise_name}<br/></span> : null
+      let cruiseDescription = (cruise.cruise_additional_meta.cruise_description)? <span><strong>Description:</strong> {cruise.cruise_additional_meta.cruise_description}<br/></span> : null
+      let cruiseLocation = (cruise.cruise_location)? <span><strong>Location:</strong> {cruise.cruise_location}<br/></span> : null
+      let cruiseDates = <span><strong>Dates:</strong> {moment.utc(cruise.start_ts).format("YYYY/MM/DD")} - {moment.utc(cruise.stop_ts).format("YYYY/MM/DD")}<br/></span>
+      let cruisePI = <span><strong>Chief Scientist:</strong> {cruise.cruise_pi}<br/></span>
+      let cruiseFiles = (cruise.cruise_additional_meta.cruise_files && cruise.cruise_additional_meta.cruise_files.length > 0)? <span><strong>Files:</strong><br/>{this.renderCruiseFiles(cruise.id, cruise.cruise_additional_meta.cruise_files)}</span>: null
+      
+      let lowerings = (this.state.cruiseLowerings)? (
+        <ul>
+          { this.state.cruiseLowerings.map((lowering) => {
+              if(this.state.activeLowering && lowering.id == this.state.activeLowering.id) {
+                return (<li key={`select_${lowering.id}`} ><span className="text-warning">{lowering.lowering_id}</span><br/></li>)
+              }
 
-      let cruiseName = (cruise.cruise_additional_meta.cruise_name)? <p><strong>Cruise Name:</strong> {cruise.cruise_additional_meta.cruise_name}</p> : null
-      let cruiseLocation = (cruise.cruise_location)? <p><strong>Location:</strong> {cruise.cruise_location}</p> : null
-      let cruiseDescription = (cruise.cruise_additional_meta.cruise_description)? <p><strong>Description:</strong> {cruise.cruise_additional_meta.cruise_description}</p> : null
+              return (<li key={`select_${lowering.id}`} onClick={ () => this.handleLoweringSelect(lowering.id)}><span className="text-primary">{lowering.lowering_id}</span></li>)
+            })
+          }
+        </ul>
+      ): null
 
       return (          
-        <Panel key={`panel_${index}`} eventKey={index.toString()}>
-          <Panel.Heading><Panel.Title toggle>{"Cruise: " + cruise.cruise_id}</Panel.Title></Panel.Heading>
-          <Panel.Body collapsible>
-            {cruiseName}
-            {cruiseDescription}
-            {cruiseLocation}
-            <p><strong>Dates:</strong> {moment.utc(cruise.start_ts).format("YYYY/MM/DD")} - {moment.utc(cruise.stop_ts).format("YYYY/MM/DD")}</p>
-            <p><strong>Chief Scientist:</strong> {cruise.cruise_pi}</p>
-            {cruise_files}
-            { (cruiseLowerings.length > 0)? (
-              <div>
-                <p><strong>Lowerings:</strong></p>
-                <ul>
-                  { cruiseLowerings.map(lowering => (
-                      <li key={`select_${lowering.id}`} ><Link to="#" onClick={ () => this.handleLoweringSelect(lowering.id) }>{lowering.lowering_id}</Link><br/></li>
-                    ))
-                  }
-                </ul>
-              </div>
-            ): null
-            }
-          </Panel.Body>
-        </Panel>
+        <Card border="secondary" key={cruise.id} >
+          <Accordion.Toggle as={Card.Header} eventKey={cruise.id}>
+            <h6>Cruise: <span className="text-primary">{cruise.cruise_id}</span></h6>
+          </Accordion.Toggle>
+          <Accordion.Collapse eventKey={cruise.id}>
+            <Card.Body>
+              {cruiseName}
+              {cruiseDescription}
+              {cruiseLocation}
+              {cruiseDates}
+              {cruisePI}
+              {cruiseFiles}
+              {
+                (this.state.cruiseLowerings && this.state.cruiseLowerings.length > 0)? (
+                  <div>
+                    <p><strong>Lowerings:</strong></p>
+                    {lowerings}
+                  </div>
+                ): null
+              }
+            </Card.Body>
+          </Accordion.Collapse>
+        </Card>
       );
     })      
   }
@@ -181,16 +255,17 @@ class CruiseMenu extends Component {
   renderCruiseList() {
 
     if(this.props.cruises && this.props.cruises.length > 0){
+
       return (
-        <PanelGroup id="accordion-controlled-example" accordion defaultActiveKey="0" onSelect={this.handleSelect}>
+        <Accordion id="accordion-controlled-example" activeKey={this.state.activeCruiseKey} onSelect={this.handleCruiseSelect}>
           {this.renderCruiseListItems()}
-        </PanelGroup>
+        </Accordion>
       )
     } else {
       return (
-        <Panel>
-          <Panel.Body>No cruises found!</Panel.Body>
-        </Panel>
+        <Card>
+          <Card.Body>No cruises found!</Card.Body>
+        </Card>
       )
     }
 
@@ -212,17 +287,11 @@ class CruiseMenu extends Component {
           </Col>
         </Row>
         <Row>
-          <Col sm={6} mdOffset= {1} md={5} lgOffset= {2} lg={4}>
+          <Col sm={6} md={{span: 5, offset: 1}} xl={{span: 4, offset: 2}}>
             {this.renderCruiseList()}
           </Col>
-          <Col sm={6} md={5} lg={4}>
-            {this.renderLoweringPanel()}
-          </Col>
-        </Row>
-        <Row>
-          <Col xs={12}>
-            Please select a cruise from the list above.  Once a cruise is selected please select a lowering from the list of lowerings associated with that cruise that appear at the bottom of the cruise information panel.  Selecting a lowering will open the lowering information panel.  At the bottom of the cruise information panel there will be buttons for proceeding to the lowering replay section of Sealog or the lowering event search section of Sealog.
-            If at any time you wish to return to this page please click the "Sealog" text in upper-left part of the window.
+          <Col sm={6} md={5} xl={4}>
+            {this.renderLoweringCard()}
           </Col>
         </Row>
       </div>
@@ -232,6 +301,7 @@ class CruiseMenu extends Component {
 
 function mapStateToProps(state) {
   return {
+    cruise: state.cruise.cruise,
     cruises: state.cruise.cruises,
     lowering: state.lowering.lowering,  
     lowerings: state.lowering.lowerings,  

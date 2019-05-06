@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Row, Button, Col, Panel, Table, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Row, Button, Col, Card, Table, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import CreateUser from './create_user';
 import UpdateUser from './update_user';
 import DisplayUserTokenModal from './display_user_token_modal';
@@ -52,12 +52,10 @@ class Users extends Component {
   }
 
   handleUserSelect(id) {
-    // console.log("Set User:", id)
     this.props.initUser(id);
   }
 
   handleUserCreate() {
-    // console.log("Clear");
     this.props.leaveUpdateUserForm()
   }
 
@@ -81,8 +79,8 @@ class Users extends Component {
   renderAddUserButton() {
     if (!this.props.showform) {
       return (
-        <div className="pull-right">
-          <Button bsStyle="primary" bsSize="small" type="button" onClick={ () => this.handleUserCreate()}>Add User</Button>
+        <div className="float-right">
+          <Button variant="primary" size="sm" onClick={ () => this.handleUserCreate()}>Add User</Button>
         </div>
       );
     }
@@ -91,8 +89,8 @@ class Users extends Component {
   renderImportUsersButton() {
     if(this.props.roles.includes("admin")) {
       return (
-        <div className="pull-right">
-          <Button bsStyle="primary" bsSize="small" type="button" onClick={ () => this.handleUserImport()}>Import From File</Button>
+        <div className="float-right">
+          <Button variant="primary" size="sm" onClick={ () => this.handleUserImport()}>Import From File</Button>
         </div>
       );
     }
@@ -169,7 +167,7 @@ class Users extends Component {
             <tr>
               <th>User Name</th>
               <th>Full Name</th>
-              <th>Actions</th>
+              <th style={{width: "90px"}}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -179,7 +177,7 @@ class Users extends Component {
       )
     } else {
       return (
-        <Panel.Body>No Users Found!</Panel.Body>
+        <Card.Body>No Users Found!</Card.Body>
       )
     }
   }
@@ -192,7 +190,7 @@ class Users extends Component {
             <tr>
               <th>User Name</th>
               <th>Full Name</th>
-              <th>Actions</th>
+              <th style={{width: "90px"}}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -202,7 +200,7 @@ class Users extends Component {
       )
     } else {
       return (
-        <Panel.Body>No System Users Found!</Panel.Body>
+        <Card.Body>No System Users Found!</Card.Body>
       )
     }
   }
@@ -211,20 +209,17 @@ class Users extends Component {
 
     const Label = "Users"
 
-    // const importTooltip = (<Tooltip id="importTooltip">Import Users</Tooltip>)
     const exportTooltip = (<Tooltip id="exportTooltip">Export Users</Tooltip>)
     const deleteAllNonSystemTooltip = (<Tooltip id="deleteAllNonSystemTooltip">Delete all non-system Users</Tooltip>)
 
     const disableBtn = (this.props.users.filter(user => user.system_user === false).length > 0)? false : true
 
-    // <Button bsStyle="default" bsSize="xs" type="button" onClick={ this.handleImportUserList }><OverlayTrigger placement="top" overlay={importTooltip}><FontAwesomeIcon icon='upload' fixedWidth/></OverlayTrigger></Button>
-
     return (
       <div>
         { Label }
-        <div className="pull-right">
-          <OverlayTrigger placement="top" overlay={deleteAllNonSystemTooltip}><Button bsStyle="default" bsSize="xs" type="button" onClick={ () => this.handleNonSystemUsersWipe() } disabled={disableBtn}><FontAwesomeIcon icon='trash' fixedWidth/></Button></OverlayTrigger>
-          <OverlayTrigger placement="top" overlay={exportTooltip}><Button bsStyle="default" bsSize="xs" type="button" onClick={ () => this.exportUsersToJSON() } disabled={disableBtn}><FontAwesomeIcon icon='download' fixedWidth/></Button></OverlayTrigger>
+        <div className="float-right">
+          <OverlayTrigger placement="top" overlay={deleteAllNonSystemTooltip}><FontAwesomeIcon onClick={ () => this.handleNonSystemUsersWipe() } disabled={disableBtn} icon='trash' fixedWidth/></OverlayTrigger>{' '}
+          <OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesomeIcon onClick={ () => this.exportUsersToJSON() } disabled={disableBtn} icon='download' fixedWidth/></OverlayTrigger>
         </div>
       </div>
     );
@@ -234,16 +229,14 @@ class Users extends Component {
 
     const Label = "System Users"
 
-    // const importTooltip = (<Tooltip id="importTooltip">Import Users</Tooltip>)
     const exportTooltip = (<Tooltip id="exportTooltip">Export Users</Tooltip>)
 
-    // <Button bsStyle="default" bsSize="xs" type="button" onClick={ this.handleImportUserList }><OverlayTrigger placement="top" overlay={importTooltip}><FontAwesomeIcon icon='upload' fixedWidth/></OverlayTrigger></Button>
-    let export_icon = (this.props.roles.includes("admin"))? (<OverlayTrigger placement="top" overlay={exportTooltip}><Button bsStyle="default" bsSize="xs" type="button" onClick={ () => this.exportSystemUsersToJSON() }><FontAwesomeIcon icon='download' fixedWidth/></Button></OverlayTrigger>) : null
+    let export_icon = (this.props.roles.includes("admin"))? (<OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesomeIcon onClick={ () => this.exportSystemUsersToJSON() } icon='download' fixedWidth/></OverlayTrigger>) : null
 
     return (
       <div>
         { Label }
-        <div className="pull-right">
+        <div className="float-right">
           {export_icon}
         </div>
       </div>
@@ -310,22 +303,24 @@ class Users extends Component {
           <ImportUsersModal handleExit={this.handleUserImportClose}/>
           <NonSystemUsersWipeModal />
           <Row>
-            <Col sm={6} mdOffset= {1} md={5} lgOffset= {2} lg={4}>
-              <Panel>
-                <Panel.Heading>{this.renderSystemUsersHeader()}</Panel.Heading>
+            <Col sm={12} md={7} lg={{span:6, offset:1}} xl={{span:5, offset:2}}>
+              <Card border="secondary" style={{marginBottom: "8px"}} >
+                <Card.Header>{this.renderSystemUsersHeader()}</Card.Header>
                 {this.renderSystemUserTable()}
                 {this.renderPagination()}
-              </Panel>
-              <Panel>
-                <Panel.Heading>
+              </Card>
+              <Card border="secondary" style={{marginBottom: "8px"}} >
+                <Card.Header>
                   {this.renderUsersHeader()}
-                </Panel.Heading>
+                </Card.Header>
                 {this.renderUserTable()}
-              </Panel>
-              {this.renderAddUserButton()}
-              {this.renderImportUsersButton()}
+              </Card>
+              <div style={{marginTop: "8px", marginRight: "-8px"}}>
+                {this.renderAddUserButton()}
+                {this.renderImportUsersButton()}
+              </div>
             </Col>
-            <Col sm={6} md={5} lg={4}>
+            <Col sm={12} md={5} lg={4} xl={3}>
               { userForm }
             </Col>
           </Row>

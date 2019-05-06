@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Link } from 'react-router-dom';
-import { LinkContainer } from 'react-router-bootstrap';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import Cookies from 'universal-cookie';
-import { Button, Row, Col, Panel, ListGroup, ListGroupItem, ButtonToolbar, DropdownButton, Pagination, MenuItem, Tooltip, OverlayTrigger, Well } from 'react-bootstrap';
+import { Button, Row, Col, Card, ListGroup, ListGroupItem, ButtonToolbar, Dropdown, Pagination, MenuItem, Tooltip, OverlayTrigger } from 'react-bootstrap';
 import axios from 'axios';
 import EventFilterForm from './event_filter_form';
 import EventCommentModal from './event_comment_modal';
@@ -112,9 +111,6 @@ class EventManagement extends Component {
         this.setState({fetching: false})
         this.setState({events: response.data})
       }).catch((error)=>{
-        console.log(error)
-
-        console.log("?? 1")
         if(error.response.data.statusCode == 404){
           this.setState({fetching: false})
           this.setState({events: []})
@@ -271,28 +267,31 @@ class EventManagement extends Component {
   renderEventListHeader() {
 
     const Label = "Filtered Events"
-    const exportTooltip = (<Tooltip id="exportTooltip">Export these events</Tooltip>)
+    const exportTooltip = (<Tooltip id="deleteTooltip">Export these events</Tooltip>)
     const toggleASNAPTooltip = (<Tooltip id="toggleASNAPTooltip">Show/Hide ASNAP Events</Tooltip>)
 
     const ASNAPToggleIcon = (this.state.hideASNAP)? "Show ASNAP" : "Hide ASNAP"
-    const ASNAPToggle = (<Button disabled={this.state.fetching} bsSize="xs" onClick={() => this.toggleASNAP()}>{ASNAPToggleIcon}</Button>)
+    const ASNAPToggle = (<span disabled={this.props.event.fetching} style={{ marginRight: "10px" }} onClick={() => this.toggleASNAP()}>{ASNAPToggleIcon}</span>)
 
     return (
       <div>
         { Label }
-        <ButtonToolbar className="pull-right" >
+        <span className="float-right">
           {ASNAPToggle}
-          <DropdownButton disabled={this.state.fetching} bsSize="xs" key={1} title={<OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesomeIcon icon='download' fixedWidth/></OverlayTrigger>} id="export-dropdown" pullRight>
-            <MenuItem key="toJSONHeader" eventKey={1.1} header>JSON format</MenuItem>
-            <MenuItem key="toJSONAll" eventKey={1.2} onClick={ () => this.exportEventsWithAuxDataToJSON()}>Events w/aux data</MenuItem>
-            <MenuItem key="toJSONEvents" eventKey={1.3} onClick={ () => this.exportEventsToJSON()}>Events Only</MenuItem>
-            <MenuItem key="toJSONAuxData" eventKey={1.4} onClick={ () => this.exportAuxDataToJSON()}>Aux Data Only</MenuItem>
-            <MenuItem divider />
-            <MenuItem key="toCSVHeader" eventKey={1.5} header>CSV format</MenuItem>
-            <MenuItem key="toCSVAll" eventKey={1.6} onClick={ () => this.exportEventsWithAuxDataToCSV()}>Events w/aux data</MenuItem>
-            <MenuItem key="toCSVEvents" eventKey={1.6} onClick={ () => this.exportEventsToCSV()}>Events Only</MenuItem>
-          </DropdownButton>
-        </ButtonToolbar>
+          <Dropdown as={'span'} disabled={this.props.event.fetching} id="dropdown-download">
+            <Dropdown.Toggle as={'span'}><OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesomeIcon icon='download' fixedWidth/></OverlayTrigger></Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Header className="text-warning" key="toJSONHeader">JSON format</Dropdown.Header>
+              <Dropdown.Item key="toJSONAll" onClick={ () => this.exportEventsWithAuxDataToJSON()}>Events w/aux data</Dropdown.Item>
+              <Dropdown.Item key="toJSONEvents" onClick={ () => this.exportEventsToJSON()}>Events Only</Dropdown.Item>
+              <Dropdown.Item key="toJSONAuxData" onClick={ () => this.exportAuxDataToJSON()}>Aux Data Only</Dropdown.Item>
+              <Dropdown.Divider />
+              <Dropdown.Header className="text-warning" key="toCSVHeader">CSV format</Dropdown.Header>
+              <Dropdown.Item key="toCSVAll" onClick={ () => this.exportEventsWithAuxDataToCSV()}>Events w/aux data</Dropdown.Item>
+              <Dropdown.Item key="toCSVEvents" onClick={ () => this.exportEventsToCSV()}>Events Only</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        </span>
       </div>
     );
   }
@@ -320,13 +319,13 @@ class EventManagement extends Component {
           } 
 
           let eventOptions = (eventOptionsArray.length > 0)? '--> ' + eventOptionsArray.join(', '): ''
-          let commentIcon = (comment_exists)? <FontAwesomeIcon onClick={() => this.handleEventCommentModal(event)} icon='comment' fixedWidth transform="grow-4"/> : <span onClick={() => this.handleEventCommentModal(event)} className="fa-layers fa-fw"><FontAwesomeIcon icon='comment' fixedWidth transform="grow-4"/><FontAwesomeIcon icon='plus' fixedWidth inverse transform="shrink-4"/></span>
+          let commentIcon = (comment_exists)? <FontAwesomeIcon onClick={() => this.handleEventCommentModal(event)} icon='comment' fixedWidth transform="grow-4"/> : <span onClick={() => this.handleEventCommentModal(event)} className="fa-layers fa-fw"><FontAwesomeIcon icon='comment' fixedWidth transform="grow-4"/><FontAwesomeIcon className={ "text-secondary" } icon='plus' fixedWidth inverse transform="shrink-4"/></span>
           let commentTooltip = (comment_exists)? (<OverlayTrigger placement="top" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Edit/View Comment</Tooltip>}>{commentIcon}</OverlayTrigger>) : (<OverlayTrigger placement="top" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Add Comment</Tooltip>}>{commentIcon}</OverlayTrigger>)
 
           let deleteIcon = <FontAwesomeIcon className={"text-danger"} onClick={() => this.handleEventDeleteModal(event)} icon='trash' fixedWidth/>
           let deleteTooltip = (this.props.roles && this.props.roles.includes("admin"))? (<OverlayTrigger placement="top" overlay={<Tooltip id={`deleteTooltip_${event.id}`}>Delete this event</Tooltip>}>{deleteIcon}</OverlayTrigger>): null
 
-          return (<ListGroupItem key={event.id}><Row><Col xs={11} onClick={() => this.handleEventShowDetailsModal(event)}>{event.ts} {`<${event.event_author}>`}: {event.event_value} {eventOptions}</Col><Col>{deleteTooltip} {commentTooltip}</Col></Row></ListGroupItem>);
+          return (<ListGroupItem className="event-list-item" key={event.id}><span onClick={() => this.handleEventShowDetailsModal(event)}>{event.ts} {`<${event.event_author}>`}: {event.event_value} {eventOptions}</span><span className="float-right">{deleteTooltip} {commentTooltip}</span></ListGroupItem>);
         }
       })
 
@@ -336,24 +335,24 @@ class EventManagement extends Component {
     return (<ListGroupItem key="emptyHistory" >No events found</ListGroupItem>)
   }
 
-  renderEventPanel() {
+  renderEventCard() {
 
     if (!this.state.events) {
       return (
-        <Panel>
-          <Panel.Heading>{ this.renderEventListHeader() }</Panel.Heading>
-          <Panel.Body>Loading...</Panel.Body>
-        </Panel>
+        <Card border="secondary">
+          <Card.Header>{ this.renderEventListHeader() }</Card.Header>
+          <Card.Body>Loading...</Card.Body>
+        </Card>
       )
     }
 
     return (
-      <Panel>
-        <Panel.Heading>{ this.renderEventListHeader() }</Panel.Heading>
+      <Card border="secondary">
+        <Card.Header>{ this.renderEventListHeader() }</Card.Header>
         <ListGroup>
           {this.renderEvents()}
         </ListGroup>
-      </Panel>
+      </Card>
     );
   }
 
@@ -388,7 +387,7 @@ class EventManagement extends Component {
       }
 
       return (
-        <Pagination>
+        <Pagination style={{marginTop: "8px"}}>
           <Pagination.First onClick={() => this.setState({activePage: 1})} />
           <Pagination.Prev onClick={() => { if(this.state.activePage > 1) { this.setState(prevState => ({ activePage: prevState.activePage-1}))}}} />
           {rangeWithDots}
@@ -400,20 +399,17 @@ class EventManagement extends Component {
   }
 
   render(){
-
-    // console.log(this.props.event.eventFilter)
-
     return (
       <div>
         <EventCommentModal />
         <DeleteEventModal />
         <EventShowDetailsModal />
         <Row>
-          <Col sm={7} md={8} lg={8}>
-            {this.renderEventPanel()}
+          <Col sm={12} md={8} lg={8}>
+            {this.renderEventCard()}
             {this.renderPagination()}
           </Col>
-          <Col sm={5} md={4} lg={4}>
+          <Col sm={12} md={4} lg={4}>
             <EventFilterForm disabled={this.state.fetching} hideASNAP={this.state.hideASNAP} handlePostSubmit={ this.updateEventFilter } lowering_id={null}/>
           </Col>
         </Row>

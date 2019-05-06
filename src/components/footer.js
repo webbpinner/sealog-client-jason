@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
-import { Row, Col } from 'react-bootstrap';
 import { Client } from 'nes/client';
 import { WS_ROOT_URL } from '../client_config';
 
@@ -97,10 +96,10 @@ class Footer extends Component {
 
     return (
       <div>
-        <hr/>
+        <hr className="border-secondary" />
         <div>
           {asnapStatus}
-          <span className="pull-right">
+          <span className="float-right">
             <a href={`/github`} target="_blank">Sealog</a> is licensed under the <a href={`/license`} target="_blank">GPLv3</a> public license
           </span>
         </div>

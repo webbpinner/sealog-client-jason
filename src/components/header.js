@@ -1,10 +1,8 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Navbar, Nav, NavDropdown, NavItem, MenuItem, Image } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
-import { ROOT_PATH } from '../client_config';
+import { Navbar, Nav, NavDropdown } from 'react-bootstrap';
+import { ROOT_PATH, RECAPTCHA_SITE_KEY } from '../client_config';
 import * as actions from '../actions';
 
 class Header extends Component {
@@ -32,9 +30,7 @@ class Header extends Component {
   renderUserOptions() {
     if(this.props.roles.includes('admin') || this.props.roles.includes('cruise_manager')) {
       return (
-        <LinkContainer to={ `/users` }>
-          <NavItem>Users</NavItem>
-        </LinkContainer>
+        <NavDropdown.Item href="/users">Users</NavDropdown.Item>
       );
     }
   }
@@ -42,9 +38,7 @@ class Header extends Component {
   renderEventLoggingOptions() {
     if(this.props.authenticated) {
       return (
-        <LinkContainer to={ `/cruise_menu` }>
-          <NavItem>Review Cruises/Lowerings</NavItem>
-        </LinkContainer>
+        <Nav.Link href="/cruise_menu">Review Cruises/Lowerings</Nav.Link>
       );
     }
   }
@@ -52,9 +46,7 @@ class Header extends Component {
   renderEventManagementOptions() {
     if(this.props.roles.includes('admin')) {
       return (
-        <LinkContainer to={ `/event_management` }>
-          <NavItem>Event Management</NavItem>
-        </LinkContainer>
+        <NavDropdown.Item href="/event_management">Event Management</NavDropdown.Item>
       );
     }
   }
@@ -62,9 +54,7 @@ class Header extends Component {
   renderEventTemplateOptions() {
     if(this.props.roles.includes('admin') || this.props.roles.includes('cruise_manager') || this.props.roles.includes('event_manager')) {
       return (
-        <LinkContainer to={ `/event_templates` }>
-          <NavItem>Event Templates</NavItem>
-        </LinkContainer>
+        <NavDropdown.Item href="/event_templates">Event Templates</NavDropdown.Item>
       );
     }
   }
@@ -72,9 +62,7 @@ class Header extends Component {
   renderLoweringOptions() {
     if(this.props.roles.includes('admin') || this.props.roles.includes('cruise_manager')) {
       return (
-        <LinkContainer to={ `/lowerings` }>
-          <NavItem>Lowerings</NavItem>
-        </LinkContainer>
+        <NavDropdown.Item href="/lowerings">Lowerings</NavDropdown.Item>
       );
     }
   }
@@ -82,9 +70,7 @@ class Header extends Component {
   renderCruiseOptions() {
     if(this.props.roles.includes('admin') || this.props.roles.includes('cruise_manager')) {
       return (
-        <LinkContainer to={ `/cruises` }>
-          <NavItem>Cruises</NavItem>
-        </LinkContainer>
+        <NavDropdown.Item href="/cruises">Cruises</NavDropdown.Item>
       );
     }
   }
@@ -92,9 +78,7 @@ class Header extends Component {
   renderTaskOptions() {
     if(this.props.roles.includes('admin')) {
       return (
-        <LinkContainer to={ `/tasks` }>
-          <MenuItem>Tasks</MenuItem>
-        </LinkContainer>
+        <NavDropdown.Item href="/tasks">Tasks</NavDropdown.Item>
       );
     }
   }
@@ -102,7 +86,7 @@ class Header extends Component {
   renderToggleASNAP() {
     if(this.props.roles.includes('admin') || this.props.roles.includes('cruise_manager') || this.props.roles.includes('event_manager') || this.props.roles.includes('event_logger')) {
       return (
-        <MenuItem onClick={ () => this.handleASNAPToggle() }>Toggle ASNAP</MenuItem>
+        <NavDropdown.Item onClick={ () => this.handleASNAPToggle() }>Toggle ASNAP</NavDropdown.Item>
       );
     }
   }
@@ -110,7 +94,7 @@ class Header extends Component {
   renderSystemManagerDropdown() {
     if(this.props.roles && (this.props.roles.includes('admin') || this.props.roles.includes('cruise_manager') || this.props.roles.includes('event_manager'))) {
       return (
-        <NavDropdown eventKey={3} title={'System Management'} id="basic-nav-dropdown">
+        <NavDropdown title={'System Management'} id="basic-nav-dropdown-system">
           {this.renderCruiseOptions()}
           {this.renderEventManagementOptions()}
           {this.renderEventTemplateOptions()}
@@ -126,12 +110,10 @@ class Header extends Component {
   renderUserDropdown() {
     if(this.props.authenticated){
       return (
-      <NavDropdown eventKey={3} title={<span>{this.props.fullname} <FontAwesomeIcon icon="user" /></span>} id="basic-nav-dropdown">
-        <LinkContainer to={ `/profile` }>
-          <MenuItem key="profile" eventKey={3.1} >User Profile</MenuItem>
-        </LinkContainer>
-        {(this.props.fullname != 'Guest')? (<MenuItem key="switch2Guest" eventKey={3.1} onClick={ () => this.handleSwitchToGuest() } >Switch to Guest</MenuItem>) : null }
-        <MenuItem key="logout" eventKey={3.3} onClick={ () => this.handleLogout() } >Log Out</MenuItem>
+      <NavDropdown title={<span>{this.props.fullname} <FontAwesomeIcon icon="user" /></span>} id="basic-nav-dropdown-user">
+          <NavDropdown.Item href="/profile" key="profile" >User Profile</NavDropdown.Item>
+          {(this.props.fullname != 'Guest' && RECAPTCHA_SITE_KEY == "")? (<NavDropdown.Item key="switch2Guest" onClick={ () => this.handleSwitchToGuest() } >Switch to Guest</NavDropdown.Item>) : null }
+        <NavDropdown.Item key="logout" onClick={ () => this.handleLogout() } >Log Out</NavDropdown.Item>
       </NavDropdown>
       );
     }
@@ -159,15 +141,11 @@ class Header extends Component {
 
   render () {
     return (
-      <Navbar fluid collapseOnSelect>
-        <Navbar.Header>
-          <Navbar.Brand>
-            <Link to={ `/` }>Sealog - JASON</Link>
-          </Navbar.Brand>
-          <Navbar.Toggle />
-        </Navbar.Header>
-        <Navbar.Collapse>
-          <Nav pullRight>
+      <Navbar collapseOnSelect expand="md" variant="dark" bg="dark">
+        <Navbar.Brand href="/">Sealog - JASON</Navbar.Brand>
+        <Navbar.Toggle aria-controls="responsive-navbar-nav"/>
+        <Navbar.Collapse id="responsive-navbar-nav"className="justify-content-end">
+          <Nav>
             {this.renderEventLoggingOptions()}
             {this.renderSystemManagerDropdown()}
             {this.renderUserDropdown()}

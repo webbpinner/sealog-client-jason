@@ -27,7 +27,7 @@ class DeleteExportModal extends Component {
     const { show, handleHide } = this.props
 
     return (
-      <Modal show={show} onHide={handleHide}>
+      <Modal size="lg" show={show} onHide={handleHide}>
         <Modal.Header closeButton>
           <Modal.Title>Confirm Deletion</Modal.Title>
         </Modal.Header>
@@ -38,7 +38,7 @@ class DeleteExportModal extends Component {
 
         <Modal.Footer>
           <Button onClick={handleHide}>Cancel</Button>
-          <Button bsStyle="danger" onClick={this.handleConfirm}>Yup!</Button>
+          <Button variant="danger" onClick={this.handleConfirm}>Yup!</Button>
         </Modal.Footer>
       </Modal>
     );

@@ -3,9 +3,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { connect } from 'react-redux';
 import { reduxForm, Field } from 'redux-form';
 import { Link } from 'react-router-dom';
-import { Grid, Row, Col, FormGroup, Panel, Button, Alert } from 'react-bootstrap';
-// import ReCAPTCHA from "react-google-recaptcha";
-// import { RECAPTCHA_SITE_KEY } from '../../client_config';
+import { Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
+import ReCAPTCHA from "react-google-recaptcha";
+import { RECAPTCHA_SITE_KEY } from '../../client_config';
 import * as actions from '../../actions';
 
 class Register extends Component {
@@ -32,38 +32,36 @@ class Register extends Component {
     this.setState({reCaptcha: token})
   }
 
-
-  renderField({ input, label, type, required, meta: { touched, error, warning } }) {
-
-    let requiredField = (required)? (<span className='text-danger'> *</span>) : ''    
+  renderTextField({ input, label, placeholder, type="text", required, meta: { touched, error } }) {
+    let requiredField = (required)? <span className='text-danger'> *</span> : ''
+    let placeholder_txt = (placeholder)? placeholder: label
 
     return (
-      <FormGroup>
-        <label>{label}{requiredField}</label>
-        <div>
-          <input className="form-control" {...input} placeholder={label} type={type}/>
-          {touched && ((error && <div className='text-danger'>{error}</div>) || (warning && <div className='text-danger'>{warning}</div>))}
-        </div>
-      </FormGroup>
+      <Form.Group as={Col} lg="12">
+        <Form.Label>{label}{requiredField}</Form.Label>
+        <Form.Control type={type} {...input} placeholder={placeholder_txt} isInvalid={touched && error}/>
+        <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
+      </Form.Group>
     )
   }
+
 
   renderSuccess() {
     if (this.props.message) {
       const panelHeader = (<h4>New User Registration</h4>);
 
       return (
-        <Panel className="form-signin" >
-          <Panel.Body>
+        <Card className="form-signin" >
+          <Card.Body>
             {panelHeader}
             <div className="alert alert-success">
               <strong>Success!</strong> {this.props.message}
             </div>
-            <div className="text-right">
+            <div className="float-right">
               <Link to={ `/login` }>Proceed to Login {<FontAwesomeIcon icon="arrow-right"/>}</Link>
             </div>
-          </Panel.Body>
-        </Panel>
+          </Card.Body>
+        </Card>
       )
     }
   }
@@ -82,77 +80,78 @@ class Register extends Component {
 
     if (!this.props.message) {
 
-      const panelHeader = (<h4 className="form-signin-heading">New User Registration</h4>);
+      const panelHeader = (<h5 className="form-signin-heading">New User Registration</h5>);
       const { handleSubmit, pristine, reset, submitting, valid } = this.props;
       //console.log(this.props);
+      const recaptcha = ( RECAPTCHA_SITE_KEY != "")? (
+        <span>
+          <ReCAPTCHA
+            sitekey={RECAPTCHA_SITE_KEY}
+            theme="dark"
+            size="normal"
+            onChange={this.onCaptchaChange.bind(this)}
+          />
+          <br/>
+        </span>
+      ): null
 
       return (
-        <Panel className="form-signin" >
-          <Panel.Body>
+        <Card className="form-signin" >
+          <Card.Body>
             {panelHeader}
-            <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
-              <FormGroup>
+            <Form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
+              <Form.Group>
                 <Field
                   name="username"
-                  component={this.renderField}
-                  type="text"
+                  component={this.renderTextField}
                   label="Username"
                   required={true}
                 />
-              </FormGroup>
-              <FormGroup>
+              </Form.Group>
+              <Form.Group>
                 <Field
                   name="fullname"
-                  type="text"
-                  component={this.renderField}
+                  component={this.renderTextField}
                   label="Full Name"
                   required={true}
                 />
-              </FormGroup>
-              <FormGroup>
+              </Form.Group>
+              <Form.Group>
                 <Field
                   name="email"
-                  component={this.renderField}
-                  type="text"
+                  component={this.renderTextField}
                   label="Email"
                   required={true}
                 />
-              </FormGroup>
-              <FormGroup>
+              </Form.Group>
+              <Form.Group>
                 <Field
                   name="password"
-                  component={this.renderField}
+                  component={this.renderTextField}
                   type="password"
                   label="Password"
                   required={true}
                 />
-              </FormGroup>
-              <FormGroup>
+              </Form.Group>
+              <Form.Group>
                 <Field
                   name="confirmPassword"
-                  component={this.renderField}
+                  component={this.renderTextField}
                   type="password"
                   label="Confirm Password"
                   required={true}
                 />
-              </FormGroup>
-              <ReCAPTCHA
-                ref={e => recaptchaInstance = e}
-                sitekey={RECAPTCHA_SITE_KEY}
-                theme="dark"
-                size="normal"
-                onChange={this.onCaptchaChange.bind(this)}
-              />
-              <br/>
+              </Form.Group>
+              {recaptcha}
               {this.renderAlert()}
-              <Button bsStyle="primary" block type="submit" disabled={submitting || !valid}>Register</Button>
-            </form>
+              <Button variant="primary" block type="submit" disabled={submitting || !valid}>Register</Button>
+            </Form>
             <br/>
             <div>
               <Link to={ `/login` }>{<FontAwesomeIcon icon="arrow-left"/>} Back to Login</Link>
             </div>
-          </Panel.Body>
-        </Panel>
+          </Card.Body>
+        </Card>
       )
     }
   }
@@ -160,14 +159,12 @@ class Register extends Component {
   render() {
 
     return(
-      <Grid>
-        <Row>
-          <Col>
-            {this.renderSuccess()}
-            {this.renderForm()}
-          </Col>
-        </Row>
-      </Grid>
+      <Row>
+        <Col xs={12}>
+          {this.renderSuccess()}
+          {this.renderForm()}
+        </Col>
+      </Row>
     )
   }
 }

@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
-import axios from 'axios';
-import PropTypes from 'prop-types';
-import { Button, Checkbox, ControlLabel, FormGroup, FormControl, FormGroupItem, Modal } from 'react-bootstrap';
 import { connectModal } from 'redux-modal';
-import Datetime from 'react-datetime';
-import moment from 'moment';
-import momentDurationFormatSetup from 'moment-duration-format';
 import { reduxForm, Field, initialize, formValueSelector } from 'redux-form';
+import PropTypes from 'prop-types';
+import axios from 'axios';
 import Cookies from 'universal-cookie';
+import moment from 'moment';
+import Datetime from 'react-datetime';
+import { Button, Form, Modal } from 'react-bootstrap';
 import { API_ROOT_URL } from '../client_config';
 
 const dateFormat = "YYYY-MM-DD"
@@ -16,8 +15,7 @@ const timeFormat = "HH:mm:ss.SSS"
 const cookies = new Cookies();
 
 const required =  value => !value ? 'Required' : undefined
-const requiredArray =  value => !value || value.length === 0 ? 'At least one required' : undefined
-
+const requiredArray =  value => !value || value.length === 0 ? 'Must select at least one option' : undefined
 
 class EventTemplateOptionsModal extends Component {
 
@@ -26,26 +24,24 @@ class EventTemplateOptionsModal extends Component {
 
     this.state = {
       ts: "",
-      event_id: this.props.event.event_id
+      event_id: (this.props.event)?this.props.event.event_id:null
     }
 
     this.renderDatePicker = this.renderDatePicker.bind(this);
     this.handleFormHide = this.handleFormHide.bind(this);
-
-//    this.handleConfirm = this.handleConfirm.bind(this);
   }
 
   static propTypes = {
     eventTemplate: PropTypes.object.isRequired,
-    event: PropTypes.object.isRequired,
-    handleHide: PropTypes.func.isRequired,
-    handleUpdateEvent: PropTypes.func.isRequired,
-    handleDeleteEvent: PropTypes.func.isRequired
+    event: PropTypes.object,
+    handleHide: PropTypes.func,
+    handleUpdateEvent: PropTypes.func,
+    handleDeleteEvent: PropTypes.func
   };
 
-  componentWillMount() {
+  componentDidMount() {
     this.getServerTime();
-    // console.log("Start Timer")
+    this.populateDefaultValues()
   }
 
   componentWillUnmount() {
@@ -69,12 +65,10 @@ class EventTemplateOptionsModal extends Component {
 
   populateDefaultValues() {
     let eventDefaultValues = {};
-    let hack = this.props.eventTemplate.event_options.map( (option, index) => {
+    this.props.eventTemplate.event_options.forEach((option, index) => {
       if(option.event_option_default_value) {
         eventDefaultValues[`option_${index}`] = option.event_option_default_value;
       }
-      return;
-
     });
 
     this.props.initialize(eventDefaultValues);
@@ -94,13 +88,15 @@ class EventTemplateOptionsModal extends Component {
     let optionIndex = Object.keys(temp).sort().map( (value, index) => { optionValue.push(temp[value]); return parseInt(value.split('_')[1])});
 
     //Remove empty fields
-    optionValue.map( (value, index) => { if(value == "") { console.log("Index", index, "empty"); optionIndex.splice(index, 1); optionValue.splice(index, 1); } });
+    optionValue.forEach((value, index) => {
+      if(value == "") {
+        optionIndex.splice(index, 1);
+        optionValue.splice(index, 1);
+      }
+    });
 
     //Build event_options array
     let event_options = optionIndex.map( (value, index) => {
-      // console.log(typeof(optionValue[index]));
-      // console.log(optionValue[index])
-      // console.log(optionValue[index].constructor === Array)
 
       if(optionValue[index].constructor === Array) {
         optionValue[index] = optionValue[index].join(';')
@@ -113,55 +109,80 @@ class EventTemplateOptionsModal extends Component {
       )
     });
 
-    // console.log("formProps.event_ts:", formProps.event_ts)
     let event_ts = (formProps.event_ts)? formProps.event_ts.toISOString() : '';
-    // console.log("event_ts:", event_ts)
 
     //Submit event
-    this.props.handleUpdateEvent(this.state.event_id, this.props.eventTemplate.event_value, formProps.event_free_text, event_options, event_ts);
+    if(this.state.event_id) {
+      this.props.handleUpdateEvent(this.state.event_id, this.props.eventTemplate.event_value, formProps.event_free_text, event_options, event_ts);
+    }
     this.props.handleDestroy();
   }
 
   handleFormHide() {
-    this.props.handleDeleteEvent(this.state.event_id)
+    if(this.state.event_id) {
+      this.props.handleDeleteEvent(this.state.event_id)
+    }
     this.props.handleDestroy()
   }
 
-  renderTextField({ input, label, type, required, meta: { touched, error, warning } }) {
+  renderTextField({ input, label, placeholder, required, meta: { touched, error } }) {
     let requiredField = (required)? <span className='text-danger'> *</span> : ''
+    // let placeholder_txt = (placeholder)? placeholder: label
+
     return (
-      <FormGroup>
-        <label>{label}{requiredField}</label>
-        <FormControl {...input} placeholder={label} type={type}/>
-        {touched && (error && <div className='text-danger'>{error}</div>) || (warning && <div className='text-danger'>{warning}</div>)}
-      </FormGroup>
+      <Form.Group>
+        <Form.Label>{label}{requiredField}</Form.Label>
+        <Form.Control type="text" {...input} placeholder={placeholder} isInvalid={touched && error}/>
+        <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
+      </Form.Group>
     )
   }
 
-  renderSelectField({children, input, label, type, required, meta: { touched, error, warning } }) {
+  renderTextArea({ input, label, placeholder, required, rows = 4, meta: { touched, error, warning } }) {
     let requiredField = (required)? <span className='text-danger'> *</span> : ''
+    let placeholder_txt = (placeholder)? placeholder: label
+
     return (
-      <FormGroup controlId="formControlsSelect">
-        <ControlLabel>{label}{requiredField}</ControlLabel>
-        <FormControl {...input} componentClass={type} placeholder={label}>
-          {children}
-        </FormControl>
-        {touched && (error && <div className='text-danger'>{error}</div>) || (warning && <div className='text-danger'>{warning}</div>)}
-      </FormGroup>
+      <Form.Group>
+        <Form.Label>{label}{requiredField}</Form.Label>
+        <Form.Control as="textarea" {...input} placeholder={placeholder_txt} rows={rows}/>
+        <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
+      </Form.Group>
     )
   }
 
-  renderCheckboxGroup({ label, name, options, input, required, meta: { dirty, error, warning } }) {
+  renderSelectField({ input, label, placeholder, required, options, meta: { touched, error } }) {
+
+    let requiredField = (required)? <span className='text-danger'> *</span> : ''
+    let placeholder_txt = (placeholder)? placeholder: label
+    let defaultOption = ( <option key={`${input.name}.empty`} value=""></option> );
+    let optionList = options.map((option, index) => {
+      return (
+        <option key={`${input.name}.${index}`} value={`${option}`}>{ `${option}`}</option>
+      );
+    });
+
+    return (
+      <Form.Group>
+        <Form.Label>{label}{requiredField}</Form.Label>
+        <Form.Control as="select" {...input} placeholder={placeholder_txt} isInvalid={touched && error}>
+          { defaultOption }
+          { optionList }
+        </Form.Control>
+        <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
+      </Form.Group>
+    )
+  }
+
+  renderCheckboxGroup({ label, name, options, input, required, meta: { dirty, error } }) {
 
     let requiredField = (required)? (<span className='text-danger'> *</span>) : ''
     let checkboxList = options.map((option, index) => {
 
-      //let tooltip = (option.description)? (<Tooltip id={`${option.value}_Tooltip`}>{option.description}</Tooltip>) : null
-      //let overlay = (tooltip != null)? (<OverlayTrigger placement="right" overlay={tooltip}><span>{option.label}</span></OverlayTrigger>) : option.label
-
       return (
-          <Checkbox
+          <Form.Check
             inline
+            label={option.value}
             name={`${option.label}[${index}]`}
             key={`${label}.${index}`}
             value={option.value}
@@ -176,44 +197,55 @@ class EventTemplateOptionsModal extends Component {
               return input.onChange(newValue);
             }}
           > 
-            {option.value}
-          </Checkbox>
+          </Form.Check>
       );
     });
 
     return (
-      <FormGroup>
-        <label>{label}{requiredField}</label><br/>
+      <Form.Group>
+        <Form.Label>{label}{requiredField}</Form.Label><br/>
         {checkboxList}
-        {dirty && ((error && <div className='text-danger'>{error}</div>) || (warning && <div className='text-danger'>{warning}</div>))}
-      </FormGroup>
+        {dirty && (error && <div className="text-danger" style={{width: "100%", marginTop: "0.25rem", fontSize: "80%"}}>{error}</div>)}
+      </Form.Group>
     );
   }
 
-  renderCheckbox({ input, label, meta: { dirty, error, warning } }) {    
+  renderCheckbox({ input, label, meta: { dirty, error } }) {    
     return (
-      <FormGroup>
-        <Checkbox
+      <Form.Group>
+        <Form.Check
+          {...input}
+          label={label}
           checked={input.value ? true : false}
           onChange={(e) => input.onChange(e.target.checked)}
+          isInvalid={dirty && error}
         >
-          {label}
-        </Checkbox>
-        {(error && <div className='text-danger'>{error}</div>) || (warning && <div className='text-danger'>{warning}</div>)}
-      </FormGroup>
+        </Form.Check>
+        <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
+      </Form.Group>
     );
   }
 
-  renderDatePicker({ input, defaultValue, label, type, disabled, rows = 4, meta: { touched, error, warning } }) {
+  renderDatePicker({ input, defaultValue, required, label, type, disabled, meta: { touched, error } }) {
+
+    let requiredField = (required)? <span className='text-danger'> *</span> : ''
+
     return (
-      <FormGroup>
-        <label>{label}</label>
-        <Datetime {...input} utc={true} value={input.value ? moment.utc(input.value).format(dateFormat + " " + timeFormat) : moment.utc(defaultValue).format(dateFormat + " " + timeFormat)} dateFormat={dateFormat} timeFormat={timeFormat} selected={input.value ? moment.utc(input.value, dateFormat + " " + timeFormat) : null } inputProps={ { disabled: disabled}}/>
-        {touched && ((error && <div className='text-danger'>{error}</div>) || (warning && <div className='text-danger'>{warning}</div>))}
-      </FormGroup>
+      <Form.Group>
+        <Form.Label>{label}{requiredField}</Form.Label>
+        <Datetime
+          {...input}
+          utc={true}
+          value={(input.value && moment.utc(input.value).isValid()) ? moment.utc(input.value).format(dateFormat + " " + timeFormat) : moment.utc(defaultValue).format(dateFormat + " " + timeFormat)}
+          dateFormat={dateFormat}
+          timeFormat={timeFormat}
+          selected={(input.value)? moment.utc(input.value, dateFormat + " " + timeFormat) : null }
+          inputProps={{ disabled: disabled }}
+        />
+        {touched && (error && <div style={{width: "100%", marginTop: "0.25rem", fontSize: "80%"}} className='text-danger'>{error}</div>)}
+      </Form.Group>
     )
   }
-
 
   renderEventOptions() {
 
@@ -224,27 +256,17 @@ class EventTemplateOptionsModal extends Component {
 
       if (option.event_option_type == 'dropdown') {
 
-        let defaultOption = ( <option key={`${option.event_option_name}.empty_value`}></option> );
-
-        let optionList = option.event_option_values.map((option_value, index) => {
-          return (
-            <option key={`${option.event_option_name}.${index}`} value={`${option_value}`}>{ `${option_value}`}</option>
-          );
-        });
-
         return (
           <div key={`option_${index}`}>
             <Field
               name={`option_${index}`}
-              type="select"
               component={this.renderSelectField}
               label={option.event_option_name}
               required={ option.event_option_required }
               validate={ option.event_option_required ? required : undefined }
-            >
-              { defaultOption }
-              { optionList }
-            </Field>
+              options={option.event_option_values}
+              defaultValue={option.event_option_default_value}
+            />
           </div>
         )
       } else if (option.event_option_type == 'checkboxes') {
@@ -254,8 +276,6 @@ class EventTemplateOptionsModal extends Component {
         let optionList = option.event_option_values.map((option_value, index) => {
           return { value: option_value, label: option_value }
         });
-
-        // console.log(optionList);
 
         return (
           <div key={`option_${index}`}>
@@ -274,7 +294,6 @@ class EventTemplateOptionsModal extends Component {
           <div key={`option_${index}`}>
             <Field
               name={`option_${index}`}
-              type="text"
               component={this.renderTextField}
               label={option.event_option_name}
               required={ option.event_option_required }
@@ -290,6 +309,15 @@ class EventTemplateOptionsModal extends Component {
 
     const { show, handleSubmit, eventTemplate, pristine, submitting, valid } = this.props
 
+    const footer = (this.state.event_id) ? 
+      <span className="float-right">
+        <Button variant="secondary" disabled={submitting} onClick={this.handleFormHide}>Cancel</Button>
+        <Button variant="primary" type="submit" disabled={ submitting || !valid}>Submit</Button>
+      </span>
+      : 
+      <Button className="float-right" variant="secondary" onClick={this.handleFormHide}>Close</Button>
+      
+
     return (
       <Modal show={show} onHide={this.handleFormHide}>
         <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
@@ -302,7 +330,6 @@ class EventTemplateOptionsModal extends Component {
             <Field
               name="event_free_text"
               component={this.renderTextField}
-              type="text"
               label="Additional Text"
               required={eventTemplate.event_free_text_required}
               validate={ eventTemplate.event_free_text_required ? required : undefined }
@@ -311,15 +338,13 @@ class EventTemplateOptionsModal extends Component {
               name="event_ts"
               label="Custom Time (UTC)"
               component={this.renderDatePicker}
-              type="text"
               disabled={this.props.disabled}
               defaultValue={this.state.ts}
+              required={true}
             />
           </Modal.Body>
-
           <Modal.Footer>
-            <Button bsStyle="default" bsSize="small" type="button" disabled={submitting} onClick={this.handleFormHide}>Cancel</Button>
-            <Button bsStyle="primary" bsSize="small" type="submit" disabled={ submitting || !valid}>Submit</Button>
+            {footer}
           </Modal.Footer>
         </form>
       </Modal>
@@ -330,26 +355,19 @@ class EventTemplateOptionsModal extends Component {
 function validate(formProps) {
   const errors = {};
 
-//  if (this.props.eventTemplate.event_free_text_required && !formProps.event_free_text) {
-//    errors.event_free_text = 'Required'
-//  }
+  if (!formProps.event_ts) {
+    errors.event_ts = 'Required'
+  } else if (!moment.utc(formProps.event_ts).isValid()) {
+    errors.event_ts = 'Invalid timestamp'
+  }
 
   return errors;
 
 }
 
 EventTemplateOptionsModal = reduxForm({
-  form: 'eventTemplateOptionsModal'//,
-  //enableReinitialize: true//,
-  //validate: validate
+  form: 'eventTemplateOptionsModal',
+  validate: validate
 })(EventTemplateOptionsModal);
-
-//this.defaultValues
-// function mapStateToProps(state, ownProps) {
-//     return {
-//         use_custom_time: selector(state, "use_custom_time")
-//     };
-// }
-
 
 export default connectModal({ name: 'eventOptions' })(EventTemplateOptionsModal)

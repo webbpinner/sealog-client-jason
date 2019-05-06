@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Link } from 'react-router-dom';
-import { LinkContainer } from 'react-router-bootstrap';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import Cookies from 'universal-cookie';
-import { Button, Row, Col, Panel, ListGroup, ListGroupItem, ButtonToolbar, DropdownButton, Pagination, MenuItem, Tooltip, OverlayTrigger, Well } from 'react-bootstrap';
+import { Button, Row, Col, Card, ListGroup, ListGroupItem, ButtonToolbar, Dropdown, Pagination, Tooltip, OverlayTrigger } from 'react-bootstrap';
 import axios from 'axios';
 import EventFilterForm from './event_filter_form';
 import EventCommentModal from './event_comment_modal';
 import EventShowDetailsModal from './event_show_details_modal';
+import LoweringDropdown from './lowering_dropdown';
+import LoweringModeDropdown from './lowering_mode_dropdown';
 import * as actions from '../actions';
 import { ROOT_PATH, API_ROOT_URL } from '../client_config';
 
@@ -20,7 +21,7 @@ const timeFormat = "HHmm"
 
 const maxEventsPerPage = 15
 
-class LoweringSearch extends Component {
+class LoweringReview extends Component {
 
   constructor (props) {
     super(props);
@@ -32,11 +33,21 @@ class LoweringSearch extends Component {
 
     this.handleEventUpdate = this.handleEventUpdate.bind(this);
     this.handlePageSelect = this.handlePageSelect.bind(this);
-    this.updateEventFilter = this.updateEventFilter.bind(this)
+    this.updateEventFilter = this.updateEventFilter.bind(this);
+    this.handleLoweringSelect = this.handleLoweringSelect.bind(this);
+    this.handleLoweringModeSelect = this.handleLoweringModeSelect.bind(this);
+
   }
 
-  componentWillMount(){
-    this.props.initLoweringReplay(this.props.match.params.id, this.state.hideASNAP);
+  componentDidMount(){
+    if(!this.props.lowering.id || this.props.lowering.id != this.props.match.params.id || this.props.event.events.length == 0) {
+      // console.log("initLoweringReplay", this.props.match.params.id)
+      this.props.initLoweringReplay(this.props.match.params.id, this.state.hideASNAP);
+    }
+
+    // if(!this.props.cruise.id || this.props.lowering.id != this.props.match.params.id){
+    this.props.initCruiseFromLowering(this.props.match.params.id);
+    // }
   }
 
   componentDidUpdate() {
@@ -207,6 +218,22 @@ class LoweringSearch extends Component {
     })
   }
 
+  handleLoweringSelect(id) {
+    this.props.initLoweringReplay(id, this.state.hideASNAP);
+    this.props.initCruiseFromLowering(id);
+    this.setState({activePage: 1})
+  }
+
+  handleLoweringModeSelect(mode) {
+    if(mode === "Review") {
+      this.props.gotoLoweringReview(this.props.match.params.id)
+    } else if (mode === "Gallery") {
+      this.props.gotoLoweringGallery(this.props.match.params.id)
+    } else if (mode === "Replay") {
+      this.props.gotoLoweringReplay(this.props.match.params.id)
+    }
+  }
+
   toggleASNAP() {
     this.props.eventUpdateLoweringReplay(this.props.lowering.id, !this.state.hideASNAP)
     this.setState( prevState => ({hideASNAP: !prevState.hideASNAP, activePage: 1}))
@@ -219,46 +246,49 @@ class LoweringSearch extends Component {
     const toggleASNAPTooltip = (<Tooltip id="toggleASNAPTooltip">Show/Hide ASNAP Events</Tooltip>)
 
     const ASNAPToggleIcon = (this.state.hideASNAP)? "Show ASNAP" : "Hide ASNAP"
-    const ASNAPToggle = (<Button disabled={this.props.event.fetching} bsSize="xs" onClick={() => this.toggleASNAP()}>{ASNAPToggleIcon}</Button>)
+    const ASNAPToggle = (<span disabled={this.props.event.fetching} style={{ marginRight: "10px" }} onClick={() => this.toggleASNAP()}>{ASNAPToggleIcon}</span>)
 
     return (
       <div>
         { Label }
-        <ButtonToolbar className="pull-right" >
+        <span className="float-right">
           {ASNAPToggle}
-          <DropdownButton disabled={this.props.event.fetching} bsSize="xs" key={1} title={<OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesomeIcon icon='download' fixedWidth/></OverlayTrigger>} id="export-dropdown" pullRight>
-            <MenuItem key="toJSONHeader" eventKey={1.1} header>JSON format</MenuItem>
-            <MenuItem key="toJSONAll" eventKey={1.2} onClick={ () => this.exportEventsWithAuxDataToJSON()}>Events w/aux data</MenuItem>
-            <MenuItem key="toJSONEvents" eventKey={1.3} onClick={ () => this.exportEventsToJSON()}>Events Only</MenuItem>
-            <MenuItem key="toJSONAuxData" eventKey={1.4} onClick={ () => this.exportAuxDataToJSON()}>Aux Data Only</MenuItem>
-            <MenuItem divider />
-            <MenuItem key="toCSVHeader" eventKey={1.5} header>CSV format</MenuItem>
-            <MenuItem key="toCSVAll" eventKey={1.6} onClick={ () => this.exportEventsWithAuxDataToCSV()}>Events w/aux data</MenuItem>
-            <MenuItem key="toCSVEvents" eventKey={1.6} onClick={ () => this.exportEventsToCSV()}>Events Only</MenuItem>
-          </DropdownButton>
-        </ButtonToolbar>
+          <Dropdown as={'span'} disabled={this.props.event.fetching} id="dropdown-download">
+            <Dropdown.Toggle as={'span'}><OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesomeIcon icon='download' fixedWidth/></OverlayTrigger></Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Header className="text-warning" key="toJSONHeader">JSON format</Dropdown.Header>
+              <Dropdown.Item key="toJSONAll" onClick={ () => this.exportEventsWithAuxDataToJSON()}>Events w/aux data</Dropdown.Item>
+              <Dropdown.Item key="toJSONEvents" onClick={ () => this.exportEventsToJSON()}>Events Only</Dropdown.Item>
+              <Dropdown.Item key="toJSONAuxData" onClick={ () => this.exportAuxDataToJSON()}>Aux Data Only</Dropdown.Item>
+              <Dropdown.Divider />
+              <Dropdown.Header className="text-warning" key="toCSVHeader">CSV format</Dropdown.Header>
+              <Dropdown.Item key="toCSVAll" onClick={ () => this.exportEventsWithAuxDataToCSV()}>Events w/aux data</Dropdown.Item>
+              <Dropdown.Item key="toCSVEvents" onClick={ () => this.exportEventsToCSV()}>Events Only</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        </span>
       </div>
     );
   }
 
-  renderEventPanel() {
+  renderEventCard() {
 
     if (!this.props.event.events) {
       return (
-        <Panel>
-          <Panel.Heading>{ this.renderEventListHeader() }</Panel.Heading>
-          <Panel.Body>Loading...</Panel.Body>
-        </Panel>
+        <Card>
+          <Card.Header>{ this.renderEventListHeader() }</Card.Header>
+          <Card.Body>Loading...</Card.Body>
+        </Card>
       )
     }
 
     return (
-      <Panel>
-        <Panel.Heading>{ this.renderEventListHeader() }</Panel.Heading>
+      <Card>
+        <Card.Header>{ this.renderEventListHeader() }</Card.Header>
         <ListGroup>
           {this.renderEvents()}
         </ListGroup>
-      </Panel>
+      </Card>
     );
   }
 
@@ -287,10 +317,16 @@ class LoweringSearch extends Component {
           let active = (this.props.event.selected_event.id == event.id)? true : false
 
           let eventOptions = (eventOptionsArray.length > 0)? '--> ' + eventOptionsArray.join(', '): ''
-          let commentIcon = (comment_exists)? <FontAwesomeIcon onClick={() => this.handleEventCommentModal(event)} icon='comment' fixedWidth transform="grow-4"/> : <span onClick={() => this.handleEventCommentModal(event)} className="fa-layers fa-fw"><FontAwesomeIcon icon='comment' fixedWidth transform="grow-4"/><FontAwesomeIcon icon='plus' fixedWidth inverse transform="shrink-4"/></span>
-          let commentTooltip = (comment_exists)? (<OverlayTrigger placement="top" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Edit/View Comment</Tooltip>}>{commentIcon}</OverlayTrigger>) : (<OverlayTrigger placement="top" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Add Comment</Tooltip>}>{commentIcon}</OverlayTrigger>)
+          
+          // let commentIcon = (comment_exists)? <FontAwesomeIcon onClick={() => this.handleEventCommentModal(event)} icon='comment' fixedWidth transform="grow-4"/> : <span onClick={() => this.handleEventCommentModal(event)} className="fa-layers fa-fw"><FontAwesomeIcon icon='comment' fixedWidth transform="grow-4"/><FontAwesomeIcon icon='plus' fixedWidth inverse transform="shrink-4"/></span>
+          // let commentTooltip = (comment_exists)? (<OverlayTrigger placement="top" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Edit/View Comment</Tooltip>}>{commentIcon}</OverlayTrigger>) : (<OverlayTrigger placement="top" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Add Comment</Tooltip>}>{commentIcon}</OverlayTrigger>)
 
-          return (<ListGroupItem key={event.id} active={active} ><Row><Col xs={11} ><span onClick={() => this.handleEventShowDetailsModal(event)} >{`${event.ts} <${event.event_author}>: ${event.event_value} ${eventOptions}`}</span></Col><Col>{commentTooltip}</Col></Row></ListGroupItem>);
+          let commentIcon = (comment_exists)? <FontAwesomeIcon onClick={() => this.handleEventCommentModal(event)} icon='comment' fixedWidth transform="grow-4"/> : <span onClick={() => this.handleEventCommentModal(event)} className="fa-layers fa-fw"><FontAwesomeIcon icon='comment' fixedWidth transform="grow-4"/><FontAwesomeIcon className={(active)? "text-primary" : "text-secondary" } icon='plus' fixedWidth transform="shrink-4"/></span>
+          let commentTooltip = (comment_exists)? (<OverlayTrigger placement="top" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Edit/View Comment</Tooltip>}>{commentIcon}</OverlayTrigger>) : (<OverlayTrigger placement="top" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Add Comment</Tooltip>}>{commentIcon}</OverlayTrigger>)
+          let eventComment = (this.props.roles.includes("event_logger") || this.props.roles.includes("admin"))? commentTooltip : null
+
+          // return (<ListGroupItem key={event.id} active={active} ><Row><Col xs={11} ><span onClick={() => this.handleEventShowDetailsModal(event)} >{`${event.ts} <${event.event_author}>: ${event.event_value} ${eventOptions}`}</span></Col><Col>{eventComment}</Col></Row></ListGroupItem>);
+          return (<ListGroup.Item className="event-list-item" key={event.id} active={active} ><span onClick={() => this.handleEventShowDetailsModal(event)} >{`${event.ts} <${event.event_author}>: ${event.event_value} ${eventOptions}`}</span><span className="float-right">{eventComment}</span></ListGroup.Item>);
 
         }
       });
@@ -332,7 +368,7 @@ class LoweringSearch extends Component {
       }
 
       return (
-        <Pagination>
+        <Pagination style={{marginTop: "8px"}}>
           <Pagination.First onClick={() => this.setState({activePage: 1})} />
           <Pagination.Prev onClick={() => { if(this.state.activePage > 1) { this.setState(prevState => ({ activePage: prevState.activePage-1}))}}} />
           {rangeWithDots}
@@ -345,26 +381,27 @@ class LoweringSearch extends Component {
 
   render(){
 
-    let lowering_id = (this.props.lowering.lowering_id)? this.props.lowering.lowering_id : "loading..."
+    const cruise_id = (this.props.cruise.cruise_id)? this.props.cruise.cruise_id : "Loading..."
+    const lowering_id = (this.props.lowering.lowering_id)? this.props.lowering.lowering_id : "Loading..."
+
     return (
       <div>
         <EventCommentModal />
         <EventShowDetailsModal />
         <Row>
           <Col lg={12}>
-            <div>
-              <Well bsSize="small">
-                {`Lowerings / ${lowering_id} / Review`}{' '}
-                <span className="pull-right">
-                  <LinkContainer to={ `/lowering_replay/${this.props.match.params.id}` }><Button disabled={this.props.event.fetching} bsSize={'xs'}>Goto Replay</Button></LinkContainer>
-                </span>
-              </Well>
-            </div>
+            <span style={{paddingLeft: "8px"}}>
+              <span onClick={() => this.props.gotoCruiseMenu()} className="text-warning">{cruise_id}</span>
+              {' '}/{' '}
+              <span><LoweringDropdown onClick={this.handleLoweringSelect} active_cruise={this.props.cruise} active_lowering={this.props.lowering}/></span>
+              {' '}/{' '}
+              <span><LoweringModeDropdown onClick={this.handleLoweringModeSelect} active_mode={"Review"} modes={["Gallery", "Replay"]}/></span>
+            </span>
           </Col>
         </Row>
-        <Row>
+        <Row style={{paddingTop: "8px"}}>
           <Col sm={7} md={8} lg={9}>
-            {this.renderEventPanel()}
+            {this.renderEventCard()}
             {this.renderPagination()}
           </Col>
           <Col sm={5} md={4} lg={3}>
@@ -380,8 +417,9 @@ function mapStateToProps(state) {
   return {
     roles: state.user.profile.roles,
     event: state.event,
+    cruise: state.cruise.cruise,
     lowering: state.lowering.lowering
   }
 }
 
-export default connect(mapStateToProps, null)(LoweringSearch);
+export default connect(mapStateToProps, null)(LoweringReview);

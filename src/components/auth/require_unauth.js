@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import * as actions from '../../actions';
 
 export default function(ComposedComponent) {
   class Unauthentication extends Component {
@@ -14,13 +15,13 @@ export default function(ComposedComponent) {
 
     componentWillMount() {
       if (this.props.authenticated) {
-        this.context.router.history.push(`/`);
+        this.props.gotoHome();
       }
     }
 
     componentWillUpdate(nextProps) {
       if (nextProps.authenticated) {
-        this.context.router.history.push(`/`);
+        this.props.gotoHome();
       }
     }
 
@@ -33,5 +34,5 @@ export default function(ComposedComponent) {
     return { authenticated: state.auth.authenticated };
   }
 
-  return connect(mapStateToProps)(Unauthentication);
+  return connect(mapStateToProps, actions)(Unauthentication);
 }

@@ -1,9 +1,9 @@
-import moment from 'moment';
-import Datetime from 'react-datetime';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { reduxForm, Field, initialize, reset } from 'redux-form';
-import { Alert, Button, Checkbox, Radio, Col, FormGroup, FormControl, FormGroupItem, Grid, Panel, Row, Tooltip, OverlayTrigger } from 'react-bootstrap';
+import { Alert, Button, Col, Form, Card, Tooltip, OverlayTrigger } from 'react-bootstrap';
+import moment from 'moment';
+import Datetime from 'react-datetime';
 import * as actions from '../actions';
 
 const dateFormat = "YYYY-MM-DD"
@@ -28,99 +28,122 @@ class CreateLowering extends Component {
     this.props.createLowering(formProps);
   }
 
-  renderField({ input, label, placeholder, required, type, meta: { touched, error, warning } }) {
+  renderTextField({ input, label, placeholder, required, meta: { touched, error } }) {
     let requiredField = (required)? <span className='text-danger'> *</span> : ''
     let placeholder_txt = (placeholder)? placeholder: label
 
     return (
-      <FormGroup>
-        <label>{label}{requiredField}</label>
-        <FormControl {...input} placeholder={placeholder_txt} type={type}/>
-        {touched && (error && <div className='text-danger'>{error}</div>) || (warning && <div className='text-danger'>{warning}</div>)}
-      </FormGroup>
+      <Form.Group as={Col} lg="6">
+        <Form.Label>{label}{requiredField}</Form.Label>
+        <Form.Control type="text" {...input} placeholder={placeholder_txt} isInvalid={touched && error}/>
+        <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
+      </Form.Group>
     )
   }
 
-  renderTextArea({ input, label, type, placeholder, required, rows = 4, meta: { touched, error, warning } }) {
+  renderTextArea({ input, label, placeholder, required, rows = 4, meta: { touched, error, warning } }) {
     let requiredField = (required)? <span className='text-danger'> *</span> : ''
     let placeholder_txt = (placeholder)? placeholder: label
+
     return (
-      <FormGroup>
-        <label>{label}{requiredField}</label>
-        <FormControl {...input} placeholder={placeholder_txt} componentClass={type} rows={rows}/>
-        {touched && ((error && <div className='text-danger'>{error}</div>) || (warning && <div className='text-danger'>{warning}</div>))}
-      </FormGroup>
+      <Form.Group as={Col} lg="12">
+        <Form.Label>{label}{requiredField}</Form.Label>
+        <Form.Control as="textarea" {...input} placeholder={placeholder_txt} rows={rows}/>
+        <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
+      </Form.Group>
     )
   }
 
-  renderDatePicker({ input, label, type, required, meta: { touched, error, warning } }) {
+  renderSelectField({ input, label, placeholder, required, options, meta: { touched, error } }) {
+
     let requiredField = (required)? <span className='text-danger'> *</span> : ''
-    return (
-      <FormGroup>
-        <label>{label}{requiredField}</label>
-        <Datetime {...input} utc={true} value={input.value ? moment.utc(input.value).format(dateFormat + " " + timeFormat) : null} dateFormat={dateFormat} timeFormat={timeFormat} selected={input.value ? moment.utc(input.value, dateFormat + " " + timeFormat) : null }/>
-        {touched && (error && <div className='text-danger'>{error}</div>) || (warning && <div className='text-danger'>{warning}</div>)}
-      </FormGroup>
-    )
-  }
-
-  renderCheckboxGroup({ label, name, options, input, meta: { dirty, error, warning } }) {    
-
-    let checkboxList = options.map((option, index) => {
-
-      let tooltip = (option.description)? (<Tooltip id={`${option.value}_Tooltip`}>{option.description}</Tooltip>) : null
-      let overlay = (tooltip != null)? (<OverlayTrigger placement="right" overlay={tooltip}><span>{option.label}</span></OverlayTrigger>) : option.label
-
+    let placeholder_txt = (placeholder)? placeholder: label
+    let defaultOption = ( <option key={`${input.name}.empty`} value=""></option> );
+    let optionList = options.map((option, index) => {
       return (
-          <Checkbox
-            name={`${option.label}[${index}]`}
-            key={`${label}.${index}`}
-            value={option.value}
-            checked={input.value.indexOf(option.value) !== -1}
-            onChange={event => {
-              const newValue = [...input.value];
-              if(event.target.checked) {
-                newValue.push(option.value);
-              } else {
-                newValue.splice(newValue.indexOf(option.value), 1);
-              }
-              return input.onChange(newValue);
-            }}
-          >
-            { overlay }
-          </Checkbox>
+        <option key={`${input.name}.${index}`} value={`${option}`}>{ `${option}`}</option>
       );
     });
 
     return (
-      <FormGroup>
-        <label>{label}</label>
+      <Form.Group as={Col} lg="6">
+        <Form.Label>{label}{requiredField}</Form.Label>
+        <Form.Control as="select" {...input} placeholder={placeholder_txt} isInvalid={touched && error}>
+          { defaultOption }
+          { optionList }
+        </Form.Control>
+        <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
+      </Form.Group>
+    )
+  }
+
+  renderDatePicker({ input, label, type, required, meta: { touched, error } }) {
+    let requiredField = (required)? <span className='text-danger'> *</span> : ''
+    
+    return (
+      <Form.Group as={Col} lg="6">
+        <Form.Label>{label}{requiredField}</Form.Label>
+        <Datetime {...input} utc={true} value={input.value ? moment.utc(input.value).format(dateFormat + ' ' + timeFormat) : null} dateFormat={dateFormat} timeFormat={timeFormat} selected={input.value ? moment.utc(input.value, dateFormat) : null }/>
+        {touched && (error && <div style={{width: "100%", marginTop: "0.25rem", fontSize: "80%"}} className='text-danger'>{error}</div>)}
+      </Form.Group>
+    )
+  }
+
+  renderCheckboxGroup({ label, name, options, input, required, meta: { dirty, error } }) {
+
+    let requiredField = (required)? (<span className='text-danger'> *</span>) : ''
+    let checkboxList = options.map((option, index) => {
+
+      return (
+        <Form.Check
+          inline
+          label={option.value}
+          name={`${option.label}[${index}]`}
+          key={`${label}.${index}`}
+          value={option.value}
+          checked={input.value.indexOf(option.value) !== -1}
+          onChange={event => {
+            const newValue = [...input.value];
+            if(event.target.checked) {
+              newValue.push(option.value);
+            } else {
+              newValue.splice(newValue.indexOf(option.value), 1);
+            }
+            return input.onChange(newValue);
+          }}
+        />
+      );
+    });
+
+    return (
+      <Form.Group>
+        <Form.Label>{label}{requiredField}</Form.Label><br/>
         {checkboxList}
-        {(error && <div className='text-danger'>{error}</div>) || (warning && <div className='text-danger'>{warning}</div>)}
-      </FormGroup>
+        {dirty && (error && <div className="text-danger" style={{width: "100%", marginTop: "0.25rem", fontSize: "80%"}}>{error}</div>)}
+      </Form.Group>
     );
   }
 
-
-  renderCheckbox({ input, label, meta: { dirty, error, warning } }) {    
-
+  renderCheckbox({ input, label, meta: { dirty, error } }) {    
     return (
-      <FormGroup>
-        <Checkbox
+      <Form.Group as={Col} lg="6">
+        <Form.Check
+          {...input}
+          label={label}
           checked={input.value ? true : false}
           onChange={(e) => input.onChange(e.target.checked)}
+          isInvalid={dirty && error}
         >
-          {label}
-        </Checkbox>
-        {(error && <div className='text-danger'>{error}</div>) || (warning && <div className='text-danger'>{warning}</div>)}
-      </FormGroup>
+        </Form.Check>
+        <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
+      </Form.Group>
     );
   }
 
   renderAlert() {
     if (this.props.errorMessage) {
       return (
-        <Alert bsStyle="danger">
+        <Alert variant="danger">
           <strong>Opps!</strong> {this.props.errorMessage}
         </Alert>
       )
@@ -130,7 +153,7 @@ class CreateLowering extends Component {
   renderMessage() {
     if (this.props.message) {
       return (
-        <Alert bsStyle="success">
+        <Alert variant="success">
           <strong>Success!</strong> {this.props.message}
         </Alert>
       )
@@ -147,63 +170,66 @@ class CreateLowering extends Component {
       if(this.props.roles.includes("admin")) {
 
         return (
-          <Panel className="form-standard">
-            <Panel.Heading>{createLoweringFormHeader}</Panel.Heading>
-            <Panel.Body>
-              <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
-                <Field
-                  name="lowering_id"
-                  component={this.renderField}
-                  type="text"
-                  label="Lowering ID"
-                  placeholder="i.e. 4023"
-                  required={true}
-                />
-                <Field
-                  name="lowering_description"
-                  component={this.renderTextArea}
-                  type="textarea"
-                  label="Lowering Description"
-                  placeholder="A brief description of the lowering"
-                  rows={10}
-                />
-                <Field
-                  name="lowering_location"
-                  type="text"
-                  component={this.renderField}
-                  label="Lowering Location"
-                  placeholder="i.e. Kelvin Seamount"
-                />
-                <Field
-                  name="start_ts"
-                  component={this.renderDatePicker}
-                  type="text"
-                  label="Start Date/Time (UTC)"
-                  required={true}
-                />
-                <Field
-                  name="stop_ts"
-                  component={this.renderDatePicker}
-                  type="text"
-                  label="Stop Date/Time (UTC)"
-                  required={true}
-                />
-                <Field
-                  name="lowering_tags"
-                  component={this.renderTextArea}
-                  type="textarea"
-                  label="Lowering Tags, comma delimited"
-                  placeholder="A comma-delimited list of tags, i.e. coral,chemistry,engineering"
-                />
+          <Card border="secondary">
+            <Card.Header>{createLoweringFormHeader}</Card.Header>
+            <Card.Body>
+              <Form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
+                <Form.Row>
+                  <Field
+                    name="lowering_id"
+                    component={this.renderTextField}
+                    label="Lowering ID"
+                    placeholder="i.e. J2-1000"
+                    required={true}
+                  />
+                  <Field
+                    name="lowering_location"
+                    component={this.renderTextField}
+                    label="Lowering Location"
+                    placeholder="i.e. Kelvin Seamount"
+                  />
+                </Form.Row>
+                <Form.Row>
+                  <Field
+                    name="lowering_description"
+                    component={this.renderTextArea}
+                    label="Lowering Description"
+                    placeholder="i.e. A brief description of the lowering"
+                    rows={8}
+                  />
+                </Form.Row>
+                <Form.Row>
+                  <Field
+                    name="start_ts"
+                    component={this.renderDatePicker}
+                    label="Start Date/Time (UTC)"
+                    required={true}
+                  />
+                  <Field
+                    name="stop_ts"
+                    component={this.renderDatePicker}
+                    label="Stop Date/Time (UTC)"
+                    required={true}
+                  />
+                </Form.Row>
+                <Form.Row>
+                  <Field
+                    name="lowering_tags"
+                    component={this.renderTextArea}
+                    label="Lowering Tags, comma delimited"
+                    placeholder="i.e. coral,chemistry,engineering"
+                    rows={2}
+                  />
+                </Form.Row>
                 {this.renderAlert()}
                 {this.renderMessage()}
-                <div className="pull-right">
-                  <Button bsStyle="default" type="button" disabled={pristine || submitting} onClick={reset}>Reset Form</Button>
-                  <Button bsStyle="primary" type="submit" disabled={submitting || !valid}>Create</Button>
+                <div className="float-right" style={{marginRight: "-20px", marginBottom: "-8px"}}>
+                  <Button variant="secondary" size="sm" disabled={pristine || submitting} onClick={reset}>Reset Form</Button>
+                  <Button variant="primary" size="sm" type="submit" disabled={submitting || !valid}>Create</Button>
                 </div>
-              </form>
-            </Panel.Body>
-          </Panel>
+              </Form>
+            </Card.Body>
+          </Card>
         )
       } else {
         return null
@@ -233,10 +259,14 @@ function validate(formProps) {
 
   if (!formProps.start_ts) {
     errors.start_ts = 'Required'
+  } else if (!moment.utc(formProps.start_ts).isValid()) {
+    errors.start_ts = 'Invalid timestamp'
   }
 
   if (!formProps.stop_ts) {
     errors.stop_ts = 'Required'
+  } else if (!moment.utc(formProps.stop_ts).isValid()) {
+    errors.stop_ts = 'Invalid timestamp'
   }
 
   if ((formProps.start_ts != '') && (formProps.stop_ts != '')) {

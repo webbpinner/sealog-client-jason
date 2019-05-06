@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import axios from 'axios';
 import Cookies from 'universal-cookie';
 import { reduxForm, Field, initialize } from 'redux-form';
-import { Alert, Button, Col, FormGroup, FormControl, Grid, Panel, Row } from 'react-bootstrap';
+import { Alert, Button, Col, Form, Card} from 'react-bootstrap';
 import { API_ROOT_URL } from '../../client_config';
 import * as actions from '../../actions';
 
@@ -31,20 +31,18 @@ class UserProfile extends Component {
     this.props.updateProfile(formProps);
   }
 
-  renderField({ input, label, type, required, disabled, meta: { touched, error, warning } }) {
-
-    let requiredField = (required)? (<span className='text-danger'> *</span>) : ''
-    let disabledField = (disabled)? disabled : false;
+  renderTextField({ input, label, placeholder, type="text", required, meta: { touched, error } }) {
+    let requiredField = (required)? <span className='text-danger'> *</span> : ''
+    let placeholder_txt = (placeholder)? placeholder: label
 
     return (
-      <FormGroup>
-        <label>{label}{requiredField}</label>
-        <FormControl {...input} placeholder={label} type={type} disabled={disabledField}/>
-        {touched && ((error && <div className='text-danger'>{error}</div>) || (warning && <div className='text-danger'>{warning}</div>))}
-      </FormGroup>
+      <Form.Group as={Col} lg="12">
+        <Form.Label>{label}{requiredField}</Form.Label>
+        <Form.Control type={type} {...input} placeholder={placeholder_txt} isInvalid={touched && error}/>
+        <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
+      </Form.Group>
     )
   }
-
 
   showToken() {
     if(this.state.showToken) {
@@ -58,7 +56,7 @@ class UserProfile extends Component {
       )      
     } else {
       return (
-         <Button bsStyle="primary" block type="button" onClick={()=> {this.setState({showToken: true});setTimeout(()=>{this.setState({showToken: false})}, 10*1000)}}>Show API Token</Button>
+         <Button variant="warning" size="sm" block onClick={()=> {this.setState({showToken: true});setTimeout(()=>{this.setState({showToken: false})}, 10*1000)}}>Show API Token</Button>
       )
     }
   }
@@ -67,7 +65,7 @@ class UserProfile extends Component {
   renderAlert() {
     if (this.props.errorMessage) {
       return (
-        <Alert bsStyle="danger">
+        <Alert variant="danger">
           <strong>Opps!</strong> {this.props.errorMessage}
         </Alert>
       )
@@ -77,7 +75,7 @@ class UserProfile extends Component {
   renderMessage() {
     if (this.props.message) {
       return (
-        <Alert bsStyle="success">
+        <Alert variant="success">
           <strong>Success!</strong> {this.props.message}
         </Alert>
       )
@@ -89,55 +87,51 @@ class UserProfile extends Component {
     const { handleSubmit, pristine, reset, submitting, valid } = this.props;
 
     return (
-      <Panel className="form-standard" >
-        <Panel.Body>
+      <Card className="form-standard" >
+        <Card.Body>
           <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
             <Field
               name="username"
-              component={this.renderField}
-              type="text"
+              component={this.renderTextField}
               label="Username"
               required={true}
             />
             <Field
               name="fullname"
-              type="text"
-              component={this.renderField}
+              component={this.renderTextField}
               label="Full Name"
               required={true}
             />
             <Field
               name="email"
-              component={this.renderField}
-              type="text"
+              component={this.renderTextField}
               label="Email"
               disabled={true}
             />
             <Field
               name="password"
-              component={this.renderField}
+              component={this.renderTextField}
               type="password"
               label="Password"
             />
             <Field
               name="confirmPassword"
-              component={this.renderField}
+              component={this.renderTextField}
               type="password"
               label="Confirm Password"
             />
             {this.renderAlert()}
             {this.renderMessage()}
-            <div className="pull-right">
-              <Button bsStyle="default" type="button" disabled={pristine || submitting} onClick={reset}>Reset Values</Button>
-              <Button bsStyle="primary" type="submit" disabled={pristine || submitting || !valid}>Update</Button>
+            <div className="float-right" style={{marginRight: "-4px"}}>
+              <Button variant="secondary" size="sm" disabled={pristine || submitting} onClick={reset}>Reset Values</Button>
+              <Button variant="primary" size="sm" type="submit" disabled={pristine || submitting || !valid}>Update</Button>
             </div>
           </form>
           <br/>
           <br/>
-          <br/>
           {this.showToken()}
-        </Panel.Body>
-      </Panel>
+        </Card.Body>
+      </Card>
     )
   }
 }

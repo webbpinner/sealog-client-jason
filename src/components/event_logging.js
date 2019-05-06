@@ -5,7 +5,7 @@ import EventTemplateList from './event_template_list';
 import EventHistory from './event_history';
 import EventInput from './event_input';
 import EventCommentModal from './event_comment_modal';
-import { Panel, Grid, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 import EventShowDetailsModal from './event_show_details_modal';
 
 import * as actions from '../actions';
@@ -18,37 +18,47 @@ class EventLogging extends Component {
   }
 
   render() {
-    return (
-      <div>
-        {(this.props.roles && this.props.roles.includes("event_logger"))? <EventCommentModal/> : null }
-        <EventShowDetailsModal />
-        {
-          (this.props.roles && this.props.roles.includes("event_logger"))?
+
+    if(this.props.roles && this.props.roles.includes("event_logger") && this.props.roles.includes("event_watcher")) {
+      return (
+        <div>
+          <EventShowDetailsModal />
+          <EventCommentModal/>
+          <Container>
             <Row>
               <Col>
-                <EventTemplateList />
+                <EventTemplateList style={{marginBottom: "8px"}} />
               </Col>
             </Row>
-          : null
-        }
-        {(this.props.roles && this.props.roles.includes("event_logger"))? <br /> : null }
-        {
-          (this.props.roles && this.props.roles.includes("event_logger"))?
             <Row>
               <Col>
-                <EventInput />
+                <EventInput style={{marginBottom: "14px"}} />
               </Col>
             </Row>
-          : null
-        }
-        <br />
-        <Row>
-          <Col>
-            <EventHistory />
-          </Col>
-        </Row>
-      </div>
-    );
+            <Row>
+              <Col>
+                <EventHistory />
+              </Col>
+            </Row>
+          </Container>
+        </div>
+      );
+    }
+    else if(this.props.roles && this.props.roles.includes("event_watcher")) {
+      return (
+        <div>
+          <EventShowDetailsModal />
+          <Container>
+            <Row>
+              <Col>
+                <EventHistory />
+              </Col>
+            </Row>
+          </Container>
+        </div>
+      );
+    }
+    return null
   }
 }
 

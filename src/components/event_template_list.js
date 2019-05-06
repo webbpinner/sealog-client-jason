@@ -1,55 +1,26 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { findDOMNode } from 'react-dom';
-import { Link } from 'react-router-dom';
-import { Alert } from 'react-bootstrap';
+import { Alert, Button } from 'react-bootstrap';
 import EventTemplateOptionsModal from './event_template_options_modal';
-import store from '../store';
 import * as actions from '../actions';
-// import $ from 'jquery';
 
 class EventTemplateList extends Component {
 
   constructor (props) {
     super(props);
 
-    // this.scrollToTop = this.scrollToTop.bind(this);
     this.renderEventTemplates = this.renderEventTemplates.bind(this);
 
   }
 
-  componentWillMount() {
+  componentDidMount() {
     if(this.props.authenticated) {
       this.props.fetchEventTemplatesForMain();
     }
   }
 
-  // componentDidMount() {
-    
-  //   this.client.connect((err) => {
-  //     let handler = (update, flags) => {
-  //       //console.log(update);
-  //       store.dispatch(newEventDefinitions(update));
-  //     };
+  componentDidUpdate() {}
 
-  //     this.client.subscribe('/chat/updates', handler, (err) => {
-  //       if(err) {
-  //         console.log(err);
-  //       }
-  //     })
-  //   })
-
-  // }
-
-  componentDidUpdate() {
-    // this.scrollToTop();
-  }
-
-  // scrollToTop() {
-  //   const eventTemplates = findDOMNode(this.refs.eventTemplates);
-  //   let desiredHeight = 0;
-  //   $(eventTemplates).scrollTop(desiredHeight);
-  // }
 
   async handleEventSubmit(event_template) {
 
@@ -65,7 +36,7 @@ class EventTemplateList extends Component {
       return this.props.event_templates.map((event_template) => {
 
         return (
-          <Link className="btn btn-primary btn-squared" key={event_template.id} to="#" onClick={ () => this.handleEventSubmit(event_template) }>{ event_template.event_name }</Link>
+          <Button className="btn btn-primary btn-squared" to="#" key={`template_${event_template.id}`} onClick={ () => this.handleEventSubmit(event_template) }>{ event_template.event_name }</Button>
         );
       })      
     }
@@ -79,13 +50,13 @@ class EventTemplateList extends Component {
 
     if (!this.props.event_templates) {
       return (
-          <div>Loading...</div>
+          <div style={this.props.style} >Loading...</div>
       )
     }
 
     if (this.props.event_templates.length > 0) {
       return (
-        <div>
+        <div style={this.props.style} >
           <EventTemplateOptionsModal/>
           {this.renderEventTemplates()}
         </div>
@@ -93,7 +64,7 @@ class EventTemplateList extends Component {
     }
 
     return (
-      <Alert bsStyle="danger">No Event Templates found</Alert>
+      <Alert variant="danger">No Event Templates found</Alert>
     );
   }
 }

@@ -3,20 +3,19 @@ import { reduxForm, Field, reset } from 'redux-form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Grid, Row, Col, FormGroup, Checkbox, Panel, Button, Alert, Image } from 'react-bootstrap';
-// import ReCAPTCHA from "react-google-recaptcha";
+import { Row, Col, Form, Card, Button, Alert } from 'react-bootstrap';
+import ReCAPTCHA from "react-google-recaptcha";
 import * as actions from '../../actions';
-// import { ROOT_PATH, RECAPTCHA_SITE_KEY } from '../../client_config';
-import { ROOT_PATH } from '../../client_config';
+import { ROOT_PATH, RECAPTCHA_SITE_KEY } from '../../client_config';
 
 class ResetPassword extends Component {
  
  constructor (props) {
     super(props);
 
-    // this.state = { 
-    //   reCaptcha: null
-    // }
+    this.state = { 
+      reCaptcha: null
+    }
 
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
   }
@@ -26,127 +25,111 @@ class ResetPassword extends Component {
   }
 
   handleFormSubmit({ password }) {
-    // let reCaptcha = this.state.reCaptcha
+    let reCaptcha = this.state.reCaptcha
     let token = this.props.match.params.token
-    // this.props.resetPassword({token, password, reCaptcha});
-    this.props.resetPassword({token, password});
+    this.props.resetPassword({token, password, reCaptcha});
   }
 
-  // onCaptchaChange(token) {
-  //   this.setState({reCaptcha: token})
-  // }
+  onCaptchaChange(token) {
+    this.setState({reCaptcha: token})
+  }
 
-  renderSuccess() {
+  renderTextField({ input, label, placeholder, type="text", required, meta: { touched, error } }) {
+    let requiredField = (required)? <span className='text-danger'> *</span> : ''
+    let placeholder_txt = (placeholder)? placeholder: label
 
-    if (this.props.successMessage) {
-      const panelHeader = (<h4 className="form-signin-heading">Reset Password</h4>);
+    const labelComponent = (label)? <Form.Label>{label}{requiredField}</Form.Label> : null
 
-      return (
-        <Panel className="form-signin" >
-          <Panel.Body>
-            {panelHeader}
-            <div className="alert alert-success">
-              <strong>Success!</strong> {this.props.successMessage}
-            </div>
-            <div className="text-right">
-              <Link to={ `/login` }>Proceed to Login {<FontAwesomeIcon icon="arrow-right"/>}</Link>
-            </div>
-          </Panel.Body>
-        </Panel>
-      )
-    }
+    return (
+      <Form.Group as={Col} lg="12">
+        {labelComponent}
+        <Form.Control type={type} {...input} placeholder={placeholder_txt} isInvalid={touched && error}/>
+        <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
+      </Form.Group>
+    )
   }
 
   renderAlert() {
 
     if(this.props.errorMessage) {
       return (
-        <Alert bsStyle="danger">
+        <Alert variant="danger">
           <strong>Opps!</strong> {this.props.errorMessage}
         </Alert>
       )
     } else if (this.props.successMessage) {
       return (
-        <Alert bsStyle="success">
+        <Alert variant="success">
           <strong>Sweet!</strong> {this.props.successMessage}
         </Alert>
       )
     }
-  }
-
-  renderField({ input, label, type, required, meta: { touched, error, warning } }) {
-
-    return (
-      <FormGroup>
-        <div>
-          <input className="form-control" {...input} placeholder={label} type={type}/>
-          {touched && ((error && <div className='text-danger'>{error}</div>) || (warning && <div className='text-danger'>{warning}</div>))}
-        </div>
-      </FormGroup>
-    )
   }
  
   renderForm() {
 
     if(!this.props.successMessage) {
 
-      const loginPanelHeader = (<h4 className="form-signin-heading">Reset Password</h4>);
+      const loginCardHeader = (<h5 className="form-signin-heading">Reset Password</h5>);
       const { handleSubmit, pristine, reset, submitting, valid } = this.props;
 
+      const loginButton = ( RECAPTCHA_SITE_KEY == "")? <Button variant="primary" type="submit" block disabled={submitting || !valid}>Login</Button> : <Button variant="primary" type="submit" block disabled={submitting || !valid || !this.state.reCaptcha}>Login</Button>
+      const recaptcha = ( RECAPTCHA_SITE_KEY != "")? (
+        <span>
+          <ReCAPTCHA
+            sitekey={RECAPTCHA_SITE_KEY}
+            theme="dark"
+            size="normal"
+            onChange={this.onCaptchaChange.bind(this)}
+          />
+          <br/>
+        </span>
+      ): null
+
       return (
-        <Panel className="form-signin" >
-          <Panel.Body>
-            {loginPanelHeader}
-            <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
-              <FormGroup>
+        <Card className="form-signin" >
+          <Card.Body>
+            {loginCardHeader}
+            <Form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
+              <Form.Group>
                 <Field
                   name="password"
-                  component={this.renderField}
+                  component={this.renderTextField}
                   type="password"
-                  label="Password"
+                  placeholder="Password"
+                  required={true}
                 />
-              </FormGroup>
-              <FormGroup>
+              </Form.Group>
+              <Form.Group>
                 <Field
                   name="confirmPassword"
-                  component={this.renderField}
+                  component={this.renderTextField}
                   type="password"
-                  label="Confirm Password"
+                  placeholder="Confirm Password"
+                  required={true}
                 />
-              </FormGroup>
-              <br/>
+              </Form.Group>
+              {recaptcha}
               {this.renderAlert()}
               <div>
-                <Button bsStyle="primary" type="submit" block disabled={submitting || !valid}>Submit</Button>
+                {loginButton}
               </div>
-            </form>
+            </Form>
             <br/>
             <div className="text-right">
-              <Link to={ `/login` }>Proceed to Login {<FontAwesomeIcon icon="arrow-right"/>}</Link>
+              <Link to={ `/login` }>Go to Login {<FontAwesomeIcon icon="arrow-right"/>}</Link>
             </div>
-          </Panel.Body>
-        </Panel>
+          </Card.Body>
+        </Card>
       )
     }
   }
-
-                // <ReCAPTCHA
-                // ref={e => reCaptchaInstance = e}
-                // sitekey={ RECAPTCHA_SITE_KEY }
-                // theme="dark"
-                // size="normal"
-                // onChange={this.onCaptchaChange.bind(this)}
-              // />
-              // <br/>
-                // <Button bsStyle="primary" type="submit" block disabled={submitting || !valid || !this.state.reCaptcha}>Submit</Button>
-
 
   render() {
 
     return(
       <Row>
         <Col>
-          {this.renderSuccess()}
           {this.renderForm()}
         </Col>
       </Row>
@@ -181,10 +164,7 @@ function mapStateToProps(state) {
   }
 }
 
-// let reCaptchaInstance = null;
-
 const afterSubmit = (result, dispatch) => {
-  // reCaptchaInstance.reset();
   dispatch(reset('resetPassword'));
 }
 

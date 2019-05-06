@@ -16,14 +16,14 @@ export default function(ComposedComponent) {
     componentWillMount() {
       this.props.validateJWT();
       if (!this.props.authenticated) {
-        this.context.router.history.push(`/login`);
+        this.props.logout()
       }
     }
 
     componentWillUpdate(nextProps) {
       this.props.validateJWT();
       if (!nextProps.authenticated) {
-        this.context.router.history.push(`/login`);
+        this.props.logout()
       }
     }
 
