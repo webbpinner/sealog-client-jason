@@ -39,7 +39,7 @@ export default function(state={ lowering: {}, lowerings: [], lowering_message: '
       return { ...state, lowering_error: '', lowering_message: '' }
 
     case FETCH_LOWERINGS:
-      let lowering = (state.lowering.id)? action.payload.find((lowering) => lowering.id == state.lowering.id) : {}
+      let lowering = (state.lowering.id)? action.payload.find((lowering) => lowering.id === state.lowering.id) : {}
       return { ...state, lowering: lowering, lowerings: action.payload };
   }    
   return state;

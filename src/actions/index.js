@@ -184,7 +184,7 @@ export function initEventTemplate(id) {
 
 export function login({username, password, reCaptcha = null}) {
 
-  const payload = (reCaptcha != null)? {username, password, reCaptcha} : {username, password}
+  const payload = (reCaptcha !== null)? {username, password, reCaptcha} : {username, password}
 
   return function (dispatch) {
     // axios.post(`${API_ROOT_URL}/api/v1/login`, {username, password, reCaptcha}) <-- need to implement this server-side
@@ -422,7 +422,7 @@ export function resetPassword({token, password, reCaptcha = null}) {
 
 export function registerUser({username, fullname, password, email, reCaptcha = null}) {
 
-  const payload = (reCaptcha != null)? {username, fullname, password, email, reCaptcha} : {username, fullname, password, email}
+  const payload = (reCaptcha !== null)? {username, fullname, password, email, reCaptcha} : {username, fullname, password, email}
 
   return function (dispatch) {
     axios.post(`${API_ROOT_URL}/api/v1/register`, payload)
@@ -538,17 +538,17 @@ export function createEventTemplate(formProps) {
         event_option.event_option_required = event_option.event_option_required;
       }
 
-      if(event_option.event_option_type == 'dropdown') {
+      if(event_option.event_option_type === 'dropdown') {
         event_option.event_option_values = event_option.event_option_values.split(',');
         event_option.event_option_values = event_option.event_option_values.map(string => {
           return string.trim();
         })
-      } else if(event_option.event_option_type == 'checkboxes') {
+      } else if(event_option.event_option_type === 'checkboxes') {
         event_option.event_option_values = event_option.event_option_values.split(',');
         event_option.event_option_values = event_option.event_option_values.map(string => {
           return string.trim();
         })
-      } else if (event_option.event_option_type == 'text') {
+      } else if (event_option.event_option_type === 'text') {
         event_option.event_option_values = [];
       }
 
@@ -921,17 +921,17 @@ export function updateEventTemplate(formProps) {
         event_option.event_option_required = event_option.event_option_required;
       }
 
-      if(event_option.event_option_type == 'dropdown') {
+      if(event_option.event_option_type === 'dropdown') {
         event_option.event_option_values = event_option.event_option_values.split(',');
         event_option.event_option_values = event_option.event_option_values.map(string => {
           return string.trim();
         })
-      } else if(event_option.event_option_type == 'checkboxes') {
+      } else if(event_option.event_option_type === 'checkboxes') {
         event_option.event_option_values = event_option.event_option_values.split(',');
         event_option.event_option_values = event_option.event_option_values.map(string => {
           return string.trim();
         })
-      } else if (event_option.event_option_type == 'text') {
+      } else if (event_option.event_option_type === 'text') {
         event_option.event_option_values = [];
       }
 
@@ -973,7 +973,7 @@ export function deleteCruise(id) {
     ).then((response) => {
       dispatch(fetchCruises());
 
-      if(getState().cruise.cruise.id == id) {
+      if(getState().cruise.cruise.id === id) {
         dispatch(leaveUpdateCruiseForm());
       }
     }).catch((error) => {
@@ -994,7 +994,7 @@ export function deleteLowering(id) {
     ).then((response) => {
       dispatch(fetchLowerings());
 
-      if(getState().lowering.lowering.id == id) {
+      if(getState().lowering.lowering.id === id) {
         dispatch(leaveUpdateLoweringForm());
       }
     }).catch((error) => {
@@ -1463,7 +1463,7 @@ export function fetchEventTemplates() {
       dispatch({type: FETCH_EVENT_TEMPLATES, payload: data})
     }).catch((error) => {
       console.log("error:", error)
-      if(error.response.data.statusCode == 404) {
+      if(error.response.data.statusCode === 404) {
         dispatch({type: FETCH_EVENT_TEMPLATES, payload: []})
       } else {
         console.log(error);
@@ -1714,7 +1714,7 @@ export function eventUpdate() {
       dispatch({ type: EVENT_FETCHING, payload: false})
     }).catch((error)=>{
       console.log(error);
-      if(error.response.data.statusCode == 404) {
+      if(error.response.data.statusCode === 404) {
         dispatch({type: UPDATE_EVENTS, payload: []})
       } else {
         console.log(error.response);
@@ -1748,7 +1748,7 @@ export function eventUpdateLoweringReplay(lowering_id, hideASNAP = false) {
       }
       dispatch({ type: EVENT_FETCHING, payload: false})
     }).catch((error)=>{
-      if(error.response.data.statusCode == 404) {
+      if(error.response.data.statusCode === 404) {
         dispatch({type: UPDATE_EVENTS, payload: []})
         dispatch({ type: SET_SELECTED_EVENT, payload: {} })
 
@@ -1777,7 +1777,7 @@ export function eventSetActiveEvent(id) {
       dispatch({ type: EVENT_SET_ACTIVE_EVENT, payload: response.data})
     }).catch((error)=> {
       console.log(error.response);
-      if(error.response.data.statusCode == 404){
+      if(error.response.data.statusCode === 404){
         dispatch({type: EVENT_SET_ACTIVE_EVENT, payload: {} })
       } else {
         console.log(error.response);

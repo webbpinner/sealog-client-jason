@@ -78,7 +78,7 @@ class LoweringDropdown extends Component {
 
   componentDidUpdate() {
 
-    if(this.state.cruise && this.props.active_cruise && this.state.cruise.id != this.props.active_cruise.id) {
+    if(this.state.cruise && this.props.active_cruise && this.state.cruise.id !== this.props.active_cruise.id) {
       this.getLowerings(this.props.active_cruise, this.props.onClick)
     }
   }
@@ -90,7 +90,7 @@ class LoweringDropdown extends Component {
       }
     )
 
-    if(this.props.active_cruise && this.props.active_cruise.cruise_id != this.state.cruise.cruise_id) {
+    if(this.props.active_cruise && this.props.active_cruise.cruise_id !== this.state.cruise.cruise_id) {
       this.getLowerings(this.props.active_cruise, this.props.onClick)
     }
   }

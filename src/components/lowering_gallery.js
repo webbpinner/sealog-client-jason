@@ -39,11 +39,11 @@ class LoweringGallery extends Component {
   componentDidMount() {
     this.initLoweringImages(this.props.match.params.id);
 
-    if(!this.props.lowering.id || this.props.lowering.id != this.props.match.params.id || this.props.event.events.length == 0) {
+    if(!this.props.lowering.id || this.props.lowering.id !== this.props.match.params.id || this.props.event.events.length === 0) {
       this.props.initLowering(this.props.match.params.id);
     }
 
-    if(!this.props.cruise.id || this.props.lowering.id != this.props.match.params.id){
+    if(!this.props.cruise.id || this.props.lowering.id !== this.props.match.params.id){
       this.props.initCruiseFromLowering(this.props.match.params.id);
     }
   }
@@ -79,7 +79,7 @@ class LoweringGallery extends Component {
 
       this.setState({ aux_data: image_data, fetching: false })
     }).catch((error)=>{
-      if(error.response.data.statusCode == 404) {
+      if(error.response.data.statusCode === 404) {
         this.setState({ aux_data: [], fetching: false })
       } else {
         console.log(error)

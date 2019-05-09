@@ -24,7 +24,7 @@ class DisplayUserTokenModal extends Component {
     id: PropTypes.string.isRequired,
   };
 
-  componentWillMount() {
+  componentDidMount() {
     axios.get(`${API_ROOT_URL}/api/v1/users/${this.props.id}/token`,
     {
       headers: {

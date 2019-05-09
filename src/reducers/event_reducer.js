@@ -17,7 +17,7 @@ export default function( state={ selected_event: {}, events: [], eventFilter: {}
 
     case UPDATE_EVENT:
       let newEvents = state.events.map((event) => {
-        if(event.id == action.payload.id) {
+        if(event.id === action.payload.id) {
           return action.payload;
         } else {
           return event;

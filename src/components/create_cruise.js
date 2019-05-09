@@ -110,7 +110,7 @@ class CreateCruise extends Component {
     let checkboxList = options.map((option, index) => {
 
       //let tooltip = (option.description)? (<Tooltip id={`${option.value}_Tooltip`}>{option.description}</Tooltip>) : null
-      //let overlay = (tooltip != null)? (<OverlayTrigger placement="right" overlay={tooltip}><span>{option.label}</span></OverlayTrigger>) : option.label
+      //let overlay = (tooltip !== null)? (<OverlayTrigger placement="right" overlay={tooltip}><span>{option.label}</span></OverlayTrigger>) : option.label
 
       return (
         <Form.Check
@@ -321,22 +321,22 @@ function validate(formProps) {
     errors.stop_ts = 'Invalid timestamp'
   }
 
-  if ((formProps.start_ts != '') && (formProps.stop_ts != '')) {
+  if ((formProps.start_ts !== '') && (formProps.stop_ts !== '')) {
     if(moment(formProps.stop_ts, dateFormat).isBefore(moment(formProps.start_ts, dateFormat))) {
       errors.stop_ts = 'Stop date must be later than start data'
     }
   }
 
-  if (typeof formProps.cruise_tags == "string") {
-    if (formProps.cruise_tags == '') {
+  if (typeof formProps.cruise_tags === "string") {
+    if (formProps.cruise_tags === '') {
       formProps.cruise_tags = []
     } else {
       formProps.cruise_tags = formProps.cruise_tags.split(',');
     }
   }
 
-  if (typeof formProps.cruise_participants == "string") {
-    if (formProps.cruise_participants == '') {
+  if (typeof formProps.cruise_participants === "string") {
+    if (formProps.cruise_participants === '') {
       formProps.cruise_participants = []
     } else {
       formProps.cruise_participants = formProps.cruise_participants.split(',');

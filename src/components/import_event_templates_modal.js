@@ -59,7 +59,7 @@ class ImportEventTemplatesModal extends Component {
       }
     } catch(error) {
 
-      if(error.response.data.statusCode == 404) {
+      if(error.response.data.statusCode === 404) {
       // console.log("Attempting to add event template")
 
         try {
@@ -82,7 +82,7 @@ class ImportEventTemplatesModal extends Component {
           }
         } catch(error) {
           
-          if(error.response.data.statusCode == 400) {
+          if(error.response.data.statusCode === 400) {
             // console.log("Event Template Data malformed or incomplete");
           } else {
             console.log(error);  
@@ -97,7 +97,7 @@ class ImportEventTemplatesModal extends Component {
         }
       } else {
 
-        if(error.response.data.statusCode != 400) {
+        if(error.response.data.statusCode !== 400) {
           console.log(error.response);
         }
 

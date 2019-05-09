@@ -11,7 +11,7 @@ class Header extends Component {
     super(props);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     if (this.props.authenticated) {
       this.props.updateProfileState();
     }
@@ -19,7 +19,7 @@ class Header extends Component {
 
   handleASNAPToggle() {
     if(this.props.asnapStatus) {
-      if(this.props.asnapStatus.custom_var_value == 'Off') {
+      if(this.props.asnapStatus.custom_var_value === 'Off') {
         this.props.updateCustomVars(this.props.asnapStatus.id, {custom_var_value: 'On'})
       } else {
         this.props.updateCustomVars(this.props.asnapStatus.id, {custom_var_value: 'Off'})
@@ -112,7 +112,7 @@ class Header extends Component {
       return (
       <NavDropdown title={<span>{this.props.fullname} <FontAwesomeIcon icon="user" /></span>} id="basic-nav-dropdown-user">
           <NavDropdown.Item href="/profile" key="profile" >User Profile</NavDropdown.Item>
-          {(this.props.fullname != 'Guest' && RECAPTCHA_SITE_KEY == "")? (<NavDropdown.Item key="switch2Guest" onClick={ () => this.handleSwitchToGuest() } >Switch to Guest</NavDropdown.Item>) : null }
+          {(this.props.fullname !== 'Guest' && RECAPTCHA_SITE_KEY === "")? (<NavDropdown.Item key="switch2Guest" onClick={ () => this.handleSwitchToGuest() } >Switch to Guest</NavDropdown.Item>) : null }
         <NavDropdown.Item key="logout" onClick={ () => this.handleLogout() } >Log Out</NavDropdown.Item>
       </NavDropdown>
       );
@@ -157,13 +157,13 @@ class Header extends Component {
 }
 
 function mapStateToProps(state){
-  let asnapStatus = (state.custom_var)? state.custom_var.custom_vars.find(custom_var => custom_var.custom_var_name == "asnapStatus") : null
+  let asnapStatus = (state.custom_var)? state.custom_var.custom_vars.find(custom_var => custom_var.custom_var_name === "asnapStatus") : null
 
   return {
     authenticated: state.auth.authenticated,
     fullname: state.user.profile.fullname,
     roles: state.user.profile.roles,
-    asnapStatus: (state.custom_var)? state.custom_var.custom_vars.find(custom_var => custom_var.custom_var_name == "asnapStatus") : null
+    asnapStatus: (state.custom_var)? state.custom_var.custom_vars.find(custom_var => custom_var.custom_var_name === "asnapStatus") : null
   };
 }
 

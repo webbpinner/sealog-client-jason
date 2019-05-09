@@ -13,7 +13,7 @@ export default function(ComposedComponent) {
       super(props, context);
     }
 
-    componentWillMount() {
+    componentDidMount() {
       this.props.validateJWT();
       if (!this.props.authenticated) {
         this.props.logout()

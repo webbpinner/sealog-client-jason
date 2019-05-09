@@ -13,7 +13,7 @@ export default function(ComposedComponent) {
       super(props, context);
     }
 
-    componentWillMount() {
+    componentDidMount() {
       if (this.props.authenticated) {
         this.props.gotoHome();
       }

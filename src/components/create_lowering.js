@@ -269,14 +269,14 @@ function validate(formProps) {
     errors.stop_ts = 'Invalid timestamp'
   }
 
-  if ((formProps.start_ts != '') && (formProps.stop_ts != '')) {
+  if ((formProps.start_ts !== '') && (formProps.stop_ts !== '')) {
     if(moment(formProps.stop_ts, dateFormat + " " + timeFormat).isBefore(moment(formProps.start_ts, dateFormat + " " + timeFormat))) {
       errors.stop_ts = 'Stop date/time must be later than start date/time'
     }
   }
 
-  if (typeof formProps.lowering_tags == "string") {
-    if (formProps.lowering_tags == '') {
+  if (typeof formProps.lowering_tags === "string") {
+    if (formProps.lowering_tags === '') {
       formProps.lowering_tags = []
     } else {
       formProps.lowering_tags = formProps.lowering_tags.split(',');

@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { Row, Col, Container, Form, Card, Button, Alert, Image } from 'react-bootstrap';
 import ReCAPTCHA from "react-google-recaptcha";
 import * as actions from '../../actions';
-import { ROOT_PATH, LOGIN_SCREEN_TXT, RECAPTCHA_SITE_KEY } from '../../client_config';
+import { ROOT_PATH, LOGIN_SCREEN_TXT, LOGIN_IMAGE, RECAPTCHA_SITE_KEY } from '../../client_config';
 
 class Login extends Component {
  
@@ -68,7 +68,7 @@ render() {
     const { handleSubmit, pristine, reset, submitting, valid } = this.props;
     const loginCardHeader = (<h5 className="form-signin-heading">Please Sign In</h5>);
 
-    const recaptcha = ( RECAPTCHA_SITE_KEY != "")? (
+    const recaptcha = ( RECAPTCHA_SITE_KEY !== "")? (
       <span>
         <ReCAPTCHA
           ref={e => reCaptchaInstance = e}
@@ -81,9 +81,9 @@ render() {
       </span>
     ): null
 
-    const loginButton = ( RECAPTCHA_SITE_KEY == "")? <Button variant="primary" type="submit" block disabled={submitting || !valid}>Login</Button> : <Button variant="primary" type="submit" block disabled={submitting || !valid || !this.state.reCaptcha}>Login</Button>
+    const loginButton = ( RECAPTCHA_SITE_KEY === "")? <Button variant="primary" type="submit" block disabled={submitting || !valid}>Login</Button> : <Button variant="primary" type="submit" block disabled={submitting || !valid || !this.state.reCaptcha}>Login</Button>
 
-    const loginAsGuestButton = ( RECAPTCHA_SITE_KEY == "")? <Button variant="success" onClick={() => this.props.switch2Guest()} block>Login as Guest</Button> : <Button variant="success" onClick={() => this.props.switch2Guest(this.state.reCaptcha)} block disabled={!this.state.reCaptcha}>Login as Guest</Button>
+    const loginAsGuestButton = ( RECAPTCHA_SITE_KEY === "")? <Button variant="success" onClick={() => this.props.switch2Guest()} block>Login as Guest</Button> : <Button variant="success" onClick={() => this.props.switch2Guest(this.state.reCaptcha)} block disabled={!this.state.reCaptcha}>Login as Guest</Button>
 
     return (
       <Container>
@@ -126,7 +126,7 @@ render() {
           <Col xs={12} sm={12} md={6} lg={5}>
             <div className="form-signin">
               <div className="d-flex justify-content-center">
-                <Image style={{width:"250px", margin: "0 auto"}} fluid src={`${ROOT_PATH}images/Jason_Profile.png`} />
+                <Image style={{width:"250px", margin: "0 auto"}} fluid src={`${ROOT_PATH}images/${LOGIN_IMAGE}`} />
               </div>
               <br/><br/>
               <div style={{padding: "0px 16px 0px 16px"}}>{LOGIN_SCREEN_TXT}</div>

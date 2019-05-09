@@ -68,11 +68,11 @@ class Users extends Component {
   }
 
   exportUsersToJSON() {
-    fileDownload(JSON.stringify(this.props.users.filter(user => user.system_user == false), null, 2), 'sealog_userExport.json');
+    fileDownload(JSON.stringify(this.props.users.filter(user => user.system_user === false), null, 2), 'sealog_userExport.json');
   }
 
   exportSystemUsersToJSON() {
-    fileDownload(JSON.stringify(this.props.users.filter(user => user.system_user == true), null, 2), 'sealog_systemUserExport.json');
+    fileDownload(JSON.stringify(this.props.users.filter(user => user.system_user === true), null, 2), 'sealog_systemUserExport.json');
   }
 
 
@@ -105,14 +105,15 @@ class Users extends Component {
     if(this.props.users){
       let non_system_users = this.props.users.filter((user) => !user.system_user)
       return non_system_users.map((user) => {
+        const style = (user.disabled)? {"text-decoration": "line-through"}: {}
         return (
           <tr key={user.id}>
-            <td>{user.username}</td>
-            <td>{user.fullname}</td>
+            <td style={style} className={(this.props.userid === user.id)? "text-warning" : ""}>{user.username}</td>
+            <td style={style}>{user.fullname}</td>
             <td>
-              <Link key={`edit_${user.id}`} to="#" onClick={ () => this.handleUserSelect(user.id) }><OverlayTrigger placement="top" overlay={editTooltip}><FontAwesomeIcon icon='pencil-alt' fixedWidth/></OverlayTrigger></Link>{' '}
-              {(this.props.roles.includes('admin'))? <Link key={`token_${user.id}`} to="#" onClick={ () => this.handleDisplayUserToken(user.id) }><OverlayTrigger placement="top" overlay={tokenTooltip}><FontAwesomeIcon icon='eye' fixedWidth/></OverlayTrigger></Link> : ''}{' '}
-              {(user.id != this.props.profileid && !disabledAccounts.includes(user.username))? <Link key={`delete_${user.id}`} to="#" onClick={ () => this.handleUserDelete(user.id) }><OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesomeIcon icon='trash' fixedWidth/></OverlayTrigger></Link> : ''}
+              <OverlayTrigger placement="top" overlay={editTooltip}><FontAwesomeIcon className="text-primary" onClick={ () => this.handleUserSelect(user.id) } icon='pencil-alt' fixedWidth/></OverlayTrigger>{' '}
+              {(this.props.roles.includes('admin'))? <OverlayTrigger placement="top" overlay={tokenTooltip}><FontAwesomeIcon className="text-warning" onClick={ () => this.handleDisplayUserToken(user.id) } icon='eye' fixedWidth/></OverlayTrigger> : ''}{' '}
+              {(user.id !== this.props.profileid && !disabledAccounts.includes(user.username))? <OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesomeIcon  className="text-danger" onClick={ () => this.handleUserDelete(user.id) } icon='trash' fixedWidth/></OverlayTrigger> : ''}
             </td>
           </tr>
         );
@@ -133,18 +134,20 @@ class Users extends Component {
     const deleteTooltip = (<Tooltip id="deleteTooltip">Delete this user.</Tooltip>)
 
     if(this.props.users && this.props.users.length > 0) {
-      let system_users = this.props.users.filter((user) => user.system_user)
+      const system_users = this.props.users.filter((user) => user.system_user)
 
       return system_users.map((user) => {
+
+        const style = (user.disabled)? {"text-decoration": "line-through"}: {}
         if(user.system_user) {
           return (
             <tr key={user.id}>
-              <td>{user.username}</td>
-              <td>{user.fullname}</td>
+              <td style={style} className={(this.props.userid === user.id)? "text-warning" : ""}>{user.username}</td>
+              <td style={style} >{user.fullname}</td>
               <td>
-                {(this.props.roles.includes('admin'))? <Link key={`edit_${user.id}`} to="#" onClick={ () => this.handleUserSelect(user.id) }><OverlayTrigger placement="top" overlay={editTooltip}><FontAwesomeIcon icon='pencil-alt' fixedWidth/></OverlayTrigger></Link> : ''}{' '}
-                {(this.props.roles.includes('admin'))? <Link key={`token_${user.id}`} to="#" onClick={ () => this.handleDisplayUserToken(user.id) }><OverlayTrigger placement="top" overlay={tokenTooltip}><FontAwesomeIcon icon='eye' fixedWidth/></OverlayTrigger></Link> : ''}{' '}
-                {(user.id != this.props.profileid && !disabledAccounts.includes(user.username))? <Link key={`delete_${user.id}`} to="#" onClick={ () => this.handleUserDelete(user.id) }><OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesomeIcon icon='trash' fixedWidth/></OverlayTrigger></Link> : ''}
+                {(this.props.roles.includes('admin'))? <OverlayTrigger placement="top" overlay={editTooltip}><FontAwesomeIcon className="text-primary" onClick={ () => this.handleUserSelect(user.id) } icon='pencil-alt' fixedWidth/></OverlayTrigger> : ''}{' '}
+                {(this.props.roles.includes('admin'))? <OverlayTrigger placement="top" overlay={tokenTooltip}><FontAwesomeIcon className="text-warning" onClick={ () => this.handleDisplayUserToken(user.id) } icon='eye' fixedWidth/></OverlayTrigger> : ''}{' '}
+                {(user.id !== this.props.profileid && !disabledAccounts.includes(user.username))? <OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesomeIcon className="text-danger" onClick={ () => this.handleUserDelete(user.id) } icon='trash' fixedWidth/></OverlayTrigger> : ''}
               </td>
             </tr>
           );
@@ -256,7 +259,7 @@ class Users extends Component {
       let l = null
 
       for (let i = 1; i <= last; i++) {
-        if (i == 1 || i == last || i >= left && i < right) {
+        if (i === 1 || i === last || i >= left && i < right) {
             range.push(i);
         }
       }
@@ -294,7 +297,16 @@ class Users extends Component {
 
     if (this.props.roles.includes("admin") || this.props.roles.includes("cruise_manager")) {
 
-      let userForm = (this.props.userid)? <UpdateUser /> : <CreateUser />
+      const  userForm = (this.props.userid)? <UpdateUser /> : <CreateUser />
+
+      const systemUsersCard = (this.props.users.filter(user => user.system_user === true).length > 0) ? 
+      (
+        <Card border="secondary" style={{marginBottom: "8px"}} >
+          <Card.Header>{this.renderSystemUsersHeader()}</Card.Header>
+          {this.renderSystemUserTable()}
+          {this.renderPagination()}
+        </Card>
+      ) : null
 
       return (
         <div>
@@ -304,11 +316,7 @@ class Users extends Component {
           <NonSystemUsersWipeModal />
           <Row>
             <Col sm={12} md={7} lg={{span:6, offset:1}} xl={{span:5, offset:2}}>
-              <Card border="secondary" style={{marginBottom: "8px"}} >
-                <Card.Header>{this.renderSystemUsersHeader()}</Card.Header>
-                {this.renderSystemUserTable()}
-                {this.renderPagination()}
-              </Card>
+              {systemUsersCard}
               <Card border="secondary" style={{marginBottom: "8px"}} >
                 <Card.Header>
                   {this.renderUsersHeader()}

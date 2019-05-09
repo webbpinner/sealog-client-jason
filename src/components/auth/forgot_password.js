@@ -91,8 +91,8 @@ class ForgotPassword extends Component {
       const panelHeader = (<h5 className="form-signin-heading">Forgot Password</h5>);
       const { handleSubmit, pristine, reset, submitting, valid } = this.props;
 
-      const submitButton = (RECAPTCHA_SITE_KEY != "")?  <Button variant="primary" type="submit" block disabled={submitting || !valid || !this.state.reCaptcha}>Submit</Button> : <Button variant="primary" type="submit" block disabled={submitting || !valid}>Submit</Button>
-      const recaptcha = ( RECAPTCHA_SITE_KEY != "")? (
+      const submitButton = (RECAPTCHA_SITE_KEY !== "")?  <Button variant="primary" type="submit" block disabled={submitting || !valid || !this.state.reCaptcha}>Submit</Button> : <Button variant="primary" type="submit" block disabled={submitting || !valid}>Submit</Button>
+      const recaptcha = ( RECAPTCHA_SITE_KEY !== "")? (
         <span>
           <ReCAPTCHA
             sitekey={RECAPTCHA_SITE_KEY}

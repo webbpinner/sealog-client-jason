@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import Cookies from 'universal-cookie';
-import { Button, Row, Col, Card, ListGroup, ListGroupItem, ButtonToolbar, Dropdown, Pagination, Tooltip, OverlayTrigger } from 'react-bootstrap';
+import { Button, Row, Col, Card, ListGroup, ButtonToolbar, Dropdown, Pagination, Tooltip, OverlayTrigger } from 'react-bootstrap';
 import axios from 'axios';
 import EventFilterForm from './event_filter_form';
 import EventCommentModal from './event_comment_modal';
@@ -40,12 +40,12 @@ class LoweringReview extends Component {
   }
 
   componentDidMount(){
-    if(!this.props.lowering.id || this.props.lowering.id != this.props.match.params.id || this.props.event.events.length == 0) {
+    if(!this.props.lowering.id || this.props.lowering.id !== this.props.match.params.id || this.props.event.events.length === 0) {
       // console.log("initLoweringReplay", this.props.match.params.id)
       this.props.initLoweringReplay(this.props.match.params.id, this.state.hideASNAP);
     }
 
-    // if(!this.props.cruise.id || this.props.lowering.id != this.props.match.params.id){
+    // if(!this.props.cruise.id || this.props.lowering.id !== this.props.match.params.id){
     this.props.initCruiseFromLowering(this.props.match.params.id);
     // }
   }
@@ -72,7 +72,7 @@ class LoweringReview extends Component {
 
   async handleEventUpdate(event_id, event_value, event_free_text, event_options, event_ts) {
     const response = await this.props.updateEvent(event_id, event_value, event_free_text, event_options, event_ts)
-    if(response.response.status == 204) {
+    if(response.response.status === 204) {
       this.props.updateLoweringReplayEvent(event_id);
     }
   }
@@ -100,7 +100,7 @@ class LoweringReview extends Component {
       }).then((response) => {
         return response.data
       }).catch((error)=>{
-        if(error.response.data.statusCode == 404){
+        if(error.response.data.statusCode === 404){
           return []
         } else {
           console.log(error.response);
@@ -130,7 +130,7 @@ class LoweringReview extends Component {
       }).then((response) => {
         return response.data
       }).catch((error)=>{
-        if(error.response.data.statusCode == 404){
+        if(error.response.data.statusCode === 404){
           return []
         } else {
           console.log(error.response);
@@ -160,7 +160,7 @@ class LoweringReview extends Component {
       }).then((response) => {
         return response.data
       }).catch((error)=>{
-        if(error.response.data.statusCode == 404){
+        if(error.response.data.statusCode === 404){
           return []
         } else {
           console.log(error.response);
@@ -302,7 +302,7 @@ class LoweringReview extends Component {
           let comment_exists = false;
 
           let eventOptionsArray = event.event_options.reduce((filtered, option) => {
-            if(option.event_option_name == 'event_comment') {
+            if(option.event_option_name === 'event_comment') {
               comment_exists = (option.event_option_value !== '')? true : false;
             } else {
               filtered.push(`${option.event_option_name}: \"${option.event_option_value}\"`);
@@ -314,7 +314,7 @@ class LoweringReview extends Component {
             eventOptionsArray.push(`free_text: \"${event.event_free_text}\"`)
           } 
 
-          let active = (this.props.event.selected_event.id == event.id)? true : false
+          let active = (this.props.event.selected_event.id === event.id)? true : false
 
           let eventOptions = (eventOptionsArray.length > 0)? '--> ' + eventOptionsArray.join(', '): ''
           
@@ -325,7 +325,7 @@ class LoweringReview extends Component {
           let commentTooltip = (comment_exists)? (<OverlayTrigger placement="top" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Edit/View Comment</Tooltip>}>{commentIcon}</OverlayTrigger>) : (<OverlayTrigger placement="top" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Add Comment</Tooltip>}>{commentIcon}</OverlayTrigger>)
           let eventComment = (this.props.roles.includes("event_logger") || this.props.roles.includes("admin"))? commentTooltip : null
 
-          // return (<ListGroupItem key={event.id} active={active} ><Row><Col xs={11} ><span onClick={() => this.handleEventShowDetailsModal(event)} >{`${event.ts} <${event.event_author}>: ${event.event_value} ${eventOptions}`}</span></Col><Col>{eventComment}</Col></Row></ListGroupItem>);
+          // return (<ListGroup.Item key={event.id} active={active} ><Row><Col xs={11} ><span onClick={() => this.handleEventShowDetailsModal(event)} >{`${event.ts} <${event.event_author}>: ${event.event_value} ${eventOptions}`}</span></Col><Col>{eventComment}</Col></Row></ListGroup.Item>);
           return (<ListGroup.Item className="event-list-item" key={event.id} active={active} ><span onClick={() => this.handleEventShowDetailsModal(event)} >{`${event.ts} <${event.event_author}>: ${event.event_value} ${eventOptions}`}</span><span className="float-right">{eventComment}</span></ListGroup.Item>);
 
         }
@@ -334,7 +334,7 @@ class LoweringReview extends Component {
       return eventList
     }
 
-    return (<ListGroupItem>No events found</ListGroupItem>)
+    return (<ListGroup.Item>No events found</ListGroup.Item>)
   }
 
   renderPagination() {
@@ -350,7 +350,7 @@ class LoweringReview extends Component {
       let l = null
 
       for (let i = 1; i <= last; i++) {
-        if (i == 1 || i == last || i >= left && i < right) {
+        if (i === 1 || i === last || i >= left && i < right) {
             range.push(i);
         }
       }

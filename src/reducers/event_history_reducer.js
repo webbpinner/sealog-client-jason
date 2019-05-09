@@ -18,13 +18,13 @@ export default function(state={event_templates: [], history: []}, action) {
     case UPDATE_EVENT_HISTORY:
 
       let completeHistory = [];
-      let event = state.history.find(event => event.id == action.payload.id)
+      let event = state.history.find(event => event.id === action.payload.id)
 
       if(!event) {
         completeHistory = [action.payload, ...state.history ]
       } else {
         completeHistory = state.history.map(event => {
-          return (event.id == action.payload.id)? action.payload : event
+          return (event.id === action.payload.id)? action.payload : event
         })
       }
       let recentHistory = []

@@ -32,7 +32,7 @@ class Lowerings extends Component {
 
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.props.fetchLowerings();
   }
 
@@ -129,7 +129,7 @@ class Lowerings extends Component {
 
         return (
           <tr key={lowering.id}>
-            <td className={(this.props.loweringid == lowering.id)? "text-warning" : ""}>{lowering.lowering_id}</td>
+            <td className={(this.props.loweringid === lowering.id)? "text-warning" : ""}>{lowering.lowering_id}</td>
             <td>{loweringLocation}{loweringStarted}{loweringDurationStr}</td>
             <td>
               <OverlayTrigger placement="top" overlay={editTooltip}><FontAwesomeIcon className="text-primary" onClick={ () => this.handleLoweringUpdate(lowering.id) } icon='pencil-alt' fixedWidth/></OverlayTrigger>
@@ -193,7 +193,7 @@ class Lowerings extends Component {
       let l = null
 
       for (let i = 1; i <= last; i++) {
-        if (i == 1 || i == last || i >= left && i < right) {
+        if (i === 1 || i === last || i >= left && i < right) {
             range.push(i);
         }
       }

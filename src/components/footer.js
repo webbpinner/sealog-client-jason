@@ -74,13 +74,13 @@ class Footer extends Component {
 
     let asnapStatus = null
 
-    if(this.props.authenticated && this.props.asnapStatus == "Off") {
+    if(this.props.authenticated && this.props.asnapStatus === "Off") {
       asnapStatus =  (
         <span>
           ASNAP: <span className="text-danger">Off</span>
         </span>
       )
-    } else if(this.props.authenticated && this.props.asnapStatus == "On") {
+    } else if(this.props.authenticated && this.props.asnapStatus === "On") {
       asnapStatus =  (
         <span>
           ASNAP: <span className="text-success">On</span>
@@ -110,7 +110,7 @@ class Footer extends Component {
 
 function mapStateToProps(state){
 
-  let asnapStatus = (state.custom_var)? state.custom_var.custom_vars.find(custom_var => custom_var.custom_var_name == "asnapStatus") : null
+  let asnapStatus = (state.custom_var)? state.custom_var.custom_vars.find(custom_var => custom_var.custom_var_name === "asnapStatus") : null
 
   return {
     asnapStatus: (asnapStatus)? asnapStatus.custom_var_value : null,

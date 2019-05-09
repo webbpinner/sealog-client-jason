@@ -23,7 +23,7 @@ class EventFilterForm extends Component {
     handlePostSubmit: PropTypes.func.isRequired,
   };
 
-  componentWillMount() {
+  componentDidMount() {
   }
 
   componentWillUnmount() {

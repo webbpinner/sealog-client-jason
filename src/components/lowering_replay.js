@@ -36,6 +36,8 @@ const FREV = 3
 
 const maxEventsPerPage = 10;
 
+const excludeAuxDataSources = ['vehicleRealtimeCTDData', 'vehicleRealtimeMAGData', 'vehicleRealtimeNavData', 'vehicleRealtimeAlvinCoordData', 'vehicleRealtimeFramegrabberData']
+
 const SliderWithTooltip = createSliderWithTooltip(Slider);
 
 class LoweringReplay extends Component {
@@ -67,18 +69,18 @@ class LoweringReplay extends Component {
 
   componentDidMount() {
 
-    if(!this.props.lowering.id || this.props.lowering.id != this.props.match.params.id || this.props.event.events.length == 0) {
+    if(!this.props.lowering.id || this.props.lowering.id !== this.props.match.params.id || this.props.event.events.length === 0) {
       // console.log("initLoweringReplay", this.props.match.params.id)
       this.props.initLoweringReplay(this.props.match.params.id, this.state.hideASNAP);
     }
 
-    // if(!this.props.cruise.id || this.props.lowering.id != this.props.match.params.id){
+    // if(!this.props.cruise.id || this.props.lowering.id !== this.props.match.params.id){
     this.props.initCruiseFromLowering(this.props.match.params.id);
     // }
   }
 
   componentDidUpdate() {
-    // if(this.state.mapHeight != this.mapCard.clientHeight) {
+    // if(this.state.mapHeight !== this.mapCard.clientHeight) {
     //   this.setState({mapHeight: this.mapCard.clientHeight });
     // }
   }
@@ -122,7 +124,7 @@ class LoweringReplay extends Component {
         // console.log(response)
         return response.data
       }).catch((error)=>{
-        if(error.response.data.statusCode == 404){
+        if(error.response.data.statusCode === 404){
           return []
         } else {
           console.log(error.response);
@@ -153,7 +155,7 @@ class LoweringReplay extends Component {
       }).then((response) => {
         return response.data
       }).catch((error)=>{
-        if(error.response.data.statusCode == 404){
+        if(error.response.data.statusCode === 404){
           return []
         } else {
           console.log(error.response);
@@ -184,7 +186,7 @@ class LoweringReplay extends Component {
       }).then((response) => {
         return response.data
       }).catch((error)=>{
-        if(error.response.data.statusCode == 404){
+        if(error.response.data.statusCode === 404){
           return []
         } else {
           console.log(error.response);
@@ -335,7 +337,7 @@ class LoweringReplay extends Component {
 
   handleLoweringReplayFRev() {
     this.setState({replayState: FREV})    
-    if(this.state.replayTimer != null) {
+    if(this.state.replayTimer !== null) {
       clearInterval(this.state.replayTimer);
     }
     this.setState({replayTimer: setInterval(this.replayReverse, ffwdTimer)})
@@ -343,7 +345,7 @@ class LoweringReplay extends Component {
 
   handleLoweringReplayPlay() {
     this.setState({replayState: PLAY})
-    if(this.state.replayTimer != null) {
+    if(this.state.replayTimer !== null) {
       clearInterval(this.state.replayTimer);
     }
     this.setState({replayTimer: setInterval(this.replayAdvance, playTimer)})
@@ -351,7 +353,7 @@ class LoweringReplay extends Component {
 
   handleLoweringReplayPause() {
     this.setState({replayState: PAUSE})
-    if(this.state.replayTimer != null) {
+    if(this.state.replayTimer !== null) {
       clearInterval(this.state.replayTimer);
     }
     this.setState({replayTimer: null})
@@ -359,7 +361,7 @@ class LoweringReplay extends Component {
 
   handleLoweringReplayFFwd() {
     this.setState({replayState: FFWD})
-    if(this.state.replayTimer != null) {
+    if(this.state.replayTimer !== null) {
       clearInterval(this.state.replayTimer);
     }
     this.setState({replayTimer: setInterval(this.replayAdvance, ffwdTimer)})
@@ -388,11 +390,11 @@ class LoweringReplay extends Component {
 
   renderImageryCard() {
     if(this.props.event && this.props.event.selected_event.aux_data) { 
-      if (this.props.event.selected_event.event_value == "SuliusCam") {
+      if (this.props.event.selected_event.event_value === "SuliusCam") {
         let tmpData =[]
 
         for (let i = 0; i < this.props.event.selected_event.event_options.length; i++) {
-          if (this.props.event.selected_event.event_options[i].event_option_name == "filename") {
+          if (this.props.event.selected_event.event_options[i].event_option_name === "filename") {
             tmpData.push({source: "SuliusCam", filepath: API_ROOT_URL + IMAGE_PATH + this.props.event.selected_event.event_options[i].event_option_value} )
           } 
         }
@@ -411,7 +413,7 @@ class LoweringReplay extends Component {
           </Row>
         )
       } else {
-        let frameGrabberData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source == 'vehicleRealtimeFramegrabberData')
+        let frameGrabberData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source === 'vehicleRealtimeFramegrabberData')
         let tmpData = []
 
         if(frameGrabberData.length > 0) {
@@ -450,26 +452,26 @@ class LoweringReplay extends Component {
     let delta_longitude = 'n/a'
 
     if(this.props.event && this.props.event.selected_event.aux_data) {
-      let vehicleRealtimeNavData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source == "vehicleRealtimeNavData")
+      let vehicleRealtimeNavData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source === "vehicleRealtimeNavData")
       if(vehicleRealtimeNavData) {
-        let xObj = vehicleRealtimeNavData.data_array.find(data => data.data_name == "latitude")
+        let xObj = vehicleRealtimeNavData.data_array.find(data => data.data_name === "latitude")
         realtime_latitude = (xObj)? `${xObj.data_value} ${xObj.data_uom}` : 'n/a'
         delta_latitude = (xObj)? `${parseFloat(xObj.data_value)}` : 'n/a'
 
-        let yObj = vehicleRealtimeNavData.data_array.find(data => data.data_name == "longitude")
+        let yObj = vehicleRealtimeNavData.data_array.find(data => data.data_name === "longitude")
         realtime_longitude = (yObj)? `${yObj.data_value} ${yObj.data_uom}` : 'n/a'
         delta_longitude = (yObj)? `${parseFloat(yObj.data_value)}` : 'n/a'
       }
     }
 
     if(this.props.event && this.props.event.selected_event.aux_data) {
-      let vehicleReNavData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source == "vehicleReNavData")
+      let vehicleReNavData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source === "vehicleReNavData")
       if(vehicleReNavData) {
-        let xObj = vehicleReNavData.data_array.find(data => data.data_name == "latitude")
+        let xObj = vehicleReNavData.data_array.find(data => data.data_name === "latitude")
         renav_latitude = (xObj)? `${parseFloat(xObj.data_value).toFixed(6)} ${xObj.data_uom}` : 'n/a'
         delta_latitude = (xObj)? `${(delta_latitude - parseFloat(xObj.data_value)).toFixed(6)} ddeg` : 'n/a'
 
-        let yObj = vehicleReNavData.data_array.find(data => data.data_name == "longitude")
+        let yObj = vehicleReNavData.data_array.find(data => data.data_name === "longitude")
         renav_longitude = (yObj)? `${parseFloat(yObj.data_value).toFixed(6)} ${yObj.data_uom}` : 'n/a'
         delta_longitude = (yObj)? `${(delta_longitude - parseFloat(yObj.data_value)).toFixed(6)} ddeg` : 'n/a'
       } else {
@@ -515,26 +517,26 @@ class LoweringReplay extends Component {
     let delta_alvin_y = 'n/a'
 
     if(this.props.event && this.props.event.selected_event.aux_data) {
-      let alvinRealtimeAlvinCoordData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source == "vehicleRealtimeAlvinCoordData")
-      if(alvinRealtimeAlvinCoordData) {
-        let xObj = alvinRealtimeAlvinCoordData.data_array.find(data => data.data_name == "alvin_x")
+      let vehicleRealtimeAlvinCoordData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source === "vehicleRealtimeAlvinCoordData")
+      if(vehicleRealtimeAlvinCoordData) {
+        let xObj = vehicleRealtimeAlvinCoordData.data_array.find(data => data.data_name === "alvin_x")
         realtime_alvin_x = (xObj)? `${xObj.data_value} ${xObj.data_uom}` : 'n/a'
         delta_alvin_x = (xObj)? `${parseFloat(xObj.data_value)}` : 'n/a'
 
-        let yObj = alvinRealtimeAlvinCoordData.data_array.find(data => data.data_name == "alvin_y")
+        let yObj = vehicleRealtimeAlvinCoordData.data_array.find(data => data.data_name === "alvin_y")
         realtime_alvin_y = (yObj)? `${yObj.data_value} ${yObj.data_uom}` : 'n/a'
         delta_alvin_y = (yObj)? `${parseFloat(yObj.data_value)}` : 'n/a'
       }
     }
 
     if(this.props.event && this.props.event.selected_event.aux_data) {
-      let alvinReNavAlvinCoordData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source == "vehicleReNavAlvinCoordData")
-      if(alvinReNavAlvinCoordData) {
-        let xObj = alvinReNavAlvinCoordData.data_array.find(data => data.data_name == "alvin_x")
+      let vehicleReNavAlvinCoordData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source === "vehicleReNavAlvinCoordData")
+      if(vehicleReNavAlvinCoordData) {
+        let xObj = vehicleReNavAlvinCoordData.data_array.find(data => data.data_name === "alvin_x")
         renav_alvin_x = (xObj)? `${parseFloat(xObj.data_value).toFixed(2)} ${xObj.data_uom}` : 'n/a'
         delta_alvin_x = (xObj)? `${(delta_alvin_x - parseFloat(xObj.data_value)).toFixed(2)} meters` : 'n/a'
 
-        let yObj = alvinReNavAlvinCoordData.data_array.find(data => data.data_name == "alvin_y")
+        let yObj = vehicleReNavAlvinCoordData.data_array.find(data => data.data_name === "alvin_y")
         renav_alvin_y = (yObj)? `${parseFloat(yObj.data_value).toFixed(2)} ${yObj.data_uom}` : 'n/a'
         delta_alvin_y = (yObj)? `${(delta_alvin_y - parseFloat(yObj.data_value)).toFixed(2)} meters` : 'n/a'
       } else {
@@ -575,21 +577,21 @@ class LoweringReplay extends Component {
     let roll = 'n/a'
 
     if(this.props.event && this.props.event.selected_event.aux_data) {
-      let vehicleRealtimeNavData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source == "vehicleRealtimeNavData")
+      let vehicleRealtimeNavData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source === "vehicleRealtimeNavData")
       if(vehicleRealtimeNavData) {
-        let depthObj = vehicleRealtimeNavData.data_array.find(data => data.data_name == "depth")
+        let depthObj = vehicleRealtimeNavData.data_array.find(data => data.data_name === "depth")
         depth = (depthObj)? `${depthObj.data_value} ${depthObj.data_uom}` : 'n/a'
 
-        let altObj = vehicleRealtimeNavData.data_array.find(data => data.data_name == "altitude")
+        let altObj = vehicleRealtimeNavData.data_array.find(data => data.data_name === "altitude")
         alt = (altObj)? `${altObj.data_value} ${altObj.data_uom}` : 'n/a'
 
-        let hdgObj = vehicleRealtimeNavData.data_array.find(data => data.data_name == "heading")
+        let hdgObj = vehicleRealtimeNavData.data_array.find(data => data.data_name === "heading")
         hdg = (hdgObj)? `${hdgObj.data_value} ${hdgObj.data_uom}` : 'n/a'
 
-        let pitchObj = vehicleRealtimeNavData.data_array.find(data => data.data_name == "pitch")
+        let pitchObj = vehicleRealtimeNavData.data_array.find(data => data.data_name === "pitch")
         pitch = (pitchObj)? `${pitchObj.data_value} ${pitchObj.data_uom}` : 'n/a'
 
-        let rollObj = vehicleRealtimeNavData.data_array.find(data => data.data_name == "roll")
+        let rollObj = vehicleRealtimeNavData.data_array.find(data => data.data_name === "roll")
         roll = (rollObj)? `${rollObj.data_value} ${rollObj.data_uom}` : 'n/a'
 
       }
@@ -612,102 +614,171 @@ class LoweringReplay extends Component {
     );
   }
 
-  renderSensorCard() {
-    let ctd_c = 'n/a'
-    let ctd_t = 'n/a'
-    let ctd_d = 'n/a'
-    let temp_probe = 'n/a'
-    let mag_x = 'n/a'
-    let mag_y = 'n/a'
-    let mag_z = 'n/a'
+renderSensorCard() {
+    let ctd_data = null;
+    let temp_probe_data = null;
+    let mag_data = null;
 
     if(this.props.event && this.props.event.selected_event.aux_data) {
-      let vehicleCTDData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source == "vehicleRealtimeCTDData")
+      const vehicleCTDData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source === "vehicleRealtimeCTDData")
       if(vehicleCTDData) {
-        let ctd_cObj = vehicleCTDData.data_array.find(data => data.data_name == "ctd_c")
-        ctd_c = (ctd_cObj)? `${ctd_cObj.data_value} ${ctd_cObj.data_uom}` : 'n/a'
+        const ctd_cObj = vehicleCTDData.data_array.find(data => data.data_name === "ctd_c")
+        const ctd_c = (ctd_cObj)? `${ctd_cObj.data_value} ${ctd_cObj.data_uom}` : 'n/a'
 
-        let ctd_tObj = vehicleCTDData.data_array.find(data => data.data_name == "ctd_t")
-        ctd_t = (ctd_tObj)? `${ctd_tObj.data_value} ${ctd_tObj.data_uom}` : 'n/a'
+        const ctd_tObj = vehicleCTDData.data_array.find(data => data.data_name === "ctd_t")
+        const ctd_t = (ctd_tObj)? `${ctd_tObj.data_value} ${ctd_tObj.data_uom}` : 'n/a'
 
-        let ctd_dObj = vehicleCTDData.data_array.find(data => data.data_name == "ctd_d")
-        ctd_d = (ctd_dObj)? `${ctd_dObj.data_value} ${ctd_dObj.data_uom}` : 'n/a'
+        const ctd_dObj = vehicleCTDData.data_array.find(data => data.data_name === "ctd_d")
+        const ctd_d = (ctd_dObj)? `${ctd_dObj.data_value} ${ctd_dObj.data_uom}` : 'n/a'
+
+        ctd_data = (
+          <Col sm={12} md={12}>
+            <strong>CTD</strong><br/>
+            <div style={{paddingLeft: "10px"}}>
+              C:<span className="float-right"> {`${ctd_c}`}</span><br/>
+              T:<span className="float-right"> {`${ctd_t}`}</span><br/>
+              D:<span className="float-right"> {`${ctd_d}`}</span><br/>
+            </div>
+          </Col>
+        )
       }
 
-      let vehicleTempProbeData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source == "vehicleRealtimeTempProbeData")
+      const vehicleTempProbeData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source === "vehicleRealtimeTempProbeData")
       if(vehicleTempProbeData) {
-        let temp_probeObj = vehicleTempProbeData.data_array.find(data => data.data_name == "ctd_c")
-        temp_probe = (temp_probeObj)? `${temp_probeObj.data_value} ${temp_probeObj.data_uom}` : 'n/a'
+        const temp_probeObj = vehicleTempProbeData.data_array.find(data => data.data_name === "ctd_c")
+        const temp_probe = (temp_probeObj)? `${temp_probeObj.data_value} ${temp_probeObj.data_uom}` : 'n/a'
+
+        temp_probe_data = (
+          <Col sm={12} md={12}>
+            <strong>Temp Probe</strong><br/>
+            <div style={{paddingLeft: "10px"}}>
+              Temp:<span className="float-right"> {`${temp_probe}`}</span><br/>
+            </div>
+          </Col>
+        )
       }
 
-      let vehicleMagData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source == "vehicleRealtimeMAGData")
+      const vehicleMagData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source === "vehicleRealtimeMAGData")
       if(vehicleMagData) {
-        let mag_xObj = vehicleMagData.data_array.find(data => data.data_name == "x-axis")
-        mag_x = (mag_xObj)? `${mag_xObj.data_value} ${mag_xObj.data_uom}` : 'n/a'
+        const mag_xObj = vehicleMagData.data_array.find(data => data.data_name === "x-axis")
+        const mag_x = (mag_xObj)? `${mag_xObj.data_value} ${mag_xObj.data_uom}` : 'n/a'
 
-        let mag_yObj = vehicleMagData.data_array.find(data => data.data_name == "y-axis")
-        mag_y = (mag_yObj)? `${mag_yObj.data_value} ${mag_yObj.data_uom}` : 'n/a'
+        const mag_yObj = vehicleMagData.data_array.find(data => data.data_name === "y-axis")
+        const mag_y = (mag_yObj)? `${mag_yObj.data_value} ${mag_yObj.data_uom}` : 'n/a'
 
-        let mag_zObj = vehicleMagData.data_array.find(data => data.data_name == "z-axis")
-        mag_z = (mag_zObj)? `${mag_zObj.data_value} ${mag_zObj.data_uom}` : 'n/a'
+        const mag_zObj = vehicleMagData.data_array.find(data => data.data_name === "z-axis")
+        const mag_z = (mag_zObj)? `${mag_zObj.data_value} ${mag_zObj.data_uom}` : 'n/a'
+
+        mag_data = (
+          <Col sm={12} md={12}>
+            <strong>Magnetometer</strong><br/>
+            <div style={{paddingLeft: "10px"}}>
+              X:<span className="float-right"> {`${mag_x}`}</span><br/>
+              Y:<span className="float-right"> {`${mag_y}`}</span><br/>
+              Z:<span className="float-right"> {`${mag_z}`}</span><br/>
+            </div>
+          </Col>
+        )
       }
-    }  
+    }
 
-    return (
-      <Card border="secondary">
-        <Card.Header className="data-card-header">Sensor Data</Card.Header>
-        <Card.Body className="data-card-body">
-          <Row>
-            <Col sm={4} md={12}>
-              <strong>CTD</strong><br/>
+    return (ctd_data || temp_probe_data || mag_data)? (
+      <Col xs={12} sm={6} md={6} lg={3}>
+        <Card border="secondary">
+          <Card.Header className="data-card-header">Sensor Data</Card.Header>
+          <Card.Body className="data-card-body">
+            <Row>
+              {ctd_data}
+              {temp_probe_data}
+              {mag_data}
+            </Row>
+          </Card.Body>
+        </Card>
+      </Col>
+    ):null
+  }
+
+  renderEventOptionsCard() {
+
+    if(this.props.event.selected_event && this.props.event.selected_event.event_options && this.props.event.selected_event.event_options.length > 0) {
+
+      let event_seatube_permalink = false
+
+      let return_event_options = this.props.event.selected_event.event_options.reduce((filtered, event_option, index) => {
+        if(event_option.event_option_name !== 'event_comment') {
+          if (this.props.event.selected_event.event_value === "EDU" && event_option.event_option_name === 'seatube_permalink') {
+            event_seatube_permalink = true
+            if(this.props.roles.includes("admin") || this.props.roles.includes("event_manager") || this.props.roles.includes("event_loggerr")) {
+              if( event_option.event_option_value !== '') {
+                filtered.push(<span key={`event_option_${index}`}>{event_option.event_option_name}: <a target="_blank" href={this.props.event.selected_event.event_options[index].event_option_value}>{this.props.event.selected_event.event_options[index].event_option_value}</a> (<span className="text-primary" onClick={() => this.handleEventPermalinkModal()}>Edit</span>)<br/></span>)
+              }
+              else {
+                filtered.push(<span key={`event_option_${index}`}>{event_option.event_option_name}: (<span className="text-primary" onClick={() => this.handleEventPermalinkModal()}>Add</span>)<br/></span>)
+              }
+            }
+          }
+          else {
+              filtered.push(<div key={`event_option_${index}`}><span>{event_option.event_option_name}:</span> <span style={{wordWrap:'break-word'}} >{event_option.event_option_value}</span><br/></div>);
+          }
+        }
+
+        return filtered
+      },[])
+
+      if(this.props.event.selected_event.event_value === "EDU" && !event_seatube_permalink) {
+        if(this.props.roles.includes("admin") || this.props.roles.includes("event_manager") || this.props.roles.includes("event_loggerr")) {
+          return_event_options.push(<span key={`event_option_${return_event_options.length}`}>seatube_permalink: (<span className="text-primary" onClick={() => this.handleEventPermalinkModal()}>Add</span>)<br/></span>)
+        }
+        else {
+          return_event_options.push(<span key={`event_option_${return_event_options.length}`}>seatube_permalink:<br/></span>) 
+        }
+      }
+
+      return (return_event_options.length > 0)? (
+        <Col xs={12} sm={6} md={6} lg={3}>
+          <Card border="secondary">
+            <Card.Header className="data-card-header">Event Options</Card.Header>
+            <Card.Body className="data-card-body">
               <div style={{paddingLeft: "10px"}}>
-                C:<span className="float-right"> {`${ctd_c}`}</span><br/>
-                T:<span className="float-right"> {`${ctd_t}`}</span><br/>
-                D:<span className="float-right"> {`${ctd_d}`}</span><br/>
+                {return_event_options}
               </div>
-            </Col>
-            <Col sm={4} md={12}>
-              <strong>Temp Probe</strong><br/>
-              <div style={{paddingLeft: "10px"}}>
-                Temp:<span className="float-right"> {`${temp_probe}`}</span><br/>
-              </div>
-            </Col>
-            <Col sm={4} md={12}>
-              <strong>Magnetometer</strong><br/>
-              <div style={{paddingLeft: "10px"}}>
-                X:<span className="float-right"> {`${mag_x}`}</span><br/>
-                Y:<span className="float-right"> {`${mag_y}`}</span><br/>
-                Z:<span className="float-right"> {`${mag_z}`}</span><br/>
-              </div>
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card>
-    );
+            </Card.Body>
+          </Card>
+        </Col>
+      ) : null
+    }
   }
 
   renderAuxDataCard() {
 
-    let return_aux_data = []
-    if(this.props.event && this.props.event.selected_event.aux_data) {
-      return this.props.event.selected_event.aux_data.map((aux_data, index) => {
-        let return_data = aux_data.data_array.map((data, index) => {
-          return (<div key={`${aux_data.data_source}_data_point_${index}`}><label>{data.data_name}:</label><span> {data.data_value} {data.data_uom}</span></div>)
-        })
-        return (
-          <Col key={`${aux_data.data_source}`} xs={12} md={6}>
-            <Card>
-              <Card.Body className="data-card-body">
-                <label>{aux_data.data_source}:</label>
-                <ul>
-                  {return_data}
-                </ul>
-              </Card.Body>
-            </Card>
-          </Col>
-        )
-      })
-    }  
+    if(this.props.event.selected_event && this.props.event.selected_event.aux_data) {
+      let return_aux_data = this.props.event.selected_event.aux_data.reduce((filtered, aux_data, index) => {
+        if(!excludeAuxDataSources.includes(aux_data.data_source)) {
+          let aux_data_points = aux_data.data_array.map((data, index) => {
+            return(<div key={`${aux_data.data_source}_data_point_${index}`}><span>{data.data_name}:</span> <span style={{wordWrap:'break-word'}} >{data.data_value} {data.data_uom}</span><br/></div>)
+          })
+
+          if(aux_data_points.length > 0) {
+            filtered.push(
+              <Col key={`${aux_data.data_source}_col`}sm={4} md={3} lg={3}>
+                <Card key={`${aux_data.data_source}`} border="secondary">
+                  <Card.Header className="data-card-header">{aux_data.data_source}</Card.Header>
+                  <Card.Body className="data-card-body">
+                    <div style={{paddingLeft: "10px"}}>
+                      {aux_data_points}
+                    </div>
+                  </Card.Body>
+                </Card>
+              </Col>
+            )
+          }
+        }
+
+        return filtered
+      },[])
+
+      return return_aux_data
+    }
 
     return null
   }
@@ -719,7 +790,7 @@ class LoweringReplay extends Component {
       const loweringEndTime = moment(this.props.lowering.stop_ts)
       const loweringDuration = loweringEndTime.diff(loweringStartTime)
       
-      const playPause = (this.state.replayState != 1)? <FontAwesomeIcon className="text-primary" key={`pause_${this.props.lowering.id}`} onClick={ () => this.handleLoweringReplayPause() } icon="pause"/> : <FontAwesomeIcon className="text-primary" key={`play_${this.props.lowering.id}`} onClick={ () => this.handleLoweringReplayPlay() } icon="play"/>;
+      const playPause = (this.state.replayState !== 1)? <FontAwesomeIcon className="text-primary" key={`pause_${this.props.lowering.id}`} onClick={ () => this.handleLoweringReplayPause() } icon="pause"/> : <FontAwesomeIcon className="text-primary" key={`play_${this.props.lowering.id}`} onClick={ () => this.handleLoweringReplayPlay() } icon="play"/>;
 
       const buttons = (this.props.event.selected_event.ts && !this.props.event.fetching)? (
         <div className="text-center">
@@ -823,7 +894,7 @@ class LoweringReplay extends Component {
           let comment_exists = false;
 
           let eventOptionsArray = event.event_options.reduce((filtered, option) => {
-            if(option.event_option_name == 'event_comment') {
+            if(option.event_option_name === 'event_comment') {
               comment_exists = (option.event_option_value !== '')? true : false;
             } else {
               filtered.push(`${option.event_option_name}: \"${option.event_option_value}\"`);
@@ -835,7 +906,7 @@ class LoweringReplay extends Component {
             eventOptionsArray.push(`free_text: \"${event.event_free_text}\"`)
           } 
 
-          let active = (this.props.event.selected_event.id == event.id)? true : false
+          let active = (this.props.event.selected_event.id === event.id)? true : false
 
           let eventOptions = (eventOptionsArray.length > 0)? '--> ' + eventOptionsArray.join(', '): ''
           
@@ -868,7 +939,7 @@ class LoweringReplay extends Component {
       let l = null
 
       for (let i = 1; i <= last; i++) {
-        if (i == 1 || i == last || i >= left && i < right) {
+        if (i === 1 || i === last || i >= left && i < right) {
             range.push(i);
         }
       }
@@ -963,9 +1034,9 @@ class LoweringReplay extends Component {
           <Col sm={4} md={3} lg={3}>
             {this.renderAttitudeCard()}
           </Col>
-          <Col sm={8} md={3} lg={3}>
             {this.renderSensorCard()}
-          </Col>
+            {this.renderEventOptionsCard()}
+            {this.renderAuxDataCard()}
         </Row>
         <Row style={{paddingTop: "8px"}}>
           <Col md={9} lg={9}>

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import Cookies from 'universal-cookie';
-import { Button, Row, Col, Card, ListGroup, ListGroupItem, ButtonToolbar, Dropdown, Pagination, MenuItem, Tooltip, OverlayTrigger } from 'react-bootstrap';
+import { Button, Row, Col, Card, ListGroup, ButtonToolbar, Dropdown, Pagination, MenuItem, Tooltip, OverlayTrigger } from 'react-bootstrap';
 import axios from 'axios';
 import EventFilterForm from './event_filter_form';
 import EventCommentModal from './event_comment_modal';
@@ -39,7 +39,7 @@ class EventManagement extends Component {
     this.updateEventFilter = this.updateEventFilter.bind(this);
   }
 
-  componentWillMount(){
+  componentDidMount(){
     if(!this.state.events){
       this.fetchEventsForDisplay()
     }
@@ -60,7 +60,7 @@ class EventManagement extends Component {
 
   async handleEventUpdate(event_id, event_value, event_free_text, event_options, event_ts) {
     const response = await this.props.updateEvent(event_id, event_value, event_free_text, event_options, event_ts)
-    if(response.response.status == 204) {
+    if(response.response.status === 204) {
       this.setState(prevState => ({events: prevState.events.map((event) => {
           if(event.id === event_id) {
             event.event_options = event_options;
@@ -77,8 +77,8 @@ class EventManagement extends Component {
 
   async handleEventDelete(id) {
     const response = await this.props.deleteEvent(id)
-    if(response.response.status == 204) {
-      this.setState({events: this.state.events.filter(event => event.id != id)})
+    if(response.response.status === 204) {
+      this.setState({events: this.state.events.filter(event => event.id !== id)})
       if((this.state.events.length % maxEventsPerPage) === 0 && (this.state.events.length / maxEventsPerPage) === (this.state.activePage-1) ) {
         this.setState( prevState => ({activePage: prevState.activePage-1}))
       }
@@ -111,7 +111,7 @@ class EventManagement extends Component {
         this.setState({fetching: false})
         this.setState({events: response.data})
       }).catch((error)=>{
-        if(error.response.data.statusCode == 404){
+        if(error.response.data.statusCode === 404){
           this.setState({fetching: false})
           this.setState({events: []})
         } else {
@@ -143,7 +143,7 @@ class EventManagement extends Component {
       }).then((response) => {
         return response.data
       }).catch((error)=>{
-        if(error.response.data.statusCode == 404){
+        if(error.response.data.statusCode === 404){
           return []
         } else {
           console.log(error.response);
@@ -172,7 +172,7 @@ class EventManagement extends Component {
       }).then((response) => {
         return response.data
       }).catch((error)=>{
-        if(error.response.data.statusCode == 404){
+        if(error.response.data.statusCode === 404){
           return []
         } else {
           console.log(error.response);
@@ -202,7 +202,7 @@ class EventManagement extends Component {
       }).then((response) => {
         return response.data
       }).catch((error)=>{
-        if(error.response.data.statusCode == 404){
+        if(error.response.data.statusCode === 404){
           return []
         } else {
           console.log(error.response);
@@ -306,7 +306,7 @@ class EventManagement extends Component {
           let comment_exists = false;
 
           let eventOptionsArray = event.event_options.reduce((filtered, option) => {
-            if(option.event_option_name == 'event_comment') {
+            if(option.event_option_name === 'event_comment') {
               comment_exists = (option.event_option_value !== '')? true : false;
             } else {
               filtered.push(`${option.event_option_name}: \"${option.event_option_value}\"`);
@@ -325,14 +325,14 @@ class EventManagement extends Component {
           let deleteIcon = <FontAwesomeIcon className={"text-danger"} onClick={() => this.handleEventDeleteModal(event)} icon='trash' fixedWidth/>
           let deleteTooltip = (this.props.roles && this.props.roles.includes("admin"))? (<OverlayTrigger placement="top" overlay={<Tooltip id={`deleteTooltip_${event.id}`}>Delete this event</Tooltip>}>{deleteIcon}</OverlayTrigger>): null
 
-          return (<ListGroupItem className="event-list-item" key={event.id}><span onClick={() => this.handleEventShowDetailsModal(event)}>{event.ts} {`<${event.event_author}>`}: {event.event_value} {eventOptions}</span><span className="float-right">{deleteTooltip} {commentTooltip}</span></ListGroupItem>);
+          return (<ListGroup.Item className="event-list-item" key={event.id}><span onClick={() => this.handleEventShowDetailsModal(event)}>{event.ts} {`<${event.event_author}>`}: {event.event_value} {eventOptions}</span><span className="float-right">{deleteTooltip} {commentTooltip}</span></ListGroup.Item>);
         }
       })
 
       return eventList;
     }
 
-    return (<ListGroupItem key="emptyHistory" >No events found</ListGroupItem>)
+    return (<ListGroup.Item key="emptyHistory" >No events found</ListGroup.Item>)
   }
 
   renderEventCard() {
@@ -369,7 +369,7 @@ class EventManagement extends Component {
       let l = null
 
       for (let i = 1; i <= last; i++) {
-        if (i == 1 || i == last || i >= left && i < right) {
+        if (i === 1 || i === last || i >= left && i < right) {
             range.push(i);
         }
       }

@@ -144,7 +144,17 @@ class CreateUser extends Component {
     return (
       <Field
         name="system_user"
-        label="System User?"
+        label="System User"
+        component={this.renderCheckbox}
+      />
+    )
+  }
+
+  renderDisableUserOption() {
+    return (
+      <Field
+        name="disabled"
+        label="Account Disabled"
         component={this.renderCheckbox}
       />
     )
@@ -153,7 +163,10 @@ class CreateUser extends Component {
   renderAdminOptions() {
     if(this.props.roles.includes('admin')) {
       return (
-        this.renderSystemUserOption()
+        <div>
+          {this.renderSystemUserOption()}
+          {this.renderDisableUserOption()}
+        </div>
       )
     }
   }

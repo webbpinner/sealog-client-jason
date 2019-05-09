@@ -58,7 +58,7 @@ class ImportCruisesModal extends Component {
         ))
       }
     } catch(error) {
-      if(error.response.data.statusCode == 404) {
+      if(error.response.data.statusCode === 404) {
         // console.log("Attempting to add cruise")
 
         try {
@@ -81,7 +81,7 @@ class ImportCruisesModal extends Component {
           }
         } catch(error) {
           
-          if(error.response.data.statusCode == 400) {
+          if(error.response.data.statusCode === 400) {
             // console.log("Cruise Data malformed or incomplete");
           } else {
             console.log(error);  
@@ -96,7 +96,7 @@ class ImportCruisesModal extends Component {
         }
       } else {
 
-        if(error.response.data.statusCode != 400) {
+        if(error.response.data.statusCode !== 400) {
           console.log(error.response);
         }
         this.setState( prevState => (

@@ -83,7 +83,7 @@ class Register extends Component {
       const panelHeader = (<h5 className="form-signin-heading">New User Registration</h5>);
       const { handleSubmit, pristine, reset, submitting, valid } = this.props;
       //console.log(this.props);
-      const recaptcha = ( RECAPTCHA_SITE_KEY != "")? (
+      const recaptcha = ( RECAPTCHA_SITE_KEY !== "")? (
         <span>
           <ReCAPTCHA
             sitekey={RECAPTCHA_SITE_KEY}

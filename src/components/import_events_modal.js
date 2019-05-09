@@ -56,7 +56,7 @@ class ImportEventsModal extends Component {
       }
 
     } catch(error) {
-      if(error.response.data.statusCode == 400) {
+      if(error.response.data.statusCode === 400) {
         console.log("Duplicate ID, skipping");
         this.setState( prevState => (
           {

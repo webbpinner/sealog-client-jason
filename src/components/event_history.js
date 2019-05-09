@@ -54,7 +54,7 @@ class EventHistory extends Component {
       // })
 
       const updateHandler = (update, flags) => {
-        if(!(this.state.hideASNAP && update.event_value == "ASNAP")) {
+        if(!(this.state.hideASNAP && update.event_value === "ASNAP")) {
           this.props.updateEventHistory(update)
         }
       }

@@ -15,7 +15,7 @@ class UpdateEventTemplate extends Component {
     this.renderOptionOptions = this.renderOptionOptions.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     //console.log(this.props.match);
     if(this.props.eventTemplateID) {
       this.props.initEventTemplate(this.props.eventTemplateID);
@@ -28,7 +28,7 @@ class UpdateEventTemplate extends Component {
 
   handleFormSubmit(formProps) {
     // console.log("typeof:", typeof(formProps.system_template))
-    if(typeof(formProps.system_template) != 'boolean'){
+    if(typeof(formProps.system_template) !== 'boolean'){
       formProps.system_template = false;
     }
     // console.log("formProps:", formProps);
@@ -104,7 +104,17 @@ class UpdateEventTemplate extends Component {
   renderOptionOptions(prefix, index) {
 
     if(this.props.event_options && this.props.event_options.length > 0) {
-      if(this.props.event_options[index].event_option_type == 'dropdown') {
+      if(this.props.event_options[index].event_option_type === 'text') {
+        return (
+          <div>
+            <Field
+              name={`${prefix}.event_option_default_value`}
+              component={this.renderTextField}
+              label="Default Value"
+            />
+          </div>
+        );
+      } else if(this.props.event_options[index].event_option_type === 'dropdown') {
         return (
           <div>
             <Field
@@ -117,10 +127,11 @@ class UpdateEventTemplate extends Component {
               name={`${prefix}.event_option_default_value`}
               component={this.renderTextField}
               label="Default Value"
+              placeholder="i.e. a value from the list of options"
             />
           </div>
         );
-      } else if(this.props.event_options[index].event_option_type == 'checkboxes') {
+      } else if(this.props.event_options[index].event_option_type === 'checkboxes') {
         return (
           <div>
             <Field
@@ -128,6 +139,12 @@ class UpdateEventTemplate extends Component {
               component={this.renderTextarea}
               label="Checkbox Options"
               rows={2}
+            />
+            <Field
+              name={`${prefix}.event_option_default_value`}
+              component={this.renderTextField}
+              label="Default Value"
+              placeholder="i.e. a value from the list of options"
             />
           </div>
         );
@@ -310,7 +327,7 @@ function validate(formProps) {
         event_optionsArrayErrors[event_optionIndex] = event_optionErrors
       } else {
         // console.log(event_option.event_option_type)
-        if (event_option.event_option_type == 'dropdown') {
+        if (event_option.event_option_type === 'dropdown') {
 
           let valueArray = [];
 
@@ -329,7 +346,7 @@ function validate(formProps) {
             event_optionErrors.event_option_default_value = 'Value is not in options list'
             event_optionsArrayErrors[event_optionIndex] = event_optionErrors
           }
-        } else if (event_option.event_option_type == 'checkboxes') {
+        } else if (event_option.event_option_type === 'checkboxes') {
 
           // console.log(event_option.event_option_values)
           let valueArray = [event_option.event_option_values];

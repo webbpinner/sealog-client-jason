@@ -8,7 +8,7 @@ import { systemUserRoleOptions } from '../system_user_role_options';
 
 class UpdateUser extends Component {
 
-  componentWillMount() {
+  componentDidMount() {
     if(this.props.userID) {
       this.props.initUser(this.props.userID);
     }
@@ -146,8 +146,8 @@ renderCheckboxGroup({ label, name, options, input, required, meta: { dirty, erro
     if(this.props.roles.includes('admin')) {
       return (
         <div>
-          <Form.Label>Additional Options:</Form.Label>
           {this.renderSystemUserOption()}
+          {this.renderDisableUserOption()}
         </div>
       )
     }
@@ -157,10 +157,24 @@ renderCheckboxGroup({ label, name, options, input, required, meta: { dirty, erro
     return (
       <Field
         name="system_user"
-        label="System User?"
+        label="System User"
         component={this.renderCheckbox}
       />
     )
+  }
+
+  renderDisableUserOption() {
+    console.log(this.props.profile.id)
+    console.log(this.props.user.id)
+    if(this.props.profile.id !== this.props.user.id) {
+      return (
+        <Field
+          name="disabled"
+          label="Account Disabled"
+          component={this.renderCheckbox}
+        />
+      )
+    }
   }
 
   renderAlert() {
@@ -285,9 +299,9 @@ function validate(formProps) {
     errors.password = "Passwords must match";
   }
 
-  if(!formProps.roles || formProps.roles.length === 0) {
-    errors.roles = "Must select at least one role";
-  }
+  // if(!formProps.roles || formProps.roles.length === 0) {
+  //   errors.roles = "Must select at least one role";
+  // }
 
 
   return errors;
@@ -300,7 +314,9 @@ function mapStateToProps(state) {
     errorMessage: state.user.user_error,
     message: state.user.user_message,
     initialValues: state.user.user,
-    roles: state.user.profile.roles
+    user: state.user.user,
+    roles: state.user.profile.roles,
+    profile: state.user.profile
   };
 
 }
