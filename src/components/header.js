@@ -108,10 +108,11 @@ class Header extends Component {
   }
 
   renderUserDropdown() {
-    if(this.props.authenticated){
+    console.log(this.props)
+    if(this.props.authenticated) {
       return (
       <NavDropdown title={<span>{this.props.fullname} <FontAwesomeIcon icon="user" /></span>} id="basic-nav-dropdown-user">
-          <NavDropdown.Item href="/profile" key="profile" >User Profile</NavDropdown.Item>
+          {(this.props.fullname !== "Guest") ? <NavDropdown.Item href="/profile" key="profile" >User Profile</NavDropdown.Item> : null }
           {(this.props.fullname !== 'Guest' && RECAPTCHA_SITE_KEY === "")? (<NavDropdown.Item key="switch2Guest" onClick={ () => this.handleSwitchToGuest() } >Switch to Guest</NavDropdown.Item>) : null }
         <NavDropdown.Item key="logout" onClick={ () => this.handleLogout() } >Log Out</NavDropdown.Item>
       </NavDropdown>
