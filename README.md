@@ -5,8 +5,7 @@ For installation instruction please look at [INSTALL.md](./INSTALL.md)
 
 [Live Demo](https://sealog-jason.oceandatarat.org)
 
-- admin account for demo: jason:dsl!jason
-- guest account for demo: guest:<no password>
+- admin account for demo: admin:demo
 
 **sealog-client-jason** is based off [sealog-client](https://github.com/webbpinner/sealog-client)
 
