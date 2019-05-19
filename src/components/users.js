@@ -280,7 +280,7 @@ class Users extends Component {
           <Pagination.First onClick={() => this.handlePageSelect(1)} />
           <Pagination.Prev onClick={() => { if(this.state.activePage > 1) { this.handlePageSelect(this.state.activePage-1)}}} />
           {rangeWithDots}
-          <Pagination.Next onClick={() => { if(this.state.activePage < last) { this.handlePageSelect(prevState.activePage+1)}}} />
+          <Pagination.Next onClick={() => { if(this.state.activePage < last) { this.handlePageSelect(this.state.activePage+1)}}} />
           <Pagination.Last onClick={() => this.handlePageSelect(last)} />
         </Pagination>
       );

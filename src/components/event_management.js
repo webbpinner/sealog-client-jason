@@ -84,7 +84,7 @@ class EventManagement extends Component {
     if(response.response.status === 204) {
       this.setState({events: this.state.events.filter(event => event.id !== id)});
       if((this.state.events.length % maxEventsPerPage) === 0 && (this.state.events.length / maxEventsPerPage) === (this.state.activePage-1) ) {
-        this.setState( prevState => ({activePage: prevState.activePage-1}));
+        this.handlePageSelect(this.state.activePage-1);
       }
     }
   }
