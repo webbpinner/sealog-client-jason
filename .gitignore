@@ -4,5 +4,6 @@ npm-debug.log
 /dist/fonts
 /dist/main.bundle.js
 /src/client_config.js
+/src/map_tilelayers.js
 package-lock.json
 webpack.config.js
