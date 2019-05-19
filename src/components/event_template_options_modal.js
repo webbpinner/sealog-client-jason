@@ -68,8 +68,11 @@ class EventTemplateOptionsModal extends Component {
     let timestring = await this.getServerTime()
     let eventDefaultValues = {event_ts: moment.utc(timestring)};
     this.props.eventTemplate.event_options.forEach((option, index) => {
-      if(option.event_option_default_value) {
+      if(option.event_option_default_value && option.event_option_type !== 'checkboxes') {
         eventDefaultValues[`option_${index}`] = option.event_option_default_value;
+      }
+      else if(option.event_option_default_value && option.event_option_type === 'checkboxes') {
+        eventDefaultValues[`option_${index}`] = [option.event_option_default_value];
       }
     });
     this.props.initialize(eventDefaultValues);
@@ -99,9 +102,13 @@ class EventTemplateOptionsModal extends Component {
     //Build event_options array
     let event_options = optionIndex.map( (value, index) => {
 
-      if(optionValue[index].constructor === Array) {
+      if(Array.isArray(optionValue[index])) {
         optionValue[index] = optionValue[index].join(';')
       }
+
+      // if(optionValue[index].constructor === Array) {
+      //   optionValue[index] = optionValue[index].join(';')
+      // }
 
       return (
         { event_option_name: this.props.eventTemplate.event_options[value].event_option_name,

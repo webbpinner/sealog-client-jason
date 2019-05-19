@@ -7,7 +7,7 @@ import { Alert, Button, Col, Form, Card} from 'react-bootstrap';
 import { API_ROOT_URL } from '../../client_config';
 import * as actions from '../../actions';
 
-const style = {wordWrap:'break-word'}
+const style = {wordWrap:'break-word'};
 const cookies = new Cookies();
 
 class UserProfile extends Component {
@@ -17,7 +17,7 @@ class UserProfile extends Component {
 
     this.state = {
       showToken: false,
-    }
+    };
   }
 
   componentDidUpdate() {
@@ -32,8 +32,8 @@ class UserProfile extends Component {
   }
 
   renderTextField({ input, label, placeholder, type="text", required, meta: { touched, error } }) {
-    let requiredField = (required)? <span className='text-danger'> *</span> : ''
-    let placeholder_txt = (placeholder)? placeholder: label
+    let requiredField = (required)? <span className='text-danger'> *</span> : '';
+    let placeholder_txt = (placeholder)? placeholder: label;
 
     return (
       <Form.Group as={Col} lg="12">
@@ -41,7 +41,7 @@ class UserProfile extends Component {
         <Form.Control type={type} {...input} placeholder={placeholder_txt} isInvalid={touched && error}/>
         <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
       </Form.Group>
-    )
+    );
   }
 
   showToken() {
@@ -53,11 +53,11 @@ class UserProfile extends Component {
           your account including access to you username and email.</p>
           <span style={{wordWrap: "break-word"}}>{cookies.get('token')}</span>
         </div>
-      )      
+      );      
     } else {
       return (
-         <Button variant="warning" size="sm" block onClick={()=> {this.setState({showToken: true});setTimeout(()=>{this.setState({showToken: false})}, 10*1000)}}>Show API Token</Button>
-      )
+        <Button variant="warning" size="sm" block onClick={()=> {this.setState({showToken: true});setTimeout(()=>{this.setState({showToken: false});}, 10*1000);}}>Show API Token</Button>
+      );
     }
   }
 
@@ -68,7 +68,7 @@ class UserProfile extends Component {
         <Alert variant="danger">
           <strong>Opps!</strong> {this.props.errorMessage}
         </Alert>
-      )
+      );
     }
   }
 
@@ -78,7 +78,7 @@ class UserProfile extends Component {
         <Alert variant="success">
           <strong>Success!</strong> {this.props.message}
         </Alert>
-      )
+      );
     }
   }
 
@@ -132,7 +132,7 @@ class UserProfile extends Component {
           {this.showToken()}
         </Card.Body>
       </Card>
-    )
+    );
   }
 }
 
@@ -140,21 +140,21 @@ function validate(formProps) {
   const errors = {};
 
   if (!formProps.username) {
-    errors.username = 'Required'
+    errors.username = 'Required';
   } else if (formProps.username.length > 15) {
-    errors.username = 'Must be 15 characters or less'
+    errors.username = 'Must be 15 characters or less';
   } else if (formProps.username.match(/[A-Z]/)) {
-    errors.username = 'Username can NOT include uppercase letters'
+    errors.username = 'Username can NOT include uppercase letters';
   }
 
   if (!formProps.fullname) {
-    errors.fullname = 'Required'
+    errors.fullname = 'Required';
   }
 
   if (!formProps.email) {
-    errors.email = 'Required'
+    errors.email = 'Required';
   } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(formProps.email)) {
-    errors.email = 'Invalid email address'
+    errors.email = 'Invalid email address';
   }
 
   if(formProps.password !== formProps.confirmPassword) {

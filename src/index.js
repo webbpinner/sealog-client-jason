@@ -20,6 +20,7 @@ import EventLogging from './components/event_logging';
 import EventManagement from './components/event_management';
 import EventTemplates from './components/event_templates';
 import Lowerings from './components/lowerings';
+import LoweringMap from './components/lowering_map';
 import LoweringGallery from './components/lowering_gallery';
 import LoweringReplay from './components/lowering_replay';
 import LoweringReview from './components/lowering_review';
@@ -51,8 +52,10 @@ import { faStepForward } from '@fortawesome/free-solid-svg-icons/faStepForward';
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
 import { faVial } from '@fortawesome/free-solid-svg-icons/faVial';
 import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
+import { faWindowMaximize } from '@fortawesome/free-solid-svg-icons/faWindowMaximize';
 
-library.add(faArrowLeft,faArrowRight,faBackward,faChevronDown,faChevronUp,faComment,faCompress,faDownload,faExpand,faEye,faEyeSlash,faForward,faLink,faPause,faPencilAlt,faPlay,faPlus,faStepBackward,faStepForward,faTrash,faVial,faUser);
+
+library.add(faArrowLeft,faArrowRight,faBackward,faChevronDown,faChevronUp,faComment,faCompress,faDownload,faExpand,faEye,faEyeSlash,faForward,faLink,faPause,faPencilAlt,faPlay,faPlus,faStepBackward,faStepForward,faTrash,faVial,faUser,faWindowMaximize);
 
 require('typeface-roboto');
 
@@ -69,32 +72,33 @@ if (token) {
 
 ReactDOM.render(
   <Provider store={store}>
-      <ConnectedRouter history={history}>
-          <div>
-            <Header />
-            <Switch>
-              <Route path={ `/` } exact={true} component={RequireAuth(EventLogging)}/>
-              <Route path={ `/github`} exact={true} component={() => window.location = 'https://github.com/webbpinner/sealog-client-jason'}/>
-              <Route path={ `/license`} exact={true} component={() => window.location = 'http://www.gnu.org/licenses/gpl-3.0.html'}/>
-              <Route path={ `/profile` } exact={true} component={RequireAuth(Profile)} />
-              <Route path={ `/register` } exact={true} component={Register} />
-              <Route path={ `/forgotPassword` } exact={true} component={ForgotPassword} />
-              <Route path={ `/resetPassword/:token` } exact={true} component={ResetPassword} />
-              <Route path={ `/login` } exact={true} component={RequireUnauth(Login)} />
-              <Route path={ `/logout` } exact={true} component={Logout} />
-              <Route path={ `/users` } exact={true} component={RequireAuth(Users)} />
-              <Route path={ `/tasks` } exact={true} component={RequireAuth(Tasks)} />
-              <Route path={ `/cruises` } exact={true} component={RequireAuth(Cruises)} />
-              <Route path={ `/cruise_menu` } exact={true} component={RequireAuth(CruiseMenu)} />
-              <Route path={ `/lowerings` } exact={true} component={RequireAuth(Lowerings)} />
-              <Route path={ `/lowering_gallery/:id` } exact={true} component={RequireAuth(LoweringGallery)} />
-              <Route path={ `/lowering_replay/:id` } exact={true} component={RequireAuth(LoweringReplay)} />
-              <Route path={ `/lowering_review/:id` } exact={true} component={RequireAuth(LoweringReview)} />
-              <Route path={ `/event_management` } exact={true} component={RequireAuth(EventManagement)} />
-              <Route path={ `/event_templates` } exact={true} component={RequireAuth(EventTemplates)} />
-            </Switch>
-            <Footer />
-          </div>
-      </ConnectedRouter>
+    <ConnectedRouter history={history}>
+      <div>
+        <Header />
+        <Switch>
+          <Route path={ `/` } exact={true} component={RequireAuth(EventLogging)}/>
+          <Route path={ `/github`} exact={true} component={() => window.location = 'https://github.com/webbpinner/sealog-client-jason'}/>
+          <Route path={ `/license`} exact={true} component={() => window.location = 'http://www.gnu.org/licenses/gpl-3.0.html'}/>
+          <Route path={ `/profile` } exact={true} component={RequireAuth(Profile)} />
+          <Route path={ `/register` } exact={true} component={Register} />
+          <Route path={ `/forgotPassword` } exact={true} component={ForgotPassword} />
+          <Route path={ `/resetPassword/:token` } exact={true} component={ResetPassword} />
+          <Route path={ `/login` } exact={true} component={RequireUnauth(Login)} />
+          <Route path={ `/logout` } exact={true} component={Logout} />
+          <Route path={ `/users` } exact={true} component={RequireAuth(Users)} />
+          <Route path={ `/tasks` } exact={true} component={RequireAuth(Tasks)} />
+          <Route path={ `/cruises` } exact={true} component={RequireAuth(Cruises)} />
+          <Route path={ `/cruise_menu` } exact={true} component={RequireAuth(CruiseMenu)} />
+          <Route path={ `/lowerings` } exact={true} component={RequireAuth(Lowerings)} />
+          <Route path={ `/lowering_gallery/:id` } exact={true} component={RequireAuth(LoweringGallery)} />
+          <Route path={ `/lowering_map/:id` } exact={true} component={RequireAuth(LoweringMap)} />
+          <Route path={ `/lowering_replay/:id` } exact={true} component={RequireAuth(LoweringReplay)} />
+          <Route path={ `/lowering_review/:id` } exact={true} component={RequireAuth(LoweringReview)} />
+          <Route path={ `/event_management` } exact={true} component={RequireAuth(EventManagement)} />
+          <Route path={ `/event_templates` } exact={true} component={RequireAuth(EventTemplates)} />
+        </Switch>
+        <Footer />
+      </div>
+    </ConnectedRouter>
   </Provider>
   , document.querySelector('.container'));

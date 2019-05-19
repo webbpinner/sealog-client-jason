@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
 import axios from 'axios';
 import Cookies from 'universal-cookie';
@@ -14,12 +14,12 @@ import { API_ROOT_URL, IMAGE_PATH } from '../client_config';
 
 let fileDownload = require('js-file-download');
 
-const dateFormat = "YYYYMMDD"
-const timeFormat = "HHmm"
+const dateFormat = "YYYYMMDD";
+const timeFormat = "HHmm";
 
 const cookies = new Cookies();
 
-const maxEventsPerPage = 15
+const maxEventsPerPage = 15;
 
 class LoweringGallery extends Component {
 
@@ -29,10 +29,10 @@ class LoweringGallery extends Component {
     this.state = {
       fetching: false,
       aux_data: []
-    }
+    };
 
-    this.handleLoweringSelect = this.handleLoweringSelect.bind(this)
-    this.handleLoweringModeSelect = this.handleLoweringModeSelect.bind(this)
+    this.handleLoweringSelect = this.handleLoweringSelect.bind(this);
+    this.handleLoweringModeSelect = this.handleLoweringModeSelect.bind(this);
 
   }
 
@@ -55,40 +55,40 @@ class LoweringGallery extends Component {
   }
 
   initLoweringImages(id, auxDatasourceFilter = 'vehicleRealtimeFramegrabberData') {
-    this.setState({ fetching: true})
+    this.setState({ fetching: true});
 
-    let url = `${API_ROOT_URL}/api/v1/event_aux_data/bylowering/${id}?datasource=${auxDatasourceFilter}`
+    let url = `${API_ROOT_URL}/api/v1/event_aux_data/bylowering/${id}?datasource=${auxDatasourceFilter}`;
     axios.get(url,
-    {
-      headers: {
-        authorization: cookies.get('token')
-      }
-    }).then((response) => {
+      {
+        headers: {
+          authorization: cookies.get('token')
+        }
+      }).then((response) => {
 
-      let image_data = {}
+      let image_data = {};
       response.data.forEach((data) => {
-        let tmpData = []
+        let tmpData = [];
         for (let i = 0; i < data.data_array.length; i+=2) {
           if(!(data.data_array[i].data_value in image_data)){
-            image_data[data.data_array[i].data_value] = { images: [] }
+            image_data[data.data_array[i].data_value] = { images: [] };
           }
 
-          image_data[data.data_array[i].data_value].images.unshift({ event_id: data.event_id, filepath: API_ROOT_URL + IMAGE_PATH + data.data_array[i+1].data_value })
+          image_data[data.data_array[i].data_value].images.unshift({ event_id: data.event_id, filepath: API_ROOT_URL + IMAGE_PATH + data.data_array[i+1].data_value });
         }
-      })
+      });
 
-      this.setState({ aux_data: image_data, fetching: false })
+      this.setState({ aux_data: image_data, fetching: false });
     }).catch((error)=>{
       if(error.response.data.statusCode === 404) {
-        this.setState({ aux_data: [], fetching: false })
+        this.setState({ aux_data: [], fetching: false });
       } else {
-        console.log(error)
+        console.log(error);
       }
-    })
+    });
   }
 
   handleLoweringSelect(id) {
-    this.props.gotoLoweringGallery(id)
+    this.props.gotoLoweringGallery(id);
     this.props.initLowering(id, this.state.hideASNAP);
     this.props.initCruiseFromLowering(id);
     this.initLoweringImages(id);
@@ -97,39 +97,41 @@ class LoweringGallery extends Component {
 
   handleLoweringModeSelect(mode) {
     if(mode === "Review") {
-      this.props.gotoLoweringReview(this.props.match.params.id)
+      this.props.gotoLoweringReview(this.props.match.params.id);
     } else if (mode === "Gallery") {
-      this.props.gotoLoweringGallery(this.props.match.params.id)
+      this.props.gotoLoweringGallery(this.props.match.params.id);
+    } else if (mode === "Map") {
+      this.props.gotoLoweringMap(this.props.match.params.id);
     } else if (mode === "Replay") {
-      this.props.gotoLoweringReplay(this.props.match.params.id)
+      this.props.gotoLoweringReplay(this.props.match.params.id);
     }
   }
 
   renderGalleries() {
 
-    let galleries = []
+    let galleries = [];
     for (const [key, value] of Object.entries(this.state.aux_data)) {
       galleries.push((
         <Tab key={`tab_${key}`} eventKey={`tab_${key}`} title={key}>
           <LoweringGalleryTab imagesSource={key} imagesData={value}/>
         </Tab>
 
-      ))
+      ));
     }
 
     return (galleries.length > 0 )?
-    (
-      <Tabs id="galleries">
-        { galleries }
-      </Tabs>
-    ) :  (<div><hr className="border-secondary"/><span style={{paddingLeft: "8px"}}>No images found</span></div>)
+      (
+        <Tabs id="galleries">
+          { galleries }
+        </Tabs>
+      ) :  (<div><hr className="border-secondary"/><span style={{paddingLeft: "8px"}}>No images found</span></div>);
   }
 
   render(){
 
-    const cruise_id = (this.props.cruise.cruise_id)? this.props.cruise.cruise_id : "loading..."
-    const lowering_id = (this.props.lowering.lowering_id)? this.props.lowering.lowering_id : "loading..."
-    const galleries = (this.state.fetching)? <div><hr className="border-secondary"/><span style={{paddingLeft: "8px"}}>Loading...</span></div> : this.renderGalleries()
+    const cruise_id = (this.props.cruise.cruise_id)? this.props.cruise.cruise_id : "loading...";
+    const lowering_id = (this.props.lowering.lowering_id)? this.props.lowering.lowering_id : "loading...";
+    const galleries = (this.state.fetching)? <div><hr className="border-secondary"/><span style={{paddingLeft: "8px"}}>Loading...</span></div> : this.renderGalleries();
     return (
       <div>
         <EventShowDetailsModal />
@@ -140,7 +142,7 @@ class LoweringGallery extends Component {
               {' '}/{' '}
               <span><LoweringDropdown onClick={this.handleLoweringSelect} active_cruise={this.props.cruise} active_lowering={this.props.lowering}/></span>
               {' '}/{' '}
-              <span><LoweringModeDropdown onClick={this.handleLoweringModeSelect} active_mode={"Gallery"} modes={["Review", "Replay"]}/></span>
+              <span><LoweringModeDropdown onClick={this.handleLoweringModeSelect} active_mode={"Gallery"} modes={["Review", "Replay", "Map"]}/></span>
             </span>
           </Col>
         </Row>
@@ -150,7 +152,7 @@ class LoweringGallery extends Component {
           </Col>
         </Row>
       </div>
-    )
+    );
   }
 }
 
@@ -160,7 +162,7 @@ function mapStateToProps(state) {
     event: state.event,
     cruise: state.cruise.cruise,
     lowering: state.lowering.lowering
-  }
+  };
 }
 
 export default connect(mapStateToProps, null)(LoweringGallery);

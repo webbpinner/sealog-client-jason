@@ -6,7 +6,7 @@ import moment from 'moment';
 import Datetime from 'react-datetime';
 import * as actions from '../actions';
 
-const dateFormat = "YYYY-MM-DD"
+const dateFormat = "YYYY-MM-DD";
 
 class CreateCruise extends Component {
 
@@ -18,34 +18,34 @@ class CreateCruise extends Component {
 
     formProps.cruise_tags = (formProps.cruise_tags)? formProps.cruise_tags.map(tag => tag.trim()): [];
 
-    formProps.cruise_additional_meta = {}
+    formProps.cruise_additional_meta = {};
 
     if(formProps.cruise_participants) {
-      formProps.cruise_additional_meta.cruise_participants = formProps.cruise_participants.map(participant => participant.trim())
-      delete formProps.cruise_participants
+      formProps.cruise_additional_meta.cruise_participants = formProps.cruise_participants.map(participant => participant.trim());
+      delete formProps.cruise_participants;
     }
 
     if(formProps.cruise_name) {
-      formProps.cruise_additional_meta.cruise_name = formProps.cruise_name
-      delete formProps.cruise_name
+      formProps.cruise_additional_meta.cruise_name = formProps.cruise_name;
+      delete formProps.cruise_name;
     }
 
     if(formProps.cruise_vessel) {
-      formProps.cruise_additional_meta.cruise_vessel = formProps.cruise_vessel
-      delete formProps.cruise_vessel
+      formProps.cruise_additional_meta.cruise_vessel = formProps.cruise_vessel;
+      delete formProps.cruise_vessel;
     }
 
     if(formProps.cruise_description) {
-      formProps.cruise_additional_meta.cruise_description = formProps.cruise_description
-      delete formProps.cruise_description
+      formProps.cruise_additional_meta.cruise_description = formProps.cruise_description;
+      delete formProps.cruise_description;
     }
 
     this.props.createCruise(formProps);
   }
 
   renderTextField({ input, label, placeholder, required, meta: { touched, error } }) {
-    let requiredField = (required)? <span className='text-danger'> *</span> : ''
-    let placeholder_txt = (placeholder)? placeholder: label
+    let requiredField = (required)? <span className='text-danger'> *</span> : '';
+    let placeholder_txt = (placeholder)? placeholder: label;
 
     return (
       <Form.Group as={Col} lg="6">
@@ -53,12 +53,12 @@ class CreateCruise extends Component {
         <Form.Control type="text" {...input} placeholder={placeholder_txt} isInvalid={touched && error}/>
         <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
       </Form.Group>
-    )
+    );
   }
 
   renderTextArea({ input, label, placeholder, required, rows = 4, meta: { touched, error, warning } }) {
-    let requiredField = (required)? <span className='text-danger'> *</span> : ''
-    let placeholder_txt = (placeholder)? placeholder: label
+    let requiredField = (required)? <span className='text-danger'> *</span> : '';
+    let placeholder_txt = (placeholder)? placeholder: label;
 
     return (
       <Form.Group as={Col} lg="12">
@@ -66,13 +66,13 @@ class CreateCruise extends Component {
         <Form.Control as="textarea" {...input} placeholder={placeholder_txt} rows={rows}/>
         <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
       </Form.Group>
-    )
+    );
   }
 
   renderSelectField({ input, label, placeholder, required, options, meta: { touched, error } }) {
 
-    let requiredField = (required)? <span className='text-danger'> *</span> : ''
-    let placeholder_txt = (placeholder)? placeholder: label
+    let requiredField = (required)? <span className='text-danger'> *</span> : '';
+    let placeholder_txt = (placeholder)? placeholder: label;
     let defaultOption = ( <option key={`${input.name}.empty`} value=""></option> );
     let optionList = options.map((option, index) => {
       return (
@@ -89,11 +89,11 @@ class CreateCruise extends Component {
         </Form.Control>
         <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
       </Form.Group>
-    )
+    );
   }
 
   renderDatePicker({ input, label, type, required, meta: { touched, error } }) {
-    let requiredField = (required)? <span className='text-danger'> *</span> : ''
+    let requiredField = (required)? <span className='text-danger'> *</span> : '';
     
     return (
       <Form.Group as={Col} lg="6">
@@ -101,12 +101,12 @@ class CreateCruise extends Component {
         <Datetime {...input} utc={true} value={input.value ? moment.utc(input.value).format(dateFormat) : null} dateFormat={dateFormat} timeFormat={false} selected={input.value ? moment.utc(input.value, dateFormat) : null }/>
         {touched && (error && <div style={{width: "100%", marginTop: "0.25rem", fontSize: "80%"}} className='text-danger'>{error}</div>)}
       </Form.Group>
-    )
+    );
   }
 
   renderCheckboxGroup({ label, name, options, input, required, meta: { dirty, error } }) {
 
-    let requiredField = (required)? (<span className='text-danger'> *</span>) : ''
+    let requiredField = (required)? (<span className='text-danger'> *</span>) : '';
     let checkboxList = options.map((option, index) => {
 
       //let tooltip = (option.description)? (<Tooltip id={`${option.value}_Tooltip`}>{option.description}</Tooltip>) : null
@@ -164,7 +164,7 @@ class CreateCruise extends Component {
         <Alert variant="danger">
           <strong>Opps!</strong> {this.props.errorMessage}
         </Alert>
-      )
+      );
     }
   }
 
@@ -174,7 +174,7 @@ class CreateCruise extends Component {
         <Alert variant="success">
           <strong>Success!</strong> {this.props.message}
         </Alert>
-      )
+      );
     }
   }
 
@@ -278,16 +278,16 @@ class CreateCruise extends Component {
               </Form>
             </Card.Body>
           </Card>
-        )
+        );
       } else {
-        return null
+        return null;
       }
     } else {
       return (
         <div>
           Loading...
         </div>
-      )
+      );
     }
   }
 }
@@ -296,40 +296,40 @@ function validate(formProps) {
   const errors = {};
 
   if (!formProps.cruise_id) {
-    errors.cruise_id = 'Required'
+    errors.cruise_id = 'Required';
   } else if (formProps.cruise_id.length > 15) {
-    errors.cruise_id = 'Must be 15 characters or less'
+    errors.cruise_id = 'Must be 15 characters or less';
   }
 
   if (!formProps.cruise_pi) {
-    errors.cruise_pi = 'Required'
+    errors.cruise_pi = 'Required';
   }
 
   if (!formProps.cruise_vessel) {
-    errors.cruise_vessel = 'Required'
+    errors.cruise_vessel = 'Required';
   }
 
   if (!formProps.start_ts) {
-    errors.start_ts = 'Required'
+    errors.start_ts = 'Required';
   } else if (!moment.utc(formProps.start_ts).isValid()) {
-    errors.start_ts = 'Invalid timestamp'
+    errors.start_ts = 'Invalid timestamp';
   }
 
   if (!formProps.stop_ts) {
-    errors.stop_ts = 'Required'
+    errors.stop_ts = 'Required';
   } else if (!moment.utc(formProps.stop_ts).isValid()) {
-    errors.stop_ts = 'Invalid timestamp'
+    errors.stop_ts = 'Invalid timestamp';
   }
 
   if ((formProps.start_ts !== '') && (formProps.stop_ts !== '')) {
     if(moment(formProps.stop_ts, dateFormat).isBefore(moment(formProps.start_ts, dateFormat))) {
-      errors.stop_ts = 'Stop date must be later than start data'
+      errors.stop_ts = 'Stop date must be later than start data';
     }
   }
 
   if (typeof formProps.cruise_tags === "string") {
     if (formProps.cruise_tags === '') {
-      formProps.cruise_tags = []
+      formProps.cruise_tags = [];
     } else {
       formProps.cruise_tags = formProps.cruise_tags.split(',');
     }
@@ -337,7 +337,7 @@ function validate(formProps) {
 
   if (typeof formProps.cruise_participants === "string") {
     if (formProps.cruise_participants === '') {
-      formProps.cruise_participants = []
+      formProps.cruise_participants = [];
     } else {
       formProps.cruise_participants = formProps.cruise_participants.split(',');
     }

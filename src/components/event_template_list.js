@@ -38,7 +38,7 @@ class EventTemplateList extends Component {
         return (
           <Button className="btn btn-primary btn-squared" to="#" key={`template_${event_template.id}`} onClick={ () => this.handleEventSubmit(event_template) }>{ event_template.event_name }</Button>
         );
-      })      
+      });      
     }
 
     return (
@@ -50,8 +50,8 @@ class EventTemplateList extends Component {
 
     if (!this.props.event_templates) {
       return (
-          <div style={this.props.style} >Loading...</div>
-      )
+        <div style={this.props.style} >Loading...</div>
+      );
     }
 
     if (this.props.event_templates.length > 0) {
@@ -74,7 +74,7 @@ function mapStateToProps(state) {
   return {
     authenticated: state.auth.authenticated,
     event_templates: state.event_history.event_templates,
-  }
+  };
 }
 
 export default connect(mapStateToProps, actions)(EventTemplateList);

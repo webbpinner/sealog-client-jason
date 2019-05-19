@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { reduxForm, Field, reset } from 'redux-form';
-import { FormGroup, Row, Button, Col, Card, Alert, Table, OverlayTrigger, Tooltip, Pagination } from 'react-bootstrap';
+import { FormGroup, Row, Button, Col, Card, Alert, Form, FormControl, Table, OverlayTrigger, Tooltip, Pagination } from 'react-bootstrap';
 import moment from 'moment';
 import CreateCruise from './create_cruise';
 import UpdateCruise from './update_cruise';
@@ -13,7 +13,7 @@ import * as actions from '../actions';
 
 let fileDownload = require('js-file-download');
 
-const maxCruisesPerPage = 6
+const maxCruisesPerPage = 6;
 
 class Cruises extends Component {
 
@@ -23,12 +23,13 @@ class Cruises extends Component {
     this.state = {
       activePage: 1,
       cruiseAccess: false,
-      cruiseUpdate: false
-    }
+      cruiseUpdate: false,
+      filteredCruises: null
+    };
 
     this.handlePageSelect = this.handlePageSelect.bind(this);
     this.handleCruiseImportClose = this.handleCruiseImportClose.bind(this);
-
+    this.handleSearchChange = this.handleSearchChange.bind(this);
   }
 
   componentDidMount() {
@@ -76,6 +77,33 @@ class Cruises extends Component {
     this.props.fetchCruises();
   }
 
+  handleSearchChange(event) {
+    let fieldVal = event.target.value;
+    if(fieldVal !== "") {
+      this.setState({filteredCruises: this.props.cruises.filter((cruise) => {
+          const regex = RegExp(fieldVal, 'i')
+          if(cruise.cruise_id.match(regex) || cruise.cruise_additional_meta.cruise_vessel.match(regex) || cruise.cruise_pi.match(regex)) {
+            return cruise
+          }
+          else if (cruise.cruise_additional_meta.cruise_name && cruise.cruise_additional_meta.cruise_name.match(regex)) {
+            return cruise
+          }
+          else if (cruise.cruise_location && cruise.cruise_location.match(regex)) {
+            return cruise
+          }
+          else if (cruise.cruise_tags.includes(fieldVal)){
+            return cruise 
+          }
+        })
+      })
+    }
+    else {
+      this.setState({filteredCruises: this.props.cruises});
+    }
+    this.handlePageSelect(1);
+  }
+
+
   exportCruisesToJSON() {
     fileDownload(JSON.stringify(this.props.cruises, null, "\t"), 'sealog_cruisesExport.json');
   }
@@ -102,26 +130,28 @@ class Cruises extends Component {
 
   renderCruises() {
 
-    const editTooltip = (<Tooltip id="editTooltip">Edit this cruise.</Tooltip>)
-    const deleteTooltip = (<Tooltip id="deleteTooltip">Delete this cruise.</Tooltip>)
-    const showTooltip = (<Tooltip id="showTooltip">Cruise is hidden, click to show.</Tooltip>)
-    const hideTooltip = (<Tooltip id="hideTooltip">Cruise is visible, click to hide.</Tooltip>)
+    const editTooltip = (<Tooltip id="editTooltip">Edit this cruise.</Tooltip>);
+    const deleteTooltip = (<Tooltip id="deleteTooltip">Delete this cruise.</Tooltip>);
+    const showTooltip = (<Tooltip id="showTooltip">Cruise is hidden, click to show.</Tooltip>);
+    const hideTooltip = (<Tooltip id="hideTooltip">Cruise is visible, click to hide.</Tooltip>);
 
-    return this.props.cruises.map((cruise, index) => {
+    const cruises = (Array.isArray(this.state.filteredCruises)) ? this.state.filteredCruises : this.props.cruises
+
+    return cruises.map((cruise, index) => {
       if(index >= (this.state.activePage-1) * maxCruisesPerPage && index < (this.state.activePage * maxCruisesPerPage)) {
-        let deleteLink = (this.props.roles.includes('admin'))? <OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesomeIcon className="text-danger" onClick={ () => this.handleCruiseDeleteModal(cruise.id) } icon='trash' fixedWidth/></OverlayTrigger>: null
+        let deleteLink = (this.props.roles.includes('admin'))? <OverlayTrigger placement="top" overlay={deleteTooltip}><FontAwesomeIcon className="text-danger" onClick={ () => this.handleCruiseDeleteModal(cruise.id) } icon='trash' fixedWidth/></OverlayTrigger>: null;
         let hiddenLink = null;
 
         if(this.props.roles.includes('admin') && cruise.cruise_hidden) {
-          hiddenLink = <OverlayTrigger placement="top" overlay={showTooltip}><FontAwesomeIcon onClick={ () => this.handleCruiseShow(cruise.id) } icon='eye-slash' fixedWidth/></OverlayTrigger>
+          hiddenLink = <OverlayTrigger placement="top" overlay={showTooltip}><FontAwesomeIcon onClick={ () => this.handleCruiseShow(cruise.id) } icon='eye-slash' fixedWidth/></OverlayTrigger>;
         } else if(this.props.roles.includes('admin') && !cruise.cruise_hidden) {
-          hiddenLink = <OverlayTrigger placement="top" overlay={hideTooltip}><FontAwesomeIcon className="text-success" onClick={ () => this.handleCruiseHide(cruise.id) } icon='eye' fixedWidth/></OverlayTrigger>
+          hiddenLink = <OverlayTrigger placement="top" overlay={hideTooltip}><FontAwesomeIcon className="text-success" onClick={ () => this.handleCruiseHide(cruise.id) } icon='eye' fixedWidth/></OverlayTrigger>;
         }
 
-        let cruiseName = (cruise.cruise_additional_meta.cruise_name)? <span>Name: {cruise.cruise_additional_meta.cruise_name}<br/></span> : null
-        let cruiseLocation = (cruise.cruise_location)? <span>Location: {cruise.cruise_location}<br/></span> : null
-        let cruiseVessel = (cruise.cruise_additional_meta.cruise_vessel)? <span>Vessel: {cruise.cruise_additional_meta.cruise_vessel}<br/></span> : null
-        let cruisePi = (cruise.cruise_pi)? <span>PI: {cruise.cruise_pi}<br/></span> : null
+        let cruiseName = (cruise.cruise_additional_meta.cruise_name)? <span>Name: {cruise.cruise_additional_meta.cruise_name}<br/></span> : null;
+        let cruiseLocation = (cruise.cruise_location)? <span>Location: {cruise.cruise_location}<br/></span> : null;
+        let cruiseVessel = (cruise.cruise_additional_meta.cruise_vessel)? <span>Vessel: {cruise.cruise_additional_meta.cruise_vessel}<br/></span> : null;
+        let cruisePi = (cruise.cruise_pi)? <span>PI: {cruise.cruise_pi}<br/></span> : null;
 
         return (
           <tr key={cruise.id}>
@@ -135,7 +165,7 @@ class Cruises extends Component {
           </tr>
         );
       }
-    })
+    });
   }
 
   renderCruiseTable() {
@@ -153,76 +183,82 @@ class Cruises extends Component {
             {this.renderCruises()}
           </tbody>
         </Table>
-      )
+      );
     } else {
       return (
         <Card.Body>No Cruises found!</Card.Body>
-      )
+      );
     }
   }
 
   renderCruiseHeader() {
 
-    const Label = "Cruises"
-    const exportTooltip = (<Tooltip id="exportTooltip">Export Cruises</Tooltip>)
+    const Label = "Cruises";
+    const exportTooltip = (<Tooltip id="exportTooltip">Export Cruises</Tooltip>);
 
     return (
       <div>
         { Label }
-        <div className="float-right">
-          <OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesomeIcon onClick={ () => this.exportCruisesToJSON() } icon='download' fixedWidth/></OverlayTrigger>
-        </div>
+        <span className="float-right">
+          <Form inline>
+            <FormControl size="sm" type="text" placeholder="Search" className="mr-sm-2" onChange={this.handleSearchChange}/>
+            <OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesomeIcon onClick={ () => this.exportCruisesToJSON() } icon='download' fixedWidth/></OverlayTrigger>
+          </Form>
+        </span>
       </div>
     );
   }
 
   renderPagination() {
-    if(this.props.cruises && this.props.cruises.length > maxCruisesPerPage) {
+
+    const cruises = (Array.isArray(this.state.filteredCruises)) ? this.state.filteredCruises : this.props.cruises
+
+    if(cruises && cruises.length > maxCruisesPerPage) {
 
       let priceCount = this.props.cruises.length;
       let last = Math.ceil(priceCount/maxCruisesPerPage);
-      let delta = 2
-      let left = this.state.activePage - delta
-      let right = this.state.activePage + delta + 1
-      let range = []
-      let rangeWithDots = []
-      let l = null
+      let delta = 2;
+      let left = this.state.activePage - delta;
+      let right = this.state.activePage + delta + 1;
+      let range = [];
+      let rangeWithDots = [];
+      let l = null;
 
       for (let i = 1; i <= last; i++) {
         if (i === 1 || i === last || i >= left && i < right) {
-            range.push(i);
+          range.push(i);
         }
       }
 
       for (let i of range) {
         if (l) {
           if (i - l === 2) {
-            rangeWithDots.push(<Pagination.Item key={l + 1} active={(this.state.activePage === l+1)} onClick={() => this.setState({activePage: (l + 1)})}>{l + 1}</Pagination.Item>)
+            rangeWithDots.push(<Pagination.Item key={l + 1} active={(this.state.activePage === l+1)} onClick={() => this.handlePageSelect(l + 1)}>{l + 1}</Pagination.Item>);
           } else if (i - l !== 1) {
             rangeWithDots.push(<Pagination.Ellipsis key={`ellipsis_${i}`} />);
           }
         }
-        rangeWithDots.push(<Pagination.Item key={i} active={(this.state.activePage === i)} onClick={() => this.setState({activePage: i})}>{i}</Pagination.Item>);
+        rangeWithDots.push(<Pagination.Item key={i} active={(this.state.activePage === i)} onClick={() => this.handlePageSelect(i)}>{i}</Pagination.Item>);
         l = i;
       }
 
       return (
         <Pagination>
-          <Pagination.First onClick={() => this.setState({activePage: 1})} />
-          <Pagination.Prev onClick={() => { if(this.state.activePage > 1) { this.setState(prevState => ({ activePage: prevState.activePage-1}))}}} />
+          <Pagination.First onClick={() => this.handlePageSelect(1)} />
+          <Pagination.Prev onClick={() => { if(this.state.activePage > 1) { this.handlePageSelect(this.state.activePage-1)}}} />
           {rangeWithDots}
-          <Pagination.Next onClick={() => { if(this.state.activePage < last) { this.setState(prevState => ({ activePage: prevState.activePage+1}))}}} />
-          <Pagination.Last onClick={() => this.setState({activePage: last})} />
+          <Pagination.Next onClick={() => { if(this.state.activePage < last) { this.handlePageSelect(prevState.activePage+1)}}} />
+          <Pagination.Last onClick={() => this.handlePageSelect(last)} />
         </Pagination>
-      )
+      );
     }
   }
 
   render() {
     if (!this.props.roles) {
-        return (
-          <div>Loading...</div>
-        )
+      return (
+        <div>Loading...</div>
+      );
     }
 
     if(this.props.roles.includes("admin") || this.props.roles.includes('cruise_manager')) {
@@ -230,11 +266,11 @@ class Cruises extends Component {
       let cruiseForm = null;
   
       if(this.state.cruiseUpdate) {
-        cruiseForm = <UpdateCruise handleFormSubmit={ this.props.fetchCruises } />
+        cruiseForm = <UpdateCruise handleFormSubmit={ this.props.fetchCruises } />;
       } else if(this.state.cruiseAccess) {
-        cruiseForm = <AccessCruise handleFormSubmit={ this.props.fetchCruises } />
+        cruiseForm = <AccessCruise handleFormSubmit={ this.props.fetchCruises } />;
       } else {
-        cruiseForm = <CreateCruise handleFormSubmit={ this.props.fetchCruises } />
+        cruiseForm = <CreateCruise handleFormSubmit={ this.props.fetchCruises } />;
       }
 
       return (
@@ -264,7 +300,7 @@ class Cruises extends Component {
         <div>
           What are YOU doing here?
         </div>
-      )
+      );
     }
   }
 }
@@ -274,7 +310,7 @@ function mapStateToProps(state) {
     cruises: state.cruise.cruises,
     cruiseid: state.cruise.cruise.id,
     roles: state.user.profile.roles
-  }
+  };
 }
 
 export default connect(mapStateToProps, actions)(Cruises);

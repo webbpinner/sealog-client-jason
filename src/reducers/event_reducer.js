@@ -5,11 +5,13 @@ import {
   UPDATE_EVENT_FILTER_FORM,
   LEAVE_EVENT_FILTER_FORM,
   SET_SELECTED_EVENT,
-  EVENT_FETCHING
+  EVENT_FETCHING,
+  HIDE_ASNAP,
+  SHOW_ASNAP
 
 } from '../actions/types';
 
-export default function( state={ selected_event: {}, events: [], eventFilter: {}, fetching: false}, action) {
+export default function( state={ selected_event: {}, events: [], eventFilter: {}, hideASNAP: false, fetching: false}, action) {
   switch(action.type){
 
     case INIT_EVENT:
@@ -22,23 +24,29 @@ export default function( state={ selected_event: {}, events: [], eventFilter: {}
         } else {
           return event;
         }
-      })
+      });
       return { ...state, selected_event: {}, events: newEvents };
 
     case UPDATE_EVENTS:
       return { ...state, selected_event: {}, events: action.payload };
 
     case UPDATE_EVENT_FILTER_FORM:
-      return { ...state, eventFilter: action.payload }
+      return { ...state, eventFilter: action.payload };
 
     case LEAVE_EVENT_FILTER_FORM:
-      return { ...state, eventFilter: {} }
+      return { ...state, eventFilter: {} };
 
     case SET_SELECTED_EVENT:
-      return { ...state, selected_event: action.payload}
+      return { ...state, selected_event: action.payload};
 
     case EVENT_FETCHING:
-      return { ...state, fetching: action.payload }
+      return { ...state, fetching: action.payload };
+
+    case HIDE_ASNAP:
+      return { ...state, hideASNAP: true };
+
+    case SHOW_ASNAP:
+      return { ...state, hideASNAP: false };
   }
   
   return state;

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { reduxForm, Field } from 'redux-form';
-import { Alert, Button, Col, Card, Form, Row, Tooltip, OverlayTrigger} from 'react-bootstrap';
+import { Alert, Button, Col, Card, Form, Tooltip, OverlayTrigger} from 'react-bootstrap';
 import * as actions from '../actions';
 import { standardUserRoleOptions } from '../standard_user_role_options';
 import { systemUserRoleOptions } from '../system_user_role_options';
@@ -23,8 +23,8 @@ class UpdateUser extends Component {
   }
 
   renderTextField({ input, label, placeholder, type="text", required, meta: { touched, error } }) {
-    let requiredField = (required)? <span className='text-danger'> *</span> : ''
-    let placeholder_txt = (placeholder)? placeholder: label
+    let requiredField = (required)? <span className='text-danger'> *</span> : '';
+    let placeholder_txt = (placeholder)? placeholder: label;
 
     return (
       <Form.Group as={Col} lg="12">
@@ -32,26 +32,26 @@ class UpdateUser extends Component {
         <Form.Control type={type} {...input} placeholder={placeholder_txt} isInvalid={touched && error}/>
         <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
       </Form.Group>
-    )
+    );
   }
 
-  renderTextArea({ input, label, placeholder, required, rows = 4, meta: { touched, error, warning } }) {
-    let requiredField = (required)? <span className='text-danger'> *</span> : ''
-    let placeholder_txt = (placeholder)? placeholder: label
+  renderTextArea({ input, label, placeholder, required, rows = 4, meta: { touched, error } }) {
+    let requiredField = (required)? <span className='text-danger'> *</span> : '';
+    let placeholder_txt = (placeholder)? placeholder: label;
 
     return (
       <Form.Group as={Col} lg="12">
         <Form.Label>{label}{requiredField}</Form.Label>
-        <Form.Control as="textarea" {...input} placeholder={placeholder_txt} rows={rows}/>
+        <Form.Control as="textarea" {...input} placeholder={placeholder_txt} rows={rows} isInvalid={touched && error}/>
         <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
       </Form.Group>
-    )
+    );
   }
 
   renderSelectField({ input, label, placeholder, required, options, meta: { touched, error } }) {
 
-    let requiredField = (required)? <span className='text-danger'> *</span> : ''
-    let placeholder_txt = (placeholder)? placeholder: label
+    let requiredField = (required)? <span className='text-danger'> *</span> : '';
+    let placeholder_txt = (placeholder)? placeholder: label;
     let defaultOption = ( <option key={`${input.name}.empty`} value=""></option> );
     let optionList = options.map((option, index) => {
       return (
@@ -68,30 +68,18 @@ class UpdateUser extends Component {
         </Form.Control>
         <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
       </Form.Group>
-    )
+    );
   }
+ 
+  renderCheckboxGroup({ label, name, options, input, required, meta: { dirty, error } }) {
 
-  renderDatePicker({ input, label, type, required, meta: { touched, error } }) {
-    let requiredField = (required)? <span className='text-danger'> *</span> : ''
-    
-    return (
-      <Form.Group as={Col} lg="12">
-        <Form.Label>{label}{requiredField}</Form.Label>
-        <Datetime {...input} utc={true} value={input.value ? moment.utc(input.value).format(dateFormat) : null} dateFormat={dateFormat} timeFormat={false} selected={input.value ? moment.utc(input.value, dateFormat) : null }/>
-        {touched && (error && <div style={{width: "100%", marginTop: "0.25rem", fontSize: "80%"}} className='text-danger'>{error}</div>)}
-      </Form.Group>
-    )
-  }
-
-renderCheckboxGroup({ label, name, options, input, required, meta: { dirty, error } }) {
-
-    let requiredField = (required)? (<span className='text-danger'> *</span>) : ''
+    let requiredField = (required)? (<span className='text-danger'> *</span>) : '';
     let checkboxList = options.map((option, index) => {
 
-      let tooltip = (option.description)? (<Tooltip id={`${option.value}_Tooltip`}>{option.description}</Tooltip>) : null
+      let tooltip = (option.description)? (<Tooltip id={`${option.value}_Tooltip`}>{option.description}</Tooltip>) : null;
 
       return (
-        <OverlayTrigger key={`${label}.${index}`} placement="top" overlay={tooltip}>
+        <OverlayTrigger key={`${name}.${index}`} placement="top" overlay={tooltip}>
           <Form.Check
             inline
             label={option.value}
@@ -149,7 +137,7 @@ renderCheckboxGroup({ label, name, options, input, required, meta: { dirty, erro
           {this.renderSystemUserOption()}
           {this.renderDisableUserOption()}
         </div>
-      )
+      );
     }
   }
 
@@ -160,12 +148,10 @@ renderCheckboxGroup({ label, name, options, input, required, meta: { dirty, erro
         label="System User"
         component={this.renderCheckbox}
       />
-    )
+    );
   }
 
   renderDisableUserOption() {
-    console.log(this.props.profile.id)
-    console.log(this.props.user.id)
     if(this.props.profile.id !== this.props.user.id) {
       return (
         <Field
@@ -173,7 +159,7 @@ renderCheckboxGroup({ label, name, options, input, required, meta: { dirty, erro
           label="Account Disabled"
           component={this.renderCheckbox}
         />
-      )
+      );
     }
   }
 
@@ -183,7 +169,7 @@ renderCheckboxGroup({ label, name, options, input, required, meta: { dirty, erro
         <Alert variant="danger">
           <strong>Opps!</strong> {this.props.errorMessage}
         </Alert>
-      )
+      );
     }
   }
 
@@ -193,7 +179,7 @@ renderCheckboxGroup({ label, name, options, input, required, meta: { dirty, erro
         <Alert variant="success">
           <strong>Success!</strong> {this.props.message}
         </Alert>
-      )
+      );
     }
   }
 
@@ -208,9 +194,9 @@ renderCheckboxGroup({ label, name, options, input, required, meta: { dirty, erro
       let userRoleOptions = this.props.roles.includes('admin')? systemUserRoleOptions.concat(standardUserRoleOptions): standardUserRoleOptions;
 
       return (
-        <Card className="form-standard" className="form-standard">
+        <Card className="form-standard">
           <Card.Header>
-          {updateUserFormHeader}
+            {updateUserFormHeader}
           </Card.Header>
           <Card.Body>
             <Form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
@@ -261,13 +247,13 @@ renderCheckboxGroup({ label, name, options, input, required, meta: { dirty, erro
             </Form>
           </Card.Body>
         </Card>
-      )
+      );
     } else {
       return (
         <div>
           What are YOU doing here?
         </div>
-      )
+      );
     }
   }
 }
@@ -276,23 +262,23 @@ function validate(formProps) {
   const errors = {};
 
   if (!formProps.username) {
-    errors.username = 'Required'
+    errors.username = 'Required';
   } else if (formProps.username.length > 15) {
-    errors.username = 'Must be 15 characters or less'
+    errors.username = 'Must be 15 characters or less';
   } else if (formProps.username.match(/[A-Z]/)) {
-    errors.username = 'Username must be all lowercase'
+    errors.username = 'Username must be all lowercase';
   } else if (formProps.username.match(/[ ]/)) {
-    errors.username = 'Username can not include whitespace'
+    errors.username = 'Username can not include whitespace';
   }
 
   if (!formProps.fullname) {
-    errors.fullname = 'Required'
+    errors.fullname = 'Required';
   }
 
   if (!formProps.email) {
-    errors.email = 'Required'
+    errors.email = 'Required';
   } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(formProps.email)) {
-    errors.email = 'Invalid email address'
+    errors.email = 'Invalid email address';
   }
 
   if(formProps.password !== formProps.confirmPassword) {

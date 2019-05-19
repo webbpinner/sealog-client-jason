@@ -16,7 +16,7 @@ export default function configureStore(preloadedState) {
         // ... other middlewares ...
       ),
     ),
-  )
+  );
 
-  return store
+  return store;
 }

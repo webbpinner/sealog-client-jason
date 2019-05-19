@@ -21,8 +21,8 @@ class CreateUser extends Component {
   }
 
   renderTextField({ input, label, placeholder, type="text", required, meta: { touched, error } }) {
-    let requiredField = (required)? <span className='text-danger'> *</span> : ''
-    let placeholder_txt = (placeholder)? placeholder: label
+    let requiredField = (required)? <span className='text-danger'> *</span> : '';
+    let placeholder_txt = (placeholder)? placeholder: label;
 
     return (
       <Form.Group as={Col} lg="12">
@@ -30,12 +30,12 @@ class CreateUser extends Component {
         <Form.Control type={type} {...input} placeholder={placeholder_txt} isInvalid={touched && error}/>
         <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
       </Form.Group>
-    )
+    );
   }
 
   renderTextArea({ input, label, placeholder, required, rows = 4, meta: { touched, error, warning } }) {
-    let requiredField = (required)? <span className='text-danger'> *</span> : ''
-    let placeholder_txt = (placeholder)? placeholder: label
+    let requiredField = (required)? <span className='text-danger'> *</span> : '';
+    let placeholder_txt = (placeholder)? placeholder: label;
 
     return (
       <Form.Group as={Col} lg="12">
@@ -43,13 +43,13 @@ class CreateUser extends Component {
         <Form.Control as="textarea" {...input} placeholder={placeholder_txt} rows={rows}/>
         <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
       </Form.Group>
-    )
+    );
   }
 
   renderSelectField({ input, label, placeholder, required, options, meta: { touched, error } }) {
 
-    let requiredField = (required)? <span className='text-danger'> *</span> : ''
-    let placeholder_txt = (placeholder)? placeholder: label
+    let requiredField = (required)? <span className='text-danger'> *</span> : '';
+    let placeholder_txt = (placeholder)? placeholder: label;
     let defaultOption = ( <option key={`${input.name}.empty`} value=""></option> );
     let optionList = options.map((option, index) => {
       return (
@@ -66,11 +66,11 @@ class CreateUser extends Component {
         </Form.Control>
         <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
       </Form.Group>
-    )
+    );
   }
 
   renderDatePicker({ input, label, type, required, meta: { touched, error } }) {
-    let requiredField = (required)? <span className='text-danger'> *</span> : ''
+    let requiredField = (required)? <span className='text-danger'> *</span> : '';
     
     return (
       <Form.Group as={Col} lg="12">
@@ -78,15 +78,15 @@ class CreateUser extends Component {
         <Datetime {...input} utc={true} value={input.value ? moment.utc(input.value).format(dateFormat) : null} dateFormat={dateFormat} timeFormat={false} selected={input.value ? moment.utc(input.value, dateFormat) : null }/>
         {touched && (error && <div style={{width: "100%", marginTop: "0.25rem", fontSize: "80%"}} className='text-danger'>{error}</div>)}
       </Form.Group>
-    )
+    );
   }
 
   renderCheckboxGroup({ label, name, options, input, required, meta: { dirty, error } }) {
 
-    let requiredField = (required)? (<span className='text-danger'> *</span>) : ''
+    let requiredField = (required)? (<span className='text-danger'> *</span>) : '';
     let checkboxList = options.map((option, index) => {
 
-      let tooltip = (option.description)? (<Tooltip id={`${option.value}_Tooltip`}>{option.description}</Tooltip>) : null
+      let tooltip = (option.description)? (<Tooltip id={`${option.value}_Tooltip`}>{option.description}</Tooltip>) : null;
 
       return (
         <OverlayTrigger key={`${label}.${index}`} placement="top" overlay={tooltip}>
@@ -147,7 +147,7 @@ class CreateUser extends Component {
         label="System User"
         component={this.renderCheckbox}
       />
-    )
+    );
   }
 
   renderDisableUserOption() {
@@ -157,7 +157,7 @@ class CreateUser extends Component {
         label="Account Disabled"
         component={this.renderCheckbox}
       />
-    )
+    );
   }
 
   renderAdminOptions() {
@@ -167,7 +167,7 @@ class CreateUser extends Component {
           {this.renderSystemUserOption()}
           {this.renderDisableUserOption()}
         </div>
-      )
+      );
     }
   }
 
@@ -177,7 +177,7 @@ class CreateUser extends Component {
         <Alert variant="danger">
           <strong>Opps!</strong> {this.props.errorMessage}
         </Alert>
-      )
+      );
     }
   }
 
@@ -187,7 +187,7 @@ class CreateUser extends Component {
         <Alert variant="success">
           <strong>Success!</strong> {this.props.message}
         </Alert>
-      )
+      );
     }
   }
 
@@ -254,13 +254,13 @@ class CreateUser extends Component {
             </Form>
           </Card.Body>
         </Card>
-      )
+      );
     } else {
       return (
         <div>
           Loading...
         </div>
-      )
+      );
     }
   }
 }
@@ -269,23 +269,23 @@ function validate(formProps) {
   const errors = {};
 
   if (!formProps.username) {
-    errors.username = 'Required'
+    errors.username = 'Required';
   } else if (formProps.username.length > 15) {
-    errors.username = 'Must be 15 characters or less'
+    errors.username = 'Must be 15 characters or less';
   } else if (formProps.username.match(/[A-Z]/)) {
-    errors.username = 'Username must be all lowercase'
+    errors.username = 'Username must be all lowercase';
   } else if (formProps.username.match(/[ ]/)) {
-    errors.username = 'Username can not include whitespace'
+    errors.username = 'Username can not include whitespace';
   }
 
   if (!formProps.fullname) {
-    errors.fullname = 'Required'
+    errors.fullname = 'Required';
   }
 
   if (!formProps.email) {
-    errors.email = 'Required'
+    errors.email = 'Required';
   } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(formProps.email)) {
-    errors.email = 'Invalid email address'
+    errors.email = 'Invalid email address';
   }
 
   if(formProps.password !== formProps.confirmPassword) {

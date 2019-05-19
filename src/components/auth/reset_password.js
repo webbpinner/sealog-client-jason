@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { reduxForm, Field, reset } from 'redux-form';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Row, Col, Form, Card, Button, Alert } from 'react-bootstrap';
@@ -10,12 +10,12 @@ import { ROOT_PATH, RECAPTCHA_SITE_KEY } from '../../client_config';
 
 class ResetPassword extends Component {
  
- constructor (props) {
+  constructor (props) {
     super(props);
 
     this.state = { 
       reCaptcha: null
-    }
+    };
 
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
   }
@@ -25,20 +25,20 @@ class ResetPassword extends Component {
   }
 
   handleFormSubmit({ password }) {
-    let reCaptcha = this.state.reCaptcha
-    let token = this.props.match.params.token
+    let reCaptcha = this.state.reCaptcha;
+    let token = this.props.match.params.token;
     this.props.resetPassword({token, password, reCaptcha});
   }
 
   onCaptchaChange(token) {
-    this.setState({reCaptcha: token})
+    this.setState({reCaptcha: token});
   }
 
   renderTextField({ input, label, placeholder, type="text", required, meta: { touched, error } }) {
-    let requiredField = (required)? <span className='text-danger'> *</span> : ''
-    let placeholder_txt = (placeholder)? placeholder: label
+    let requiredField = (required)? <span className='text-danger'> *</span> : '';
+    let placeholder_txt = (placeholder)? placeholder: label;
 
-    const labelComponent = (label)? <Form.Label>{label}{requiredField}</Form.Label> : null
+    const labelComponent = (label)? <Form.Label>{label}{requiredField}</Form.Label> : null;
 
     return (
       <Form.Group as={Col} lg="12">
@@ -46,7 +46,7 @@ class ResetPassword extends Component {
         <Form.Control type={type} {...input} placeholder={placeholder_txt} isInvalid={touched && error}/>
         <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
       </Form.Group>
-    )
+    );
   }
 
   renderAlert() {
@@ -56,13 +56,13 @@ class ResetPassword extends Component {
         <Alert variant="danger">
           <strong>Opps!</strong> {this.props.errorMessage}
         </Alert>
-      )
+      );
     } else if (this.props.successMessage) {
       return (
         <Alert variant="success">
           <strong>Sweet!</strong> {this.props.successMessage}
         </Alert>
-      )
+      );
     }
   }
  
@@ -73,7 +73,7 @@ class ResetPassword extends Component {
       const loginCardHeader = (<h5 className="form-signin-heading">Reset Password</h5>);
       const { handleSubmit, pristine, reset, submitting, valid } = this.props;
 
-      const loginButton = ( RECAPTCHA_SITE_KEY === "")? <Button variant="primary" type="submit" block disabled={submitting || !valid}>Login</Button> : <Button variant="primary" type="submit" block disabled={submitting || !valid || !this.state.reCaptcha}>Login</Button>
+      const loginButton = ( RECAPTCHA_SITE_KEY === "")? <Button variant="primary" type="submit" block disabled={submitting || !valid}>Login</Button> : <Button variant="primary" type="submit" block disabled={submitting || !valid || !this.state.reCaptcha}>Login</Button>;
       const recaptcha = ( RECAPTCHA_SITE_KEY !== "")? (
         <span>
           <ReCAPTCHA
@@ -84,7 +84,7 @@ class ResetPassword extends Component {
           />
           <br/>
         </span>
-      ): null
+      ): null;
 
       return (
         <Card className="form-signin" >
@@ -121,7 +121,7 @@ class ResetPassword extends Component {
             </div>
           </Card.Body>
         </Card>
-      )
+      );
     }
   }
 
@@ -133,40 +133,40 @@ class ResetPassword extends Component {
           {this.renderForm()}
         </Col>
       </Row>
-    )
+    );
   }
 
 }
 
 const validate = values => {
 
-  const errors = {}
+  const errors = {};
 
   if (!values.password) {
     errors.password = "Required";
   } else if (values.password.length < 8) {
-    errors.password = 'Password must be 8 characters or more'
+    errors.password = 'Password must be 8 characters or more';
   } else if (values.password.match(/[ ]/)) {
-    errors.password = 'Password can not include whitespace'
+    errors.password = 'Password can not include whitespace';
   }
 
   if(values.password !== values.confirmPassword) {
     errors.confirmPassword = "Passwords must match";
   }
 
-  return errors
-}
+  return errors;
+};
 
 function mapStateToProps(state) {
   return {
     errorMessage: state.auth.error,
     successMessage: state.auth.message
-  }
+  };
 }
 
 const afterSubmit = (result, dispatch) => {
   dispatch(reset('resetPassword'));
-}
+};
 
 ResetPassword = reduxForm({
   form: 'resetPassword',

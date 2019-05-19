@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { reduxForm, Field } from 'redux-form';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Row, Col, Container, Form, Card, Button, Alert, Image } from 'react-bootstrap';
@@ -10,13 +10,13 @@ import { ROOT_PATH, LOGIN_SCREEN_TXT, LOGIN_IMAGE, RECAPTCHA_SITE_KEY } from '..
 
 class Login extends Component {
  
- constructor (props) {
+  constructor (props) {
     super(props);
 
     this.state = {
       reCaptcha: null,
       stdUsers: true
-    }
+    };
   }
 
   componentWillUnmount() {
@@ -24,14 +24,14 @@ class Login extends Component {
   }
 
   onCaptchaChange(token) {
-    this.setState({reCaptcha: token})
+    this.setState({reCaptcha: token});
   }
 
   renderTextField({ input, label, placeholder, type="text", required, meta: { touched, error } }) {
-    let requiredField = (required)? <span className='text-danger'> *</span> : ''
-    let placeholder_txt = (placeholder)? placeholder: label
+    let requiredField = (required)? <span className='text-danger'> *</span> : '';
+    let placeholder_txt = (placeholder)? placeholder: label;
 
-    const labelComponent = (label)? <Form.Label>{label}{requiredField}</Form.Label> : null
+    const labelComponent = (label)? <Form.Label>{label}{requiredField}</Form.Label> : null;
 
     return (
       <Form.Group as={Col} lg="12">
@@ -39,12 +39,12 @@ class Login extends Component {
         <Form.Control type={type} {...input} placeholder={placeholder_txt} isInvalid={touched && error}/>
         <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
       </Form.Group>
-    )
+    );
   }
 
   handleFormSubmit({ username, password }) {
     username = username.toLowerCase();
-    let reCaptcha = this.state.reCaptcha
+    let reCaptcha = this.state.reCaptcha;
     this.props.login({username, password, reCaptcha});
   }
 
@@ -54,17 +54,17 @@ class Login extends Component {
         <Alert variant="danger">
           <strong>Opps!</strong> {this.props.errorMessage}
         </Alert>
-      )
+      );
     } else if (this.props.successMessage) {
       return (
         <Alert variant="success">
           <strong>Sweet!</strong> {this.props.successMessage}
         </Alert>
-      )
+      );
     }
   }
  
-render() {
+  render() {
     const { handleSubmit, pristine, reset, submitting, valid } = this.props;
     const loginCardHeader = (<h5 className="form-signin-heading">Please Sign In</h5>);
 
@@ -79,11 +79,11 @@ render() {
         />
         <br/>
       </span>
-    ): null
+    ): null;
 
-    const loginButton = ( RECAPTCHA_SITE_KEY === "")? <Button variant="primary" type="submit" block disabled={submitting || !valid}>Login</Button> : <Button variant="primary" type="submit" block disabled={submitting || !valid || !this.state.reCaptcha}>Login</Button>
+    const loginButton = ( RECAPTCHA_SITE_KEY === "")? <Button variant="primary" type="submit" block disabled={submitting || !valid}>Login</Button> : <Button variant="primary" type="submit" block disabled={submitting || !valid || !this.state.reCaptcha}>Login</Button>;
 
-    const loginAsGuestButton = ( RECAPTCHA_SITE_KEY === "")? <Button variant="success" onClick={() => this.props.switch2Guest()} block>Login as Guest</Button> : <Button variant="success" onClick={() => this.props.switch2Guest(this.state.reCaptcha)} block disabled={!this.state.reCaptcha}>Login as Guest</Button>
+    const loginAsGuestButton = ( RECAPTCHA_SITE_KEY === "")? <Button variant="success" onClick={() => this.props.switch2Guest()} block>Login as Guest</Button> : <Button variant="success" onClick={() => this.props.switch2Guest(this.state.reCaptcha)} block disabled={!this.state.reCaptcha}>Login as Guest</Button>;
 
     return (
       <Container>
@@ -134,47 +134,47 @@ render() {
           </Col>
         </Row>
       </Container>
-    )
+    );
   }
 }
 
-                // <ReCAPTCHA
-                  // ref={e => reCaptchaInstance = e}
-                  // sitekey={RECAPTCHA_SITE_KEY}
-                  // theme="dark"
-                  // size="normal"
-                  // onChange={this.onCaptchaChange.bind(this)}
-                // />
-                // <br/>
+// <ReCAPTCHA
+// ref={e => reCaptchaInstance = e}
+// sitekey={RECAPTCHA_SITE_KEY}
+// theme="dark"
+// size="normal"
+// onChange={this.onCaptchaChange.bind(this)}
+// />
+// <br/>
 
-                  // <Button variant="primary" type="submit" block disabled={submitting || !valid || !this.state.reCaptcha}>Login</Button>
+// <Button variant="primary" type="submit" block disabled={submitting || !valid || !this.state.reCaptcha}>Login</Button>
 
 
 const validate = values => {
 
-  const errors = {}
+  const errors = {};
   if (!values.username) {
-    errors.username = 'Required'
+    errors.username = 'Required';
   }
 
   if (!values.password) {
-    errors.password = 'Required'
+    errors.password = 'Required';
   }
 
-  return errors
-}
+  return errors;
+};
 
 let reCaptchaInstance = null;
 
 const afterSubmit = (result, dispatch) => {
 //  reCaptchaInstance.reset();
-}
+};
 
 function mapStateToProps(state) {
   return {
     errorMessage: state.auth.error,
     successMessage: state.auth.message
-  }
+  };
 }
 
 Login = reduxForm({

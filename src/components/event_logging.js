@@ -58,7 +58,7 @@ class EventLogging extends Component {
         </div>
       );
     }
-    return null
+    return null;
   }
 }
 
@@ -66,7 +66,7 @@ function mapStateToProps(state) {
 
   return {
     roles: state.user.profile.roles
-  }
+  };
 }
 
 export default connect(mapStateToProps, actions)(EventLogging);

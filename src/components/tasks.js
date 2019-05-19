@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Row, Button, Col, Card, Container, ListGroup } from 'react-bootstrap';
+import { Row, Col, Container, ListGroup } from 'react-bootstrap';
 import ImportEventsModal from './import_events_modal';
 import ImportAuxDataModal from './import_aux_data_modal';
 import DataWipeModal from './data_wipe_modal';
 import * as actions from '../actions';
 
-const importEventsDescription = (<div><h5>Import Event Records</h5><p>Add new event data records from a JSON-formated file.</p></div>)
+const importEventsDescription = (<div><h5>Import Event Records</h5><p>Add new event data records from a JSON-formated file.</p></div>);
 
-const importAuxDataDescription = (<div><h5>Import Aux Data Records</h5><p>Add new aux data records from a JSON-formated file.</p></div>)
+const importAuxDataDescription = (<div><h5>Import Aux Data Records</h5><p>Add new aux data records from a JSON-formated file.</p></div>);
 
-const dataResetDescription = (<div><h5>Wipe Local Database</h5><p>Delete all existing events from the local database.</p></div>)
+const dataResetDescription = (<div><h5>Wipe Local Database</h5><p>Delete all existing events from the local database.</p></div>);
 
 class Tasks extends Component {
 
@@ -19,7 +19,7 @@ class Tasks extends Component {
 
     this.state = {
       description: "" 
-    }
+    };
   }
 
   handleEventImport() {
@@ -56,18 +56,18 @@ class Tasks extends Component {
   renderTaskTable() {
     return (
       <ListGroup>
-        <ListGroup.Item onMouseEnter={(e) => this.setState({ description: importEventsDescription })} onMouseLeave={(e) => this.setState({ description: "" })} onClick={ () => this.handleEventImport()}>Import Event Records</ListGroup.Item>
-        <ListGroup.Item onMouseEnter={(e) => this.setState({ description: importAuxDataDescription })} onMouseLeave={(e) => this.setState({ description: "" })} onClick={ () => this.handleAuxDataImport()}>Import Aux Data Records</ListGroup.Item>
-        <ListGroup.Item onMouseEnter={(e) => this.setState({ description: dataResetDescription })} onMouseLeave={(e) => this.setState({ description: "" })} onClick={ () => this.handleDataWipe()}>Wipe Local Database</ListGroup.Item>
+        <ListGroup.Item onMouseEnter={() => this.setState({ description: importEventsDescription })} onMouseLeave={() => this.setState({ description: "" })} onClick={ () => this.handleEventImport()}>Import Event Records</ListGroup.Item>
+        <ListGroup.Item onMouseEnter={() => this.setState({ description: importAuxDataDescription })} onMouseLeave={() => this.setState({ description: "" })} onClick={ () => this.handleAuxDataImport()}>Import Aux Data Records</ListGroup.Item>
+        <ListGroup.Item onMouseEnter={() => this.setState({ description: dataResetDescription })} onMouseLeave={() => this.setState({ description: "" })} onClick={ () => this.handleDataWipe()}>Wipe Local Database</ListGroup.Item>
       </ListGroup>
-    )
+    );
   }
 
   render() {
     if (!this.props.roles) {
-        return (
-          <div>Loading...</div>
-        )
+      return (
+        <div>Loading...</div>
+      );
     }
 
     else if(this.props.roles.includes("admin")) {
@@ -78,7 +78,7 @@ class Tasks extends Component {
           <DataWipeModal />
           <Row>
             <Col sm={5} md={{span:4, offset:1}} lg={{span:3, offset:2}}>
-                {this.renderTaskTable()}
+              {this.renderTaskTable()}
             </Col>
             <Col sm={7} md={6} lg={5}>
               <Container>
@@ -94,7 +94,7 @@ class Tasks extends Component {
       );
 
     } else {
-      this.props.gotoHome()
+      this.props.gotoHome();
     }
   }
 }
@@ -103,7 +103,7 @@ function mapStateToProps(state) {
 
   return {
     roles: state.user.profile.roles,
-  }
+  };
 }
 
 export default connect(mapStateToProps, actions)(Tasks);

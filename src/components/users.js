@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { Row, Button, Col, Card, Table, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Row, Button, Col, Card, Table, OverlayTrigger, Tooltip, Pagination } from 'react-bootstrap';
 import CreateUser from './create_user';
 import UpdateUser from './update_user';
 import DisplayUserTokenModal from './display_user_token_modal';
@@ -11,11 +10,11 @@ import ImportUsersModal from './import_users_modal';
 import DeleteUserModal from './delete_user_modal';
 import * as actions from '../actions';
 
-const disabledAccounts = ['admin', 'guest', 'pi']
+const disabledAccounts = ['admin', 'guest', 'pi'];
 
 let fileDownload = require('js-file-download');
 
-const maxUsersPerPage = 15
+const maxUsersPerPage = 15;
 
 class Users extends Component {
 
@@ -24,7 +23,7 @@ class Users extends Component {
 
     this.state = {
       activePage: 1
-    }
+    };
 
     this.handlePageSelect = this.handlePageSelect.bind(this);
     this.handleUserImportClose = this.handleUserImportClose.bind(this);
@@ -56,7 +55,7 @@ class Users extends Component {
   }
 
   handleUserCreate() {
-    this.props.leaveUpdateUserForm()
+    this.props.leaveUpdateUserForm();
   }
 
   handleUserImport() {
@@ -80,7 +79,7 @@ class Users extends Component {
     if (!this.props.showform) {
       return (
         <div className="float-right">
-          <Button variant="primary" size="sm" onClick={ () => this.handleUserCreate()}>Add User</Button>
+          <Button variant="primary" disabled={!this.props.userid} size="sm" onClick={ () => this.handleUserCreate()}>Add User</Button>
         </div>
       );
     }
@@ -98,14 +97,14 @@ class Users extends Component {
 
   renderUsers() {
 
-    const editTooltip = (<Tooltip id="editTooltip">Edit this user.</Tooltip>)
-    const tokenTooltip = (<Tooltip id="viewTooltip">Show user's JWT token.</Tooltip>)
-    const deleteTooltip = (<Tooltip id="deleteTooltip">Delete this user.</Tooltip>)
+    const editTooltip = (<Tooltip id="editTooltip">Edit this user.</Tooltip>);
+    const tokenTooltip = (<Tooltip id="viewTooltip">Show user&apos;s JWT token.</Tooltip>);
+    const deleteTooltip = (<Tooltip id="deleteTooltip">Delete this user.</Tooltip>);
 
     if(this.props.users){
-      let non_system_users = this.props.users.filter((user) => !user.system_user)
+      let non_system_users = this.props.users.filter((user) => !user.system_user);
       return non_system_users.map((user) => {
-        const style = (user.disabled)? {"text-decoration": "line-through"}: {}
+        const style = (user.disabled)? {"text-decoration": "line-through"}: {};
         return (
           <tr key={user.id}>
             <td style={style} className={(this.props.userid === user.id)? "text-warning" : ""}>{user.username}</td>
@@ -117,28 +116,28 @@ class Users extends Component {
             </td>
           </tr>
         );
-      })      
+      });      
     }
 
     return (
       <tr key="noUsersFound">
         <td colSpan="5"> No users found!</td>
       </tr>
-    )
+    );
   }
 
   renderSystemUsers() {
 
-    const editTooltip = (<Tooltip id="editTooltip">Edit this user.</Tooltip>)
-    const tokenTooltip = (<Tooltip id="deleteTooltip">Show user's JWT token.</Tooltip>)
-    const deleteTooltip = (<Tooltip id="deleteTooltip">Delete this user.</Tooltip>)
+    const editTooltip = (<Tooltip id="editTooltip">Edit this user.</Tooltip>);
+    const tokenTooltip = (<Tooltip id="deleteTooltip">Show user&apos;s JWT token.</Tooltip>);
+    const deleteTooltip = (<Tooltip id="deleteTooltip">Delete this user.</Tooltip>);
 
     if(this.props.users && this.props.users.length > 0) {
-      const system_users = this.props.users.filter((user) => user.system_user)
+      const system_users = this.props.users.filter((user) => user.system_user);
 
       return system_users.map((user) => {
 
-        const style = (user.disabled)? {"text-decoration": "line-through"}: {}
+        const style = (user.disabled)? {"text-decoration": "line-through"}: {};
         if(user.system_user) {
           return (
             <tr key={user.id}>
@@ -152,14 +151,14 @@ class Users extends Component {
             </tr>
           );
         }
-      })
+      });
     }
 
     return (
       <tr key="noUsersFound">
         <td colSpan="3"> No users found!</td>
       </tr>
-    )   
+    );   
   }
 
   renderUserTable() {
@@ -177,11 +176,11 @@ class Users extends Component {
             {this.renderUsers()}
           </tbody>
         </Table>
-      )
+      );
     } else {
       return (
         <Card.Body>No Users Found!</Card.Body>
-      )
+      );
     }
   }
 
@@ -200,22 +199,22 @@ class Users extends Component {
             {this.renderSystemUsers()}
           </tbody>
         </Table>
-      )
+      );
     } else {
       return (
         <Card.Body>No System Users Found!</Card.Body>
-      )
+      );
     }
   }
 
   renderUsersHeader() {
 
-    const Label = "Users"
+    const Label = "Users";
 
-    const exportTooltip = (<Tooltip id="exportTooltip">Export Users</Tooltip>)
-    const deleteAllNonSystemTooltip = (<Tooltip id="deleteAllNonSystemTooltip">Delete all non-system Users</Tooltip>)
+    const exportTooltip = (<Tooltip id="exportTooltip">Export Users</Tooltip>);
+    const deleteAllNonSystemTooltip = (<Tooltip id="deleteAllNonSystemTooltip">Delete all non-system Users</Tooltip>);
 
-    const disableBtn = (this.props.users.filter(user => user.system_user === false).length > 0)? false : true
+    const disableBtn = (this.props.users.filter(user => user.system_user === false).length > 0)? false : true;
 
     return (
       <div>
@@ -230,11 +229,11 @@ class Users extends Component {
 
   renderSystemUsersHeader() {
 
-    const Label = "System Users"
+    const Label = "System Users";
 
-    const exportTooltip = (<Tooltip id="exportTooltip">Export Users</Tooltip>)
+    const exportTooltip = (<Tooltip id="exportTooltip">Export Users</Tooltip>);
 
-    let export_icon = (this.props.roles.includes("admin"))? (<OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesomeIcon onClick={ () => this.exportSystemUsersToJSON() } icon='download' fixedWidth/></OverlayTrigger>) : null
+    let export_icon = (this.props.roles.includes("admin"))? (<OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesomeIcon onClick={ () => this.exportSystemUsersToJSON() } icon='download' fixedWidth/></OverlayTrigger>) : null;
 
     return (
       <div>
@@ -251,62 +250,62 @@ class Users extends Component {
 
       let priceCount = this.props.users.length;
       let last = Math.ceil(priceCount/maxUsersPerPage);
-      let delta = 2
-      let left = this.state.activePage - delta
-      let right = this.state.activePage + delta + 1
-      let range = []
-      let rangeWithDots = []
-      let l = null
+      let delta = 2;
+      let left = this.state.activePage - delta;
+      let right = this.state.activePage + delta + 1;
+      let range = [];
+      let rangeWithDots = [];
+      let l = null;
 
       for (let i = 1; i <= last; i++) {
         if (i === 1 || i === last || i >= left && i < right) {
-            range.push(i);
+          range.push(i);
         }
       }
 
       for (let i of range) {
         if (l) {
           if (i - l === 2) {
-            rangeWithDots.push(<Pagination.Item key={l + 1} active={(this.state.activePage === l+1)} onClick={() => this.setState({activePage: (l + 1)})}>{l + 1}</Pagination.Item>)
+            rangeWithDots.push(<Pagination.Item key={l + 1} active={(this.state.activePage === l+1)} onClick={() => this.handlePageSelect(l + 1)}>{l + 1}</Pagination.Item>);
           } else if (i - l !== 1) {
-            rangeWithDots.push(<Pagination.Ellipsis />);
+            rangeWithDots.push(<Pagination.Ellipsis key={`ellipsis_${i}`} />);
           }
         }
-        rangeWithDots.push(<Pagination.Item key={i} active={(this.state.activePage === i)} onClick={() => this.setState({activePage: i})}>{i}</Pagination.Item>);
+        rangeWithDots.push(<Pagination.Item key={i} active={(this.state.activePage === i)} onClick={() => this.handlePageSelect(i)}>{i}</Pagination.Item>);
         l = i;
       }
 
       return (
         <Pagination>
-          <Pagination.First onClick={() => this.setState({activePage: 1})} />
-          <Pagination.Prev onClick={() => { if(this.state.activePage > 1) { this.setState(prevState => ({ activePage: prevState.activePage-1}))}}} />
+          <Pagination.First onClick={() => this.handlePageSelect(1)} />
+          <Pagination.Prev onClick={() => { if(this.state.activePage > 1) { this.handlePageSelect(this.state.activePage-1)}}} />
           {rangeWithDots}
-          <Pagination.Next onClick={() => { if(this.state.activePage < last) { this.setState(prevState => ({ activePage: prevState.activePage+1}))}}} />
-          <Pagination.Last onClick={() => this.setState({activePage: last})} />
+          <Pagination.Next onClick={() => { if(this.state.activePage < last) { this.handlePageSelect(prevState.activePage+1)}}} />
+          <Pagination.Last onClick={() => this.handlePageSelect(last)} />
         </Pagination>
-      )
+      );
     }
   }
 
   render() {
     if (!this.props.roles) {
-        return (
-          <div>Loading...</div>
-        )
+      return (
+        <div>Loading...</div>
+      );
     }
 
     if (this.props.roles.includes("admin") || this.props.roles.includes("cruise_manager")) {
 
-      const  userForm = (this.props.userid)? <UpdateUser /> : <CreateUser />
+      const  userForm = (this.props.userid)? <UpdateUser /> : <CreateUser />;
 
       const systemUsersCard = (this.props.users.filter(user => user.system_user === true).length > 0) ? 
-      (
-        <Card border="secondary" style={{marginBottom: "8px"}} >
-          <Card.Header>{this.renderSystemUsersHeader()}</Card.Header>
-          {this.renderSystemUserTable()}
-          {this.renderPagination()}
-        </Card>
-      ) : null
+        (
+          <Card border="secondary" style={{marginBottom: "8px"}} >
+            <Card.Header>{this.renderSystemUsersHeader()}</Card.Header>
+            {this.renderSystemUserTable()}
+            {this.renderPagination()}
+          </Card>
+        ) : null;
 
       return (
         <div>
@@ -340,7 +339,7 @@ class Users extends Component {
         <div>
           What are YOU doing here?
         </div>
-      )
+      );
     }
   }
 }
@@ -351,7 +350,7 @@ function mapStateToProps(state) {
     userid: state.user.user.id,
     profileid: state.user.profile.id,
     roles: state.user.profile.roles
-  }
+  };
 }
 
 export default connect(mapStateToProps, actions)(Users);

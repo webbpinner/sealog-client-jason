@@ -22,10 +22,10 @@ export default function( state={ error: '', message: '', authenticated: false },
       return { ...state, error: '', message: action.payload };
 
     case REFRESH_AUTH_LOGIN_FORM:
-      return { ...state, error: '', message: '' }
+      return { ...state, error: '', message: '' };
 
     case LEAVE_AUTH_LOGIN_FORM:
-      return { ...state, error: '', message: '' }
+      return { ...state, error: '', message: '' };
 
   }
   return state;

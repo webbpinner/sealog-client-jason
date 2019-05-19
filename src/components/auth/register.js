@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import { reduxForm, Field } from 'redux-form';
 import { Link } from 'react-router-dom';
@@ -15,7 +15,7 @@ class Register extends Component {
 
     this.state = { 
       reCaptcha: null
-    }
+    };
   }
 
   componentWillUnmount() {
@@ -23,18 +23,18 @@ class Register extends Component {
   }
 
   handleFormSubmit({username, fullname, email, password}) {
-    let reCaptcha = this.state.reCaptcha
+    let reCaptcha = this.state.reCaptcha;
 
     this.props.registerUser({username, fullname, email, password, reCaptcha});
   }
 
   onCaptchaChange(token) {
-    this.setState({reCaptcha: token})
+    this.setState({reCaptcha: token});
   }
 
   renderTextField({ input, label, placeholder, type="text", required, meta: { touched, error } }) {
-    let requiredField = (required)? <span className='text-danger'> *</span> : ''
-    let placeholder_txt = (placeholder)? placeholder: label
+    let requiredField = (required)? <span className='text-danger'> *</span> : '';
+    let placeholder_txt = (placeholder)? placeholder: label;
 
     return (
       <Form.Group as={Col} lg="12">
@@ -42,7 +42,7 @@ class Register extends Component {
         <Form.Control type={type} {...input} placeholder={placeholder_txt} isInvalid={touched && error}/>
         <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
       </Form.Group>
-    )
+    );
   }
 
 
@@ -62,7 +62,7 @@ class Register extends Component {
             </div>
           </Card.Body>
         </Card>
-      )
+      );
     }
   }
 
@@ -72,7 +72,7 @@ class Register extends Component {
         <div className="alert alert-danger">
           <strong>Opps!</strong> {this.props.errorMessage}
         </div>
-      )
+      );
     }
   }
 
@@ -93,7 +93,7 @@ class Register extends Component {
           />
           <br/>
         </span>
-      ): null
+      ): null;
 
       return (
         <Card className="form-signin" >
@@ -152,7 +152,7 @@ class Register extends Component {
             </div>
           </Card.Body>
         </Card>
-      )
+      );
     }
   }
 
@@ -165,7 +165,7 @@ class Register extends Component {
           {this.renderForm()}
         </Col>
       </Row>
-    )
+    );
   }
 }
 
@@ -173,31 +173,31 @@ function validate(formProps) {
   const errors = {};
 
   if (!formProps.username) {
-    errors.username = 'Required'
+    errors.username = 'Required';
   } else if (formProps.username.length > 15) {
-    errors.username = 'Username must be 15 characters or less'
+    errors.username = 'Username must be 15 characters or less';
   } else if (formProps.username.match(/[ ]/)) {
-    errors.username = 'Username can not include whitespace'
+    errors.username = 'Username can not include whitespace';
   } else if (formProps.username.match(/[A-Z]/)) {
-    errors.username = 'Username can NOT include uppercase letters'
+    errors.username = 'Username can NOT include uppercase letters';
   }
 
   if (!formProps.fullname) {
-    errors.fullname = 'Required'
+    errors.fullname = 'Required';
   }
 
   if (!formProps.email) {
-    errors.email = 'Required'
+    errors.email = 'Required';
   } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(formProps.email)) {
-    errors.email = 'Invalid email address'
+    errors.email = 'Invalid email address';
   }
 
   if (!formProps.password) {
     errors.password = "Required";
   } else if (formProps.password.length < 8) {
-    errors.password = 'Password must be 8 characters or more'
+    errors.password = 'Password must be 8 characters or more';
   } else if (formProps.password.match(/[ ]/)) {
-    errors.password = 'Password can not include whitespace'
+    errors.password = 'Password can not include whitespace';
   }
 
   if(formProps.password !== formProps.confirmPassword) {
@@ -220,7 +220,7 @@ let recaptchaInstance = null;
 
 const afterSubmit = (result, dispatch) => {
   recaptchaInstance.reset();
-}
+};
 
 Register = reduxForm({
   form: 'register',

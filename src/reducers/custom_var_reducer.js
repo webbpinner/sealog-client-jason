@@ -12,7 +12,7 @@ export default function( state={ custom_vars: [] }, action) {
 
     case UPDATE_CUSTOM_VAR:
       // console.log('payload:', action.payload)
-      return state
+      return state;
   }    
   return state;
 }

@@ -32,10 +32,10 @@ export default function(state={ profile: {}, profile_error: '', profile_message:
       return { ...state, profile: action.payload };
 
     case UPDATE_PROFILE_SUCCESS:
-      return { ...state, profile_error: '', profile_message: action.payload }
+      return { ...state, profile_error: '', profile_message: action.payload };
 
     case UPDATE_PROFILE_ERROR:
-      return { ...state, profile_error: action.payload, profile_message: '' }
+      return { ...state, profile_error: action.payload, profile_message: '' };
 
     case LEAVE_UPDATE_PROFILE_FORM:
       return { ...state, profile_error: '', profile_message: '' };
@@ -47,31 +47,31 @@ export default function(state={ profile: {}, profile_error: '', profile_message:
       return { ...state, user: action.payload };
 
     case UPDATE_USER_SUCCESS:
-      return { ...state, user_error: '', user_message: action.payload }
+      return { ...state, user_error: '', user_message: action.payload };
 
     case UPDATE_USER_ERROR:
-      return { ...state, user_error: action.payload, user_message: '' }
+      return { ...state, user_error: action.payload, user_message: '' };
 
     case LEAVE_UPDATE_USER_FORM:
-      return { ...state, user: {}, user_error: '', user_message: '' }
+      return { ...state, user: {}, user_error: '', user_message: '' };
 
     case CREATE_USER_SUCCESS:
-      return { ...state, user_error: '', user_message: action.payload }
+      return { ...state, user_error: '', user_message: action.payload };
 
     case CREATE_USER_ERROR:
-      return { ...state, user_error: action.payload, user_message: '' }
+      return { ...state, user_error: action.payload, user_message: '' };
 
     case LEAVE_CREATE_USER_FORM:
-      return { ...state, user_error: '', user_message: '' }
+      return { ...state, user_error: '', user_message: '' };
 
     case REGISTER_USER_SUCCESS:
-      return { ...state, register_error: '', register_message: action.payload }
+      return { ...state, register_error: '', register_message: action.payload };
 
     case REGISTER_USER_ERROR:
-      return { ...state, register_error: action.payload, register_message: '' }
+      return { ...state, register_error: action.payload, register_message: '' };
 
     case LEAVE_REGISTER_USER_FORM:
-      return { ...state, register_error: '', register_message: '' }
+      return { ...state, register_error: '', register_message: '' };
 
     case FETCH_USERS:
       return { ...state, users: action.payload };

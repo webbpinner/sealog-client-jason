@@ -29,3 +29,6 @@ export const MAIN_SCREEN_TXT = "Please select a cruise from the list below.  Onc
 
 // Title displayed on the left side of the title bar
 export const HEADER_TITLE = "Sealog - JASON";
+
+// Use an internal tile server, or pull tiles directly from the Internet.
+export const USE_MAPTILE_PROXY = false;

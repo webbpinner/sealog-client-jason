@@ -12,7 +12,7 @@ class Footer extends Component {
 
     this.state = {
       intervalID: null
-    }
+    };
 
     this.handleASNAPNotification = this.handleASNAPNotification.bind(this);
     this.client = new Client(`${WS_ROOT_URL}`);
@@ -23,10 +23,10 @@ class Footer extends Component {
   componentDidMount() {
     this.connectToWS();
 
-    this.handleASNAPNotification()
+    this.handleASNAPNotification();
 
     let intervalID = setInterval(this.handleASNAPNotification, 5000);
-    this.setState({intervalID: intervalID})
+    this.setState({intervalID: intervalID});
 
   }
 
@@ -36,7 +36,7 @@ class Footer extends Component {
   async connectToWS() {
 
     try {
-      const result = await this.client.connect()
+      const result = await this.client.connect();
       // {
       //   auth: {
       //     headers: {
@@ -46,22 +46,22 @@ class Footer extends Component {
       // })
 
       const updateHandler = (update, flags) => {
-        console.log("update:", update)
-        this.handleASNAPNotification()
-      }
+        console.log("update:", update);
+        this.handleASNAPNotification();
+      };
 
       this.client.subscribe('/ws/status/updateCustomVar', updateHandler);
 
     } catch(error) {
       console.log(error);
-      throw(error)
+      throw(error);
     }
   }
 
 
   handleASNAPNotification() {
     if(this.props.authenticated) {
-      this.props.fetchCustomVars()
+      this.props.fetchCustomVars();
     }
 
     if(this.props.asnapStatus && this.state.intervalID) {
@@ -72,26 +72,26 @@ class Footer extends Component {
 
   render () {
 
-    let asnapStatus = null
+    let asnapStatus = null;
 
     if(this.props.authenticated && this.props.asnapStatus === "Off") {
       asnapStatus =  (
         <span>
           ASNAP: <span className="text-danger">Off</span>
         </span>
-      )
+      );
     } else if(this.props.authenticated && this.props.asnapStatus === "On") {
       asnapStatus =  (
         <span>
           ASNAP: <span className="text-success">On</span>
         </span>
-      )
+      );
     } else if(this.props.authenticated) {
       asnapStatus =  (
         <span>
           ASNAP: <span className="text-warning">Unknown</span>
         </span>
-      )
+      );
     }
 
     return (
@@ -110,13 +110,13 @@ class Footer extends Component {
 
 function mapStateToProps(state){
 
-  let asnapStatus = (state.custom_var)? state.custom_var.custom_vars.find(custom_var => custom_var.custom_var_name === "asnapStatus") : null
+  let asnapStatus = (state.custom_var)? state.custom_var.custom_vars.find(custom_var => custom_var.custom_var_name === "asnapStatus") : null;
 
   return {
     asnapStatus: (asnapStatus)? asnapStatus.custom_var_value : null,
     authenticated: state.auth.authenticated,
 
-  }
+  };
 }
 
 export default connect(mapStateToProps, actions)(Footer);

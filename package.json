@@ -1,6 +1,6 @@
 {
   "name": "sealog-client-jason",
-  "version": "0.7.2",
+  "version": "0.7.5",
   "license": "GPL-3.0",
   "description": "Sealog event-logging client built for sealog-server-jason",
   "bugs": {
@@ -10,7 +10,9 @@
   "scripts": {
     "start": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --mode development",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --mode production"
+    "build": "webpack --mode production",
+    "lint": "eslint . --ext .js",
+    "lint-fix": "eslint . --ext .js --fix"
   },
   "author": "Webb Pinner",
   "homepage": "https://github.com/webbpinner/",
@@ -29,6 +31,7 @@
     "connected-react-router": "^6.4.0",
     "filepond": "^4.4.2",
     "js-file-download": "^0.4.5",
+    "leaflet": "^1.5.1",
     "moment": "^2.24.0",
     "moment-duration-format": "^2.2.2",
     "nes": "^10.0.2",
@@ -40,6 +43,7 @@
     "react-file-reader": "^1.1.4",
     "react-filepond": "^7.0.1",
     "react-google-recaptcha": "^1.0.5",
+    "react-leaflet": "^2.2.1",
     "react-redux": "^7.0.3",
     "react-router": "^5.0.0",
     "react-router-dom": "^5.0.0",

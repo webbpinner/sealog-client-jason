@@ -90,24 +90,24 @@ class LoweringGalleryTab extends Component {
       for (let i of range) {
         if (l) {
           if (i - l === 2) {
-            rangeWithDots.push(<Pagination.Item key={l + 1} active={(this.state.activePage === l+1)} onClick={() => this.setState({activePage: (l + 1)})}>{l + 1}</Pagination.Item>)
+            rangeWithDots.push(<Pagination.Item key={l + 1} active={(this.state.activePage === l+1)} onClick={() => this.handlePageSelect(l + 1)}>{l + 1}</Pagination.Item>);
           } else if (i - l !== 1) {
             rangeWithDots.push(<Pagination.Ellipsis key={`ellipsis_${i}`} />);
           }
         }
-        rangeWithDots.push(<Pagination.Item key={i} active={(this.state.activePage === i)} onClick={() => this.setState({activePage: i})}>{i}</Pagination.Item>);
+        rangeWithDots.push(<Pagination.Item key={i} active={(this.state.activePage === i)} onClick={() => this.handlePageSelect(i)}>{i}</Pagination.Item>);
         l = i;
       }
 
       return (
         <Pagination>
-          <Pagination.First onClick={() => this.setState({activePage: 1})} />
-          <Pagination.Prev onClick={() => { if(this.state.activePage > 1) { this.setState(prevState => ({ activePage: prevState.activePage-1}))}}} />
+          <Pagination.First onClick={() => this.handlePageSelect(1)} />
+          <Pagination.Prev onClick={() => { if(this.state.activePage > 1) { this.handlePageSelect(this.state.activePage-1)}}} />
           {rangeWithDots}
-          <Pagination.Next onClick={() => { if(this.state.activePage < last) { this.setState(prevState => ({ activePage: prevState.activePage+1}))}}} />
-          <Pagination.Last onClick={() => this.setState({activePage: last})} />
+          <Pagination.Next onClick={() => { if(this.state.activePage < last) { this.handlePageSelect(prevState.activePage+1)}}} />
+          <Pagination.Last onClick={() => this.handlePageSelect(last)} />
         </Pagination>
-      )
+      );
     }
   }
 

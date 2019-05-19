@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import { Button, ListGroup, Card, Tooltip, OverlayTrigger, Row, Col } from 'react-bootstrap';
 import * as actions from '../actions';
@@ -18,7 +18,7 @@ class EventHistory extends Component {
       hideASNAP: true,
       showEventHistory: true,
       showEventHistoryFullscreen: false
-    }
+    };
 
     this.client = new Client(`${WS_ROOT_URL}`);
     this.connectToWS = this.connectToWS.bind(this);
@@ -27,7 +27,7 @@ class EventHistory extends Component {
   componentDidMount() {
     this.props.fetchEventHistory();
     if(this.props.authenticated) {
-      this.connectToWS()
+      this.connectToWS();
     }
   }
 
@@ -44,7 +44,7 @@ class EventHistory extends Component {
   async connectToWS() {
 
     try {
-      const result = await this.client.connect()
+      const result = await this.client.connect();
       // {
       //   auth: {
       //     headers: {
@@ -55,13 +55,13 @@ class EventHistory extends Component {
 
       const updateHandler = (update, flags) => {
         if(!(this.state.hideASNAP && update.event_value === "ASNAP")) {
-          this.props.updateEventHistory(update)
+          this.props.updateEventHistory(update);
         }
-      }
+      };
 
       const deleteHandler = (update, flags) => {
-        this.props.fetchEventHistory(!this.state.hideASNAP)
-      }
+        this.props.fetchEventHistory(!this.state.hideASNAP);
+      };
 
       this.client.subscribe('/ws/status/newEvents', updateHandler);
       this.client.subscribe('/ws/status/updateEvents', updateHandler);
@@ -69,7 +69,7 @@ class EventHistory extends Component {
 
     } catch(error) {
       console.log(error);
-      throw(error)
+      throw(error);
     }
   }
 
@@ -83,15 +83,15 @@ class EventHistory extends Component {
 
   renderEventHistoryHeader() {
 
-    const Label = "Event History"
-    const expandTooltip = (<Tooltip id="editTooltip">Expand this panel</Tooltip>)
-    const compressTooltip = (<Tooltip id="editTooltip">Compress this panel</Tooltip>)
-    const showTooltip = (<Tooltip id="editTooltip">Show this panel</Tooltip>)
-    const hideTooltip = (<Tooltip id="editTooltip">Hide this panel</Tooltip>)
-    const toggleASNAPTooltip = (<Tooltip id="toggleASNAPTooltip">Show/Hide ASNAP Events</Tooltip>)
+    const Label = "Event History";
+    const expandTooltip = (<Tooltip id="editTooltip">Expand this panel</Tooltip>);
+    const compressTooltip = (<Tooltip id="editTooltip">Compress this panel</Tooltip>);
+    const showTooltip = (<Tooltip id="editTooltip">Show this panel</Tooltip>);
+    const hideTooltip = (<Tooltip id="editTooltip">Hide this panel</Tooltip>);
+    const toggleASNAPTooltip = (<Tooltip id="toggleASNAPTooltip">Show/Hide ASNAP Events</Tooltip>);
 
-    const ASNAPToggleIcon = (this.state.hideASNAP)? "Show ASNAP" : "Hide ASNAP"
-    const ASNAPToggle = (<span style={{ marginRight: "10px" }} variant="secondary" size="sm" onClick={() => this.toggleASNAP()}>{ASNAPToggleIcon} </span>)
+    const ASNAPToggleIcon = (this.state.hideASNAP)? "Show ASNAP" : "Hide ASNAP";
+    const ASNAPToggle = (<span style={{ marginRight: "10px" }} variant="secondary" size="sm" onClick={() => this.toggleASNAP()}>{ASNAPToggleIcon} </span>);
 
 
     if(this.state.showEventHistory) {
@@ -149,7 +149,7 @@ class EventHistory extends Component {
   }
 
   toggleASNAP() {
-    this.setState( prevState => ({hideASNAP: !prevState.hideASNAP}))
+    this.setState( prevState => ({hideASNAP: !prevState.hideASNAP}));
     this.props.fetchEventHistory(this.state.hideASNAP);
   }
 
@@ -157,11 +157,11 @@ class EventHistory extends Component {
 
     if(this.props.history && this.props.history.length > 0){
 
-      let eventArray = []
+      let eventArray = [];
 
       for (let i = 0; i < this.props.history.length; i++) {
 
-        let event = this.props.history[i]
+        let event = this.props.history[i];
         
         let comment_exists = false;
 
@@ -173,23 +173,23 @@ class EventHistory extends Component {
           } else {
             filtered.push(`${option.event_option_name}: \"${option.event_option_value}\"`);
           }
-          return filtered
-        },[])
+          return filtered;
+        },[]);
         
         if (event.event_free_text) {
-          eventOptionsArray.push(`free_text: \"${event.event_free_text}\"`)
+          eventOptionsArray.push(`free_text: \"${event.event_free_text}\"`);
         } 
 
-        let eventOptions = (eventOptionsArray.length > 0)? '--> ' + eventOptionsArray.join(', '): ''
-        let commentIcon = (comment_exists)? <FontAwesomeIcon onClick={() => this.handleEventCommentModal(event)} icon='comment' fixedWidth transform="grow-4"/> : <span onClick={() => this.handleEventCommentModal(event)} className="fa-layers fa-fw"><FontAwesomeIcon icon='comment' fixedWidth transform="grow-4"/><FontAwesomeIcon className="text-secondary" icon='plus' fixedWidth inverse transform="shrink-4"/></span>
-        let commentTooltip = (comment_exists)? (<OverlayTrigger placement="left" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Edit/View Comment</Tooltip>}>{commentIcon}</OverlayTrigger>) : (<OverlayTrigger placement="left" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Add Comment</Tooltip>}>{commentIcon}</OverlayTrigger>)
+        let eventOptions = (eventOptionsArray.length > 0)? '--> ' + eventOptionsArray.join(', '): '';
+        let commentIcon = (comment_exists)? <FontAwesomeIcon onClick={() => this.handleEventCommentModal(event)} icon='comment' fixedWidth transform="grow-4"/> : <span onClick={() => this.handleEventCommentModal(event)} className="fa-layers fa-fw"><FontAwesomeIcon icon='comment' fixedWidth transform="grow-4"/><FontAwesomeIcon className="text-secondary" icon='plus' fixedWidth inverse transform="shrink-4"/></span>;
+        let commentTooltip = (comment_exists)? (<OverlayTrigger placement="left" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Edit/View Comment</Tooltip>}>{commentIcon}</OverlayTrigger>) : (<OverlayTrigger placement="left" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Add Comment</Tooltip>}>{commentIcon}</OverlayTrigger>);
 
         eventArray.push(<ListGroup.Item className="event-list-item" eventKey={event.id} key={event.id}><span onClick={() => this.handleEventShowDetailsModal(event)}>{event.ts} {`<${event.event_author}>`}: {event.event_value} {eventOptions}</span><span className="float-right">{commentTooltip}</span></ListGroup.Item>);
       }
-      return eventArray
+      return eventArray;
     }
 
-    return (<ListGroup.Item eventKey="emptyHistory" key="emptyHistory" >No events found</ListGroup.Item>)
+    return (<ListGroup.Item eventKey="emptyHistory" key="emptyHistory" >No events found</ListGroup.Item>);
   }
 
   render() {
@@ -200,7 +200,7 @@ class EventHistory extends Component {
           <Card.Header>{ this.renderEventHistoryHeader() }</Card.Header>
           <Card.Body>Loading...</Card.Body>
         </Card>
-      )
+      );
     }
 
     if (this.state.showEventHistory) {
@@ -226,9 +226,9 @@ class EventHistory extends Component {
     }
 
     return (
-        <Card>
-          <Card.Header>{ this.renderEventHistoryHeader() }</Card.Header>
-        </Card>
+      <Card>
+        <Card.Header>{ this.renderEventHistoryHeader() }</Card.Header>
+      </Card>
     );
   }
 }
@@ -238,7 +238,7 @@ function mapStateToProps(state) {
   return {
     authenticated: state.auth.authenticated,
     history: state.event_history.history,
-  }
+  };
 }
 
 export default connect(mapStateToProps, actions)(EventHistory);

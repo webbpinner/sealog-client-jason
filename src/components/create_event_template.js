@@ -28,8 +28,8 @@ class CreateEventTemplate extends Component {
   }
 
   renderTextField({ input, label, placeholder, required, meta: { touched, error } }) {
-    let requiredField = (required)? <span className='text-danger'> *</span> : ''
-    let placeholder_txt = (placeholder)? placeholder: label
+    let requiredField = (required)? <span className='text-danger'> *</span> : '';
+    let placeholder_txt = (placeholder)? placeholder: label;
 
     return (
       <Form.Group>
@@ -37,13 +37,13 @@ class CreateEventTemplate extends Component {
         <Form.Control type="text" {...input} placeholder={placeholder_txt} isInvalid={touched && error}/>
         <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
       </Form.Group>
-    )
+    );
   }
 
   renderSelectField({ input, label, placeholder, required, options, meta: { touched, error } }) {
 
-    let requiredField = (required)? <span className='text-danger'> *</span> : ''
-    let placeholder_txt = (placeholder)? placeholder: label
+    let requiredField = (required)? <span className='text-danger'> *</span> : '';
+    let placeholder_txt = (placeholder)? placeholder: label;
     let defaultOption = ( <option key={`${input.name}.default`} value=""></option> );
     let optionList = options.map((option, index) => {
       return (
@@ -60,7 +60,7 @@ class CreateEventTemplate extends Component {
         </Form.Control>
         <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
       </Form.Group>
-    )
+    );
   }
 
   renderCheckbox({ input, label, meta: { dirty, error } }) {    
@@ -132,15 +132,15 @@ class CreateEventTemplate extends Component {
 
     const promote = (index, fields) => {
       if(index > 0) {
-        return(<FontAwesomeIcon className="text-primary float-right" icon='chevron-up' fixedWidth onClick={() => fields.swap(index, index-1)}/>)
+        return(<FontAwesomeIcon className="text-primary float-right" icon='chevron-up' fixedWidth onClick={() => fields.swap(index, index-1)}/>);
       }
-    }
+    };
 
     const demote = (index, fields) => {
       if(index < fields.length-1) {
-        return(<FontAwesomeIcon className="text-primary float-right" icon='chevron-down' fixedWidth onClick={() => fields.swap(index, index+1)}/>)
+        return(<FontAwesomeIcon className="text-primary float-right" icon='chevron-down' fixedWidth onClick={() => fields.swap(index, index+1)}/>);
       }
-    }
+    };
 
     return (
       <div>
@@ -174,12 +174,12 @@ class CreateEventTemplate extends Component {
             />
           </div>
         )}
-      <span className="text-primary" onClick={() => fields.push({})}>
+        <span className="text-primary" onClick={() => fields.push({})}>
           <FontAwesomeIcon icon='plus' fixedWidth/> Add Option
         </span>
         {touched && error && <span>{error}</span>}
       </div>
-    )
+    );
   }
 
   renderAdminOptions() {
@@ -188,7 +188,7 @@ class CreateEventTemplate extends Component {
         <div>
           {this.renderSystemEventTemplateOption()}
         </div>
-      )
+      );
     }
   }
 
@@ -200,7 +200,7 @@ class CreateEventTemplate extends Component {
         component={this.renderCheckbox}
         label="System Template?"
       />
-    )
+    );
   }
 
 
@@ -210,7 +210,7 @@ class CreateEventTemplate extends Component {
         <Alert variant="danger">
           <strong>Opps!</strong> {this.props.errorMessage}
         </Alert>
-      )
+      );
     }
   }
 
@@ -220,7 +220,7 @@ class CreateEventTemplate extends Component {
         <Alert variant="success">
           <strong>Success!</strong> {this.props.message}
         </Alert>
-      )
+      );
     }
   }
 
@@ -267,13 +267,13 @@ class CreateEventTemplate extends Component {
             </form>
           </Card.Body>
         </Card>
-      )
+      );
     } else {
       return (
         <div>
           What are YOU doing here?
         </div>
-      )
+      );
     }
   }
 }
@@ -282,25 +282,25 @@ function validate(formProps) {
   const errors = {};
 
   if (!formProps.event_name) {
-    errors.event_name = 'Required'
+    errors.event_name = 'Required';
   } else if (formProps.event_name.length > 15) {
-    errors.event_name = 'Must be 15 characters or less'
+    errors.event_name = 'Must be 15 characters or less';
   }
 
   if (!formProps.event_value) {
-    errors.event_value = 'Required'
+    errors.event_value = 'Required';
   }
   if (formProps.event_options && formProps.event_options.length) {
-    const event_optionsArrayErrors = []
+    const event_optionsArrayErrors = [];
     formProps.event_options.forEach((event_option, event_optionIndex) => {
-      const event_optionErrors = {}
+      const event_optionErrors = {};
       if (!event_option || !event_option.event_option_name) {
-        event_optionErrors.event_option_name = 'Required'
-        event_optionsArrayErrors[event_optionIndex] = event_optionErrors
+        event_optionErrors.event_option_name = 'Required';
+        event_optionsArrayErrors[event_optionIndex] = event_optionErrors;
       }
       if (!event_option || !event_option.event_option_type) {
-        event_optionErrors.event_option_type = 'Required'
-        event_optionsArrayErrors[event_optionIndex] = event_optionErrors
+        event_optionErrors.event_option_type = 'Required';
+        event_optionsArrayErrors[event_optionIndex] = event_optionErrors;
       } else {
         if (event_option.event_option_type === 'dropdown') {
 
@@ -309,17 +309,17 @@ function validate(formProps) {
           try {
             valueArray = event_option.event_option_values.split(',');
             valueArray = valueArray.map(string => {
-              return string.trim()
-            })
+              return string.trim();
+            });
           }
           catch(err) {
-            event_optionErrors.event_option_values = 'Invalid csv list'
-            event_optionsArrayErrors[event_optionIndex] = event_optionErrors
+            event_optionErrors.event_option_values = 'Invalid csv list';
+            event_optionsArrayErrors[event_optionIndex] = event_optionErrors;
           }
 
           if(event_option.event_option_default_value && !valueArray.includes(event_option.event_option_default_value)) {
-            event_optionErrors.event_option_default_value = 'Value is not in options list'
-            event_optionsArrayErrors[event_optionIndex] = event_optionErrors
+            event_optionErrors.event_option_default_value = 'Value is not in options list';
+            event_optionsArrayErrors[event_optionIndex] = event_optionErrors;
           }
         } else if (event_option.event_option_type === 'checkboxes') {
 
@@ -328,23 +328,23 @@ function validate(formProps) {
           try {
             valueArray = event_option.event_option_values.split(',');
             valueArray = valueArray.map(string => {
-              return string.trim()
-            })
+              return string.trim();
+            });
           }
           catch(err) {
-            event_optionErrors.event_option_values = 'Invalid csv list'
-            event_optionsArrayErrors[event_optionIndex] = event_optionErrors
+            event_optionErrors.event_option_values = 'Invalid csv list';
+            event_optionsArrayErrors[event_optionIndex] = event_optionErrors;
           }
 
           if(event_option.event_option_default_value && !valueArray.includes(event_option.event_option_default_value)) {
-            event_optionErrors.event_option_default_value = 'Value is not in options list'
-            event_optionsArrayErrors[event_optionIndex] = event_optionErrors
+            event_optionErrors.event_option_default_value = 'Value is not in options list';
+            event_optionsArrayErrors[event_optionIndex] = event_optionErrors;
           }
         }
       }
-    })
+    });
     if(event_optionsArrayErrors.length) {
-      errors.event_options = event_optionsArrayErrors
+      errors.event_options = event_optionsArrayErrors;
     }
   }
   return errors;

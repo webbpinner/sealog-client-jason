@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { reduxForm, Field } from 'redux-form';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Form, Row, Col, Card, Button, Alert } from 'react-bootstrap';
@@ -10,12 +10,12 @@ import { ROOT_PATH, RECAPTCHA_SITE_KEY } from '../../client_config';
 
 class ForgotPassword extends Component {
  
- constructor (props) {
+  constructor (props) {
     super(props);
 
     this.state = { 
       reCaptcha: null
-    }
+    };
   }
 
   componentWillUnmount() {
@@ -23,19 +23,19 @@ class ForgotPassword extends Component {
   }
 
   handleFormSubmit({ email }) {
-    let reCaptcha = this.state.reCaptcha
+    let reCaptcha = this.state.reCaptcha;
     this.props.forgotPassword({email, reCaptcha});
   }
 
   onCaptchaChange(token) {
-    this.setState({reCaptcha: token})
+    this.setState({reCaptcha: token});
   }
 
   renderTextField({ input, label, placeholder, type="text", required, meta: { touched, error } }) {
-    let requiredField = (required)? <span className='text-danger'> *</span> : ''
-    let placeholder_txt = (placeholder)? placeholder: label
+    let requiredField = (required)? <span className='text-danger'> *</span> : '';
+    let placeholder_txt = (placeholder)? placeholder: label;
 
-    const labelComponent = (label)? <Form.Label>{label}{requiredField}</Form.Label> : null
+    const labelComponent = (label)? <Form.Label>{label}{requiredField}</Form.Label> : null;
 
     return (
       <Form.Group as={Col} lg="12">
@@ -43,7 +43,7 @@ class ForgotPassword extends Component {
         <Form.Control type={type} {...input} placeholder={placeholder_txt} isInvalid={touched && error}/>
         <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
       </Form.Group>
-    )
+    );
   }
 
   renderSuccess() {
@@ -63,7 +63,7 @@ class ForgotPassword extends Component {
             </div>
           </Card.Body>
         </Card>
-      )
+      );
     }
   }
 
@@ -74,13 +74,13 @@ class ForgotPassword extends Component {
         <Alert variant="danger">
           <strong>Opps!</strong> {this.props.errorMessage}
         </Alert>
-      )
+      );
     } else if (this.props.successMessage) {
       return (
         <Alert variant="success">
           <strong>Sweet!</strong> {this.props.successMessage}
         </Alert>
-      )
+      );
     }
   }
 
@@ -91,7 +91,7 @@ class ForgotPassword extends Component {
       const panelHeader = (<h5 className="form-signin-heading">Forgot Password</h5>);
       const { handleSubmit, pristine, reset, submitting, valid } = this.props;
 
-      const submitButton = (RECAPTCHA_SITE_KEY !== "")?  <Button variant="primary" type="submit" block disabled={submitting || !valid || !this.state.reCaptcha}>Submit</Button> : <Button variant="primary" type="submit" block disabled={submitting || !valid}>Submit</Button>
+      const submitButton = (RECAPTCHA_SITE_KEY !== "")?  <Button variant="primary" type="submit" block disabled={submitting || !valid || !this.state.reCaptcha}>Submit</Button> : <Button variant="primary" type="submit" block disabled={submitting || !valid}>Submit</Button>;
       const recaptcha = ( RECAPTCHA_SITE_KEY !== "")? (
         <span>
           <ReCAPTCHA
@@ -102,7 +102,7 @@ class ForgotPassword extends Component {
           />
           <br/>
         </span>
-      ): null
+      ): null;
 
       return (
         <Card className="form-signin" >
@@ -126,7 +126,7 @@ class ForgotPassword extends Component {
             </div>
           </Card.Body>
         </Card>
-      )
+      );
     }
   }
 
@@ -139,31 +139,31 @@ class ForgotPassword extends Component {
           {this.renderForm()}
         </Col>
       </Row>
-    )
+    );
   }
 }
 
 const validate = values => {
 
   // console.log(values)
-  const errors = {}
+  const errors = {};
   if (!values.email) {
-    errors.email = 'Required'
+    errors.email = 'Required';
   }
 
-  return errors
-}
+  return errors;
+};
 
 function mapStateToProps(state) {
   return {
     errorMessage: state.auth.error,
     successMessage: state.auth.message
-  }
+  };
 }
 
 const afterSubmit = (result, dispatch) => {
   // reCaptchaInstance.reset();
-}
+};
 
 ForgotPassword = reduxForm({
   form: 'forgotPassword',

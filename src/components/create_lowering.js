@@ -6,8 +6,8 @@ import moment from 'moment';
 import Datetime from 'react-datetime';
 import * as actions from '../actions';
 
-const dateFormat = "YYYY-MM-DD"
-const timeFormat = "HH:mm"
+const dateFormat = "YYYY-MM-DD";
+const timeFormat = "HH:mm";
 
 class CreateLowering extends Component {
 
@@ -18,19 +18,19 @@ class CreateLowering extends Component {
   handleFormSubmit(formProps) {
     formProps.lowering_tags = (formProps.lowering_tags)? formProps.lowering_tags.map(tag => tag.trim()): [];
  
-    formProps.lowering_additional_meta = {}
+    formProps.lowering_additional_meta = {};
 
     if(formProps.lowering_description) {
-      formProps.lowering_additional_meta.lowering_description = formProps.lowering_description
-      delete formProps.lowering_description
+      formProps.lowering_additional_meta.lowering_description = formProps.lowering_description;
+      delete formProps.lowering_description;
     }
 
     this.props.createLowering(formProps);
   }
 
   renderTextField({ input, label, placeholder, required, meta: { touched, error } }) {
-    let requiredField = (required)? <span className='text-danger'> *</span> : ''
-    let placeholder_txt = (placeholder)? placeholder: label
+    let requiredField = (required)? <span className='text-danger'> *</span> : '';
+    let placeholder_txt = (placeholder)? placeholder: label;
 
     return (
       <Form.Group as={Col} lg="6">
@@ -38,12 +38,12 @@ class CreateLowering extends Component {
         <Form.Control type="text" {...input} placeholder={placeholder_txt} isInvalid={touched && error}/>
         <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
       </Form.Group>
-    )
+    );
   }
 
   renderTextArea({ input, label, placeholder, required, rows = 4, meta: { touched, error, warning } }) {
-    let requiredField = (required)? <span className='text-danger'> *</span> : ''
-    let placeholder_txt = (placeholder)? placeholder: label
+    let requiredField = (required)? <span className='text-danger'> *</span> : '';
+    let placeholder_txt = (placeholder)? placeholder: label;
 
     return (
       <Form.Group as={Col} lg="12">
@@ -51,13 +51,13 @@ class CreateLowering extends Component {
         <Form.Control as="textarea" {...input} placeholder={placeholder_txt} rows={rows}/>
         <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
       </Form.Group>
-    )
+    );
   }
 
   renderSelectField({ input, label, placeholder, required, options, meta: { touched, error } }) {
 
-    let requiredField = (required)? <span className='text-danger'> *</span> : ''
-    let placeholder_txt = (placeholder)? placeholder: label
+    let requiredField = (required)? <span className='text-danger'> *</span> : '';
+    let placeholder_txt = (placeholder)? placeholder: label;
     let defaultOption = ( <option key={`${input.name}.empty`} value=""></option> );
     let optionList = options.map((option, index) => {
       return (
@@ -74,11 +74,11 @@ class CreateLowering extends Component {
         </Form.Control>
         <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
       </Form.Group>
-    )
+    );
   }
 
   renderDatePicker({ input, label, type, required, meta: { touched, error } }) {
-    let requiredField = (required)? <span className='text-danger'> *</span> : ''
+    let requiredField = (required)? <span className='text-danger'> *</span> : '';
     
     return (
       <Form.Group as={Col} lg="6">
@@ -86,12 +86,12 @@ class CreateLowering extends Component {
         <Datetime {...input} utc={true} value={input.value ? moment.utc(input.value).format(dateFormat + ' ' + timeFormat) : null} dateFormat={dateFormat} timeFormat={timeFormat} selected={input.value ? moment.utc(input.value, dateFormat) : null }/>
         {touched && (error && <div style={{width: "100%", marginTop: "0.25rem", fontSize: "80%"}} className='text-danger'>{error}</div>)}
       </Form.Group>
-    )
+    );
   }
 
   renderCheckboxGroup({ label, name, options, input, required, meta: { dirty, error } }) {
 
-    let requiredField = (required)? (<span className='text-danger'> *</span>) : ''
+    let requiredField = (required)? (<span className='text-danger'> *</span>) : '';
     let checkboxList = options.map((option, index) => {
 
       return (
@@ -146,7 +146,7 @@ class CreateLowering extends Component {
         <Alert variant="danger">
           <strong>Opps!</strong> {this.props.errorMessage}
         </Alert>
-      )
+      );
     }
   }
 
@@ -156,7 +156,7 @@ class CreateLowering extends Component {
         <Alert variant="success">
           <strong>Success!</strong> {this.props.message}
         </Alert>
-      )
+      );
     }
   }
 
@@ -230,16 +230,16 @@ class CreateLowering extends Component {
               </Form>
             </Card.Body>
           </Card>
-        )
+        );
       } else {
-        return null
+        return null;
       }
     } else {
       return (
         <div>
           Loading...
         </div>
-      )
+      );
     }
   }
 }
@@ -248,36 +248,36 @@ function validate(formProps) {
   const errors = {};
 
   if (!formProps.lowering_id) {
-    errors.lowering_id = 'Required'
+    errors.lowering_id = 'Required';
   } else if (formProps.lowering_id.length > 15) {
-    errors.lowering_id = 'Must be 15 characters or less'
+    errors.lowering_id = 'Must be 15 characters or less';
   }
 
   if (!formProps.lowering_name) {
-    errors.lowering_name = 'Required'
+    errors.lowering_name = 'Required';
   }
 
   if (!formProps.start_ts) {
-    errors.start_ts = 'Required'
+    errors.start_ts = 'Required';
   } else if (!moment.utc(formProps.start_ts).isValid()) {
-    errors.start_ts = 'Invalid timestamp'
+    errors.start_ts = 'Invalid timestamp';
   }
 
   if (!formProps.stop_ts) {
-    errors.stop_ts = 'Required'
+    errors.stop_ts = 'Required';
   } else if (!moment.utc(formProps.stop_ts).isValid()) {
-    errors.stop_ts = 'Invalid timestamp'
+    errors.stop_ts = 'Invalid timestamp';
   }
 
   if ((formProps.start_ts !== '') && (formProps.stop_ts !== '')) {
     if(moment(formProps.stop_ts, dateFormat + " " + timeFormat).isBefore(moment(formProps.start_ts, dateFormat + " " + timeFormat))) {
-      errors.stop_ts = 'Stop date/time must be later than start date/time'
+      errors.stop_ts = 'Stop date/time must be later than start date/time';
     }
   }
 
   if (typeof formProps.lowering_tags === "string") {
     if (formProps.lowering_tags === '') {
-      formProps.lowering_tags = []
+      formProps.lowering_tags = [];
     } else {
       formProps.lowering_tags = formProps.lowering_tags.split(',');
     }

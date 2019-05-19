@@ -32,16 +32,16 @@ class EventInput extends Component {
           </InputGroup.Append>
         </InputGroup>
       </Form>
-    )
+    );
   }
 }
 
 function mapStateToProps(state) {
-  return {}
+  return {};
 }
 
 function afterSubmit(result, dispatch) {
-    dispatch(reset('eventInput'));
+  dispatch(reset('eventInput'));
 }
 
 EventInput = reduxForm({
