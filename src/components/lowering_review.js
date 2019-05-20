@@ -43,6 +43,10 @@ class LoweringReview extends Component {
       // console.log("initLoweringReplay", this.props.match.params.id)
       this.props.initLoweringReplay(this.props.match.params.id, this.props.event.hideASNAP);
     }
+    else {
+      const eventIndex = this.props.event.events.findIndex((event) => event.id === this.props.event.selected_event.id);
+      this.handlePageSelect(Math.ceil((eventIndex+1)/maxEventsPerPage))
+    }
 
     // if(!this.props.cruise.id || this.props.lowering.id !== this.props.match.params.id){
     this.props.initCruiseFromLowering(this.props.match.params.id);
