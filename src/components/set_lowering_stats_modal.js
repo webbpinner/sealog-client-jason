@@ -258,6 +258,9 @@ class SetLoweringStatsModal extends Component {
     let loweringMilestones = Object.assign({}, this.state.milestones)
     let loweringStats = Object.assign({}, this.state.stats)
 
+    console.log("loweringMilestones:", loweringMilestones)
+    console.log("loweringStats:", loweringStats)
+
     loweringRecord.start_ts = loweringMilestones.lowering_start
     loweringRecord.stop_ts = loweringMilestones.lowering_stop
     delete loweringMilestones.lowering_start

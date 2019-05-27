@@ -61,10 +61,10 @@ class UpdateLoweringStatsForm extends Component {
   handleFormSubmit(formProps) {
 
     let milestones = {
-      lowering_start: formProps.start,
-      lowering_on_bottom: formProps.on_bottom,
-      lowering_off_bottom: formProps.off_bottom,
-      lowering_stop: formProps.stop,
+      lowering_start: (formProps.start._isAMomentObject) ? formProps.start.toISOString() : formProps.start,
+      lowering_on_bottom: (formProps.on_bottom && formProps.on_bottom._isAMomentObject) ? formProps.on_bottom.toISOString() : formProps.on_bottom,
+      lowering_off_bottom: (formProps.on_bottom && formProps.off_bottom._isAMomentObject) ? formProps.off_bottom.toISOString() : formProps.off_bottom,
+      lowering_stop: (formProps.stop._isAMomentObject) ? formProps.stop.toISOString() : formProps.stop,
     }
 
     let stats= {
@@ -103,7 +103,7 @@ class UpdateLoweringStatsForm extends Component {
       <Form.Group as={Row}>
         <Form.Label column sm={6}>{label}{requiredField}</Form.Label>
         <Col sm={5}>
-          <Datetime {...input} inputProps={{className: "form-control form-control-sm"}} utc={true} value={input.value ? moment.utc(input.value).format(dateFormat + ' ' + timeFormat) : null} dateFormat={dateFormat} timeFormat={timeFormat} selected={input.value ? moment.utc(input.value, dateFormat) : null }/>
+          <Datetime {...input} inputProps={{className: "form-control form-control-sm"}} utc={true} value={input.value ? moment.utc(input.value).format(dateFormat + ' ' + timeFormat) : null} dateFormat={dateFormat} timeFormat={timeFormat} selected={input.value ? moment.utc(input.value) : null }/>
           {touched && (error && <div style={{width: "100%", marginTop: "0.25rem", fontSize: "80%"}} className='text-danger'>{error}</div>)}
         </Col>
       </Form.Group>
