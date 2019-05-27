@@ -48,7 +48,7 @@ class UpdateCruise extends Component {
   handleFormSubmit(formProps) {
     formProps.cruise_tags = (formProps.cruise_tags)? formProps.cruise_tags.map(tag => tag.trim()): [];
 
-    formProps.cruise_additional_meta = {}
+    // formProps.cruise_additional_meta = {}
 
     if(formProps.cruise_participants) {
       formProps.cruise_additional_meta.cruise_participants = formProps.cruise_participants.map(participant => participant.trim())

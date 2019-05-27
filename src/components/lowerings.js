@@ -10,6 +10,7 @@ import CreateLowering from './create_lowering';
 import UpdateLowering from './update_lowering';
 import DeleteLoweringModal from './delete_lowering_modal';
 import ImportLoweringsModal from './import_lowerings_modal';
+import SetLoweringStatsModal from './set_lowering_stats_modal';
 import * as actions from '../actions';
 
 let fileDownload = require('js-file-download');
@@ -275,6 +276,7 @@ class Lowerings extends Component {
         <div>
           <DeleteLoweringModal />
           <ImportLoweringsModal  handleExit={this.handleLoweringImportClose} />
+          <SetLoweringStatsModal />
           <Row>
             <Col sm={12} md={7} lg={6} xl={{span:5, offset:1}}>
               <Card border="secondary">

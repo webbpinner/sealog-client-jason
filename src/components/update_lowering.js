@@ -8,6 +8,8 @@ import moment from 'moment';
 import Datetime from 'react-datetime';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {CopyToClipboard} from 'react-copy-to-clipboard';
+
 import FileDownload from 'js-file-download';
 
 import { FilePond, File, registerPlugin } from 'react-filepond';
@@ -30,6 +32,7 @@ class UpdateLowering extends Component {
 
     this.handleFileDownload = this.handleFileDownload.bind(this);
     this.handleFileDelete = this.handleFileDelete.bind(this);
+    this.handleSetLoweringStatsModal = this.handleSetLoweringStatsModal.bind(this);
   }
 
   static propTypes = {
@@ -49,7 +52,7 @@ class UpdateLowering extends Component {
   handleFormSubmit(formProps) {
     formProps.lowering_tags = (formProps.lowering_tags)? formProps.lowering_tags.map(tag => tag.trim()): [];
 
-    formProps.lowering_additional_meta = {}
+    // formProps.lowering_additional_meta = {}
 
     if(formProps.lowering_description) {
       formProps.lowering_additional_meta.lowering_description = formProps.lowering_description
@@ -92,6 +95,26 @@ class UpdateLowering extends Component {
     .catch((error)=>{
       console.log("JWT is invalid, logging out");
     });
+  }
+
+  handleSetLoweringStatsModal(index) {
+    this.props.showModal('setLoweringStats', { lowering: this.props.lowering, handleUpdateLowering: this.props.updateLowering });
+  }
+
+  copyToClipboard() {
+    if(this.props.lowering.lowering_id) {
+      return  (
+`Lowering:     ${this.props.lowering.lowering_id}
+Description:  ${(this.props.lowering.lowering_description) ? this.props.lowering.lowering_description : ""}
+Location:     ${this.props.lowering.lowering_location}\n
+Start:        ${this.props.lowering.start_ts}
+On Bottom:    ${(this.props.lowering.lowering_additional_meta.milestones) ? this.props.lowering.lowering_additional_meta.milestones.lowering_on_bottom : ""}
+Off Bottom:   ${(this.props.lowering.lowering_additional_meta.milestones) ? this.props.lowering.lowering_additional_meta.milestones.lowering_off_bottom : ""}
+End:          ${this.props.lowering.stop_ts}\n
+Max Depth:    ${(this.props.lowering.lowering_additional_meta.stats) ? this.props.lowering.lowering_additional_meta.stats.max_depth : ""}
+Bounding Box: ${(this.props.lowering.lowering_additional_meta.stats) ? this.props.lowering.lowering_additional_meta.stats.bounding_box.join(', ') : ""}`
+      )
+    }
   }
 
   renderTextField({ input, label, placeholder, required, meta: { touched, error } }) {
@@ -239,7 +262,7 @@ class UpdateLowering extends Component {
   render() {
 
     const { handleSubmit, pristine, reset, submitting, valid } = this.props;
-    const updateLoweringFormHeader = (<div>Update Lowering</div>);
+    const updateLoweringFormHeader = (<div>Update Lowering<span className="float-right"><OverlayTrigger placement="top" overlay={<Tooltip id="copyToClipboardTooltip">Copy Lowering to Clipboard</Tooltip>}><CopyToClipboard text={this.copyToClipboard()} ><FontAwesomeIcon icon='clipboard' fixedWidth /></CopyToClipboard></OverlayTrigger></span></div>);
 
     if (this.props.roles && (this.props.roles.includes("admin") || this.props.roles.includes('cruise_manager'))) {
 
@@ -318,6 +341,7 @@ class UpdateLowering extends Component {
               </FilePond>
               {this.renderAlert()}
               {this.renderMessage()}
+              <Button variant="warning" size="sm" onClick={this.handleSetLoweringStatsModal}>Milestones/Stats</Button>
               <div className="float-right" style={{marginRight: "-20px", marginBottom: "-8px"}}>
                 <Button variant="secondary" size="sm" disabled={pristine || submitting} onClick={reset}>Reset Values</Button>
                 <Button variant="primary" size="sm" type="submit" disabled={submitting || !valid}>Update</Button>
@@ -390,7 +414,7 @@ function mapStateToProps(state) {
       initialValues.lowering_description = initialValues.lowering_additional_meta.lowering_description
     }
 
-    delete initialValues.lowering_additional_meta
+    // delete initialValues.lowering_additional_meta
   }
 
   return {

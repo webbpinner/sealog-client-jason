@@ -592,7 +592,6 @@ class LoweringMap extends Component {
     //   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
     // />
 
-
     const baseLayers = tilelayers.map((layer, index) => {
       if(layer.wms) {
         return (
@@ -617,7 +616,6 @@ class LoweringMap extends Component {
         )
       }
     })
-
 
     const realtimeTrack = (this.state.tracklines.vehicleRealtimeNavData && !this.state.tracklines.vehicleRealtimeNavData.polyline.isEmpty()) ? 
     	<Polyline color="lime" positions={this.state.tracklines.vehicleRealtimeNavData.polyline.getLatLngs()} />

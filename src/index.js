@@ -33,8 +33,10 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft';
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons/faArrowRight';
 import { faBackward } from '@fortawesome/free-solid-svg-icons/faBackward';
+import { faCalculator } from '@fortawesome/free-solid-svg-icons/faCalculator';
 import { faChevronUp } from '@fortawesome/free-solid-svg-icons/faChevronUp';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown';
+import { faClipboard } from '@fortawesome/free-solid-svg-icons/faClipboard';
 import { faComment } from '@fortawesome/free-solid-svg-icons/faComment';
 import { faCompress } from '@fortawesome/free-solid-svg-icons/faCompress';
 import { faDownload } from '@fortawesome/free-solid-svg-icons/faDownload';
@@ -55,7 +57,7 @@ import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
 import { faWindowMaximize } from '@fortawesome/free-solid-svg-icons/faWindowMaximize';
 
 
-library.add(faArrowLeft,faArrowRight,faBackward,faChevronDown,faChevronUp,faComment,faCompress,faDownload,faExpand,faEye,faEyeSlash,faForward,faLink,faPause,faPencilAlt,faPlay,faPlus,faStepBackward,faStepForward,faTrash,faVial,faUser,faWindowMaximize);
+library.add(faArrowLeft,faArrowRight,faBackward,faCalculator,faChevronDown,faChevronUp,faClipboard,faComment,faCompress,faDownload,faExpand,faEye,faEyeSlash,faForward,faLink,faPause,faPencilAlt,faPlay,faPlus,faStepBackward,faStepForward,faTrash,faVial,faUser,faWindowMaximize);
 
 require('typeface-roboto');
 

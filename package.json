@@ -1,6 +1,6 @@
 {
   "name": "sealog-client-jason",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "license": "GPL-3.0",
   "description": "Sealog event-logging client built for sealog-server-jason",
   "bugs": {
@@ -30,6 +30,8 @@
     "axios": "^0.18.0",
     "connected-react-router": "^6.4.0",
     "filepond": "^4.4.6",
+    "highcharts": "^7.1.1",
+    "highcharts-react-official": "^2.1.3",
     "js-file-download": "^0.4.5",
     "leaflet": "^1.5.1",
     "moment": "^2.24.0",
@@ -38,6 +40,7 @@
     "rc-slider": "^8.6.11",
     "react": "^16.8.6",
     "react-bootstrap": "^1.0.0-beta.8",
+    "react-copy-to-clipboard": "^5.0.1",
     "react-datetime": "^2.16.3",
     "react-dom": "^16.8.6",
     "react-file-reader": "^1.1.4",
