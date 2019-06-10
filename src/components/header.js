@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Navbar, Nav, NavDropdown } from 'react-bootstrap';
-import { ROOT_PATH, RECAPTCHA_SITE_KEY } from '../client_config';
+import { ROOT_PATH, HEADER_TITLE, RECAPTCHA_SITE_KEY } from '../client_config';
 import * as actions from '../actions';
 
 class Header extends Component {
@@ -44,7 +44,7 @@ class Header extends Component {
   }
 
   renderEventManagementOptions() {
-    if(this.props.roles.includes('admin')) {
+    if(this.props.roles.includes('admin') || this.props.roles.includes('event_manager')) {
       return (
         <NavDropdown.Item href="/event_management">Event Management</NavDropdown.Item>
       );
@@ -52,7 +52,7 @@ class Header extends Component {
   }
 
   renderEventTemplateOptions() {
-    if(this.props.roles.includes('admin') || this.props.roles.includes('cruise_manager') || this.props.roles.includes('event_manager')) {
+    if(this.props.roles.includes('admin') || this.props.roles.includes('template_manager')) {
       return (
         <NavDropdown.Item href="/event_templates">Event Templates</NavDropdown.Item>
       );
@@ -92,7 +92,7 @@ class Header extends Component {
   }
 
   renderSystemManagerDropdown() {
-    if(this.props.roles && (this.props.roles.includes('admin') || this.props.roles.includes('cruise_manager') || this.props.roles.includes('event_manager'))) {
+    if(this.props.roles && (this.props.roles.includes('admin') || this.props.roles.includes('cruise_manager') || this.props.roles.includes('template_manager') || this.props.roles.includes('event_manager'))) {
       return (
         <NavDropdown title={'System Management'} id="basic-nav-dropdown-system">
           {this.renderCruiseOptions()}
@@ -127,22 +127,10 @@ class Header extends Component {
     this.props.switch2Guest();
   }
 
-  // handleSwitchToPilot() {
-  //   this.props.switch2Pilot();
-  // }
-
-  // handleSwitchToStbdObs() {
-  //   this.props.switch2StbdObs();
-  // }
-
-  // handleSwitchToPortObs() {
-  //   this.props.switch2PortObs();
-  // }
-
   render () {
     return (
       <Navbar collapseOnSelect expand="md" variant="dark" bg="dark">
-        <Navbar.Brand href="/">Sealog - JASON</Navbar.Brand>
+        <Navbar.Brand href="/">{HEADER_TITLE}</Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-nav"/>
         <Navbar.Collapse id="responsive-navbar-nav"className="justify-content-end">
           <Nav>

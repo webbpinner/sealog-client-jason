@@ -340,15 +340,13 @@ export function updateEvent(eventValue, eventFreeText = '', eventOptions = [], e
 
 export function updateLoweringReplayEvent(event_id) {
 
-  const request = axios.get(API_ROOT_URL + '/api/v1/events/' + event_id, {
-    headers: {
-      authorization: cookies.get('token')
-    },
-  });
-
   return function (dispatch) {
     
-    request.then(({data}) => {
+    const request = axios.get(API_ROOT_URL + '/api/v1/events/' + event_id, {
+      headers: {
+        authorization: cookies.get('token')
+      },
+    }).then(({data}) => {
       dispatch({type: UPDATE_EVENT, payload: data});
     }).catch((error) => {
       if(error.response.status !== 404) {

@@ -255,7 +255,7 @@ class UpdateEventTemplate extends Component {
     const { handleSubmit, pristine, reset, submitting, valid } = this.props;
     const formHeader = (<div>Update Event Template</div>);
 
-    if (this.props.roles && (this.props.roles.includes("admin") || this.props.roles.includes("event_manager"))) {
+    if (this.props.roles && (this.props.roles.includes("admin") || this.props.roles.includes("template_manager"))) {
       return (
         <Card border="secondary" className="form-standard">
           <Card.Header>{formHeader}</Card.Header>

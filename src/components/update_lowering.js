@@ -105,7 +105,7 @@ class UpdateLowering extends Component {
     if(this.props.lowering.lowering_id) {
       return  (
 `Lowering:     ${this.props.lowering.lowering_id}
-Description:  ${(this.props.lowering.lowering_description) ? this.props.lowering.lowering_description : ""}
+Description:  ${(this.props.lowering.lowering_additional_meta.lowering_description) ? this.props.lowering.lowering_additional_meta.lowering_description : ""}
 Location:     ${this.props.lowering.lowering_location}\n
 Start:        ${this.props.lowering.start_ts}
 On Bottom:    ${(this.props.lowering.lowering_additional_meta.milestones) ? this.props.lowering.lowering_additional_meta.milestones.lowering_on_bottom : ""}

@@ -104,7 +104,7 @@ class Users extends Component {
     if(this.props.users){
       let non_system_users = this.props.users.filter((user) => !user.system_user);
       return non_system_users.map((user) => {
-        const style = (user.disabled)? {"text-decoration": "line-through"}: {};
+        const style = (user.disabled)? {"textDecoration": "line-through"}: {};
         return (
           <tr key={user.id}>
             <td style={style} className={(this.props.userid === user.id)? "text-warning" : ""}>{user.username}</td>
