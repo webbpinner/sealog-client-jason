@@ -21,7 +21,7 @@ class Footer extends Component {
   }
 
   componentDidMount() {
-    this.connectToWS();
+    // this.connectToWS();
 
     this.handleASNAPNotification();
 
@@ -31,6 +31,8 @@ class Footer extends Component {
   }
 
   componentWillUnmount() {
+    clearInterval(this.state.intervalID);
+    this.setState({intervalID: null});
   }
 
   async connectToWS() {
@@ -64,10 +66,10 @@ class Footer extends Component {
       this.props.fetchCustomVars();
     }
 
-    if(this.props.asnapStatus && this.state.intervalID) {
-      clearInterval(this.state.intervalID);
-      this.setState({intervalID: null});
-    }
+    // if(this.props.asnapStatus && this.state.intervalID) {
+    //   clearInterval(this.state.intervalID);
+    //   this.setState({intervalID: null});
+    // }
   }
 
   render () {
