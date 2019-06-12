@@ -112,7 +112,8 @@ class SetLoweringStatsModal extends Component {
       }
     }
 
-    this.auxDatasourceFilters = ['vehicleRealtimeNavData', 'vehicleReNavData'];
+    // this.auxDatasourceFilters = ['vehicleRealtimeNavData', 'vehicleReNavData'];
+    this.auxDatasourceFilters = ['vehicleRealtimeNavData'];
 
     this.handleMoveEnd = this.handleMoveEnd.bind(this);
     this.handleZoomEnd = this.handleZoomEnd.bind(this);

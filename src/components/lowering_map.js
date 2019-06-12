@@ -48,7 +48,8 @@ class LoweringMap extends Component {
       height: "480px"
     };
 
-    this.auxDatasourceFilters = ['vehicleRealtimeNavData', 'vehicleReNavData'];
+    // this.auxDatasourceFilters = ['vehicleRealtimeNavData', 'vehicleReNavData'];
+    this.auxDatasourceFilters = ['vehicleRealtimeNavData'];
 
     this.sliderTooltipFormatter = this.sliderTooltipFormatter.bind(this);
     this.handleSliderChange = this.handleSliderChange.bind(this);

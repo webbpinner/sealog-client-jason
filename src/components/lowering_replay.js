@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import path from 'path';
 import moment from 'moment';
 import axios from 'axios';
 import Cookies from 'universal-cookie';
@@ -11,7 +12,6 @@ import Slider, { createSliderWithTooltip } from 'rc-slider';
 import EventFilterForm from './event_filter_form';
 import ImagePreviewModal from './image_preview_modal';
 import EventCommentModal from './event_comment_modal';
-// import LoweringReplayMap from './lowering_replay_map';
 import LoweringDropdown from './lowering_dropdown';
 import LoweringModeDropdown from './lowering_mode_dropdown';
 import * as actions from '../actions';
@@ -36,7 +36,7 @@ const FREV = 3;
 
 const maxEventsPerPage = 10;
 
-const excludeAuxDataSources = ['vehicleRealtimeCTDData', 'vehicleRealtimeMAGData', 'vehicleRealtimeNavData', 'vehicleRealtimeAlvinCoordData', 'vehicleRealtimeFramegrabberData'];
+const excludeAuxDataSources = ['vehicleRealtimeCTDData', 'vehicleRealtimeMAGData', 'vehicleRealtimeNavData', 'vehicleRealtimeAlvinCoordData', 'vehicleReNavData', 'vehicleReNavAlvinCoordData', 'vehicleRealtimeFramegrabberData'];
 
 const SliderWithTooltip = createSliderWithTooltip(Slider);
 
@@ -408,12 +408,12 @@ class LoweringReplay extends Component {
 
   renderImageryCard() {
     if(this.props.event && this.props.event.selected_event.aux_data) { 
-      if (this.props.event.selected_event.event_value === "SuliusCam") {
+      if (this.props.event.selected_event.event_value === "SulisCam") {
         let tmpData =[];
 
         for (let i = 0; i < this.props.event.selected_event.event_options.length; i++) {
           if (this.props.event.selected_event.event_options[i].event_option_name === "filename") {
-            tmpData.push({source: "SuliusCam", filepath: API_ROOT_URL + IMAGE_PATH + this.props.event.selected_event.event_options[i].event_option_value} );
+            tmpData.push({source: "SulisCam", filepath: API_ROOT_URL + IMAGE_PATH + "/SulisCam/" + this.props.event.selected_event.event_options[i].event_option_value} );
           } 
         }
 
@@ -437,7 +437,7 @@ class LoweringReplay extends Component {
         if(frameGrabberData.length > 0) {
           for (let i = 0; i < frameGrabberData[0].data_array.length; i+=2) {
       
-            tmpData.push({source: frameGrabberData[0].data_array[i].data_value, filepath: API_ROOT_URL + IMAGE_PATH + frameGrabberData[0].data_array[i+1].data_value} );
+            tmpData.push({source: frameGrabberData[0].data_array[i].data_value, filepath: API_ROOT_URL + IMAGE_PATH + '/' + path.basename(frameGrabberData[0].data_array[i+1].data_value)} );
           }
 
           return (
