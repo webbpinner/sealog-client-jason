@@ -137,7 +137,7 @@ class Users extends Component {
 
       return system_users.map((user) => {
 
-        const style = (user.disabled)? {"text-decoration": "line-through"}: {};
+        const style = (user.disabled)? {"textDecoration": "line-through"}: {};
         if(user.system_user) {
           return (
             <tr key={user.id}>

@@ -866,6 +866,12 @@ export function updateUser(formProps) {
     fields.roles = formProps.roles;
   }
 
+  if(formProps.disabled) {
+    fields.disabled = formProps.disabled;
+  } else {
+    fields.disabled = false;
+  }
+
   if(formProps.system_user) {
     fields.system_user = formProps.system_user;
   } else {
