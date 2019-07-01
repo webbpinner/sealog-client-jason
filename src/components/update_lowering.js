@@ -104,15 +104,17 @@ class UpdateLowering extends Component {
   copyToClipboard() {
     if(this.props.lowering.lowering_id) {
       return  (
-`Lowering:     ${this.props.lowering.lowering_id}
-Description:  ${(this.props.lowering.lowering_additional_meta.lowering_description) ? this.props.lowering.lowering_additional_meta.lowering_description : ""}
-Location:     ${this.props.lowering.lowering_location}\n
-Start:        ${this.props.lowering.start_ts}
-On Bottom:    ${(this.props.lowering.lowering_additional_meta.milestones) ? this.props.lowering.lowering_additional_meta.milestones.lowering_on_bottom : ""}
-Off Bottom:   ${(this.props.lowering.lowering_additional_meta.milestones) ? this.props.lowering.lowering_additional_meta.milestones.lowering_off_bottom : ""}
-End:          ${this.props.lowering.stop_ts}\n
-Max Depth:    ${(this.props.lowering.lowering_additional_meta.stats) ? this.props.lowering.lowering_additional_meta.stats.max_depth : ""}
-Bounding Box: ${(this.props.lowering.lowering_additional_meta.stats) ? this.props.lowering.lowering_additional_meta.stats.bounding_box.join(', ') : ""}`
+`Lowering:      ${this.props.lowering.lowering_id}
+Description:   ${(this.props.lowering.lowering_additional_meta.lowering_description) ? this.props.lowering.lowering_additional_meta.lowering_description : ""}
+Location:      ${this.props.lowering.lowering_location}\n
+Start of Dive: ${this.props.lowering.start_ts}
+On Bottom:     ${(this.props.lowering.lowering_additional_meta.milestones) ? this.props.lowering.lowering_additional_meta.milestones.lowering_on_bottom : ""}
+Off Bottom:    ${(this.props.lowering.lowering_additional_meta.milestones) ? this.props.lowering.lowering_additional_meta.milestones.lowering_off_bottom : ""}
+End of Dive:   ${this.props.lowering.stop_ts}\n
+Dive Origin:   ${(this.props.lowering.lowering_additional_meta.stats) ? this.props.lowering.lowering_additional_meta.stats.dive_origin.join(', ') : ""}
+Dive UTM Zone: ${(this.props.lowering.lowering_additional_meta.stats) ? this.props.lowering.lowering_additional_meta.stats.dive_utm : ""}\n
+Max Depth:     ${(this.props.lowering.lowering_additional_meta.stats) ? this.props.lowering.lowering_additional_meta.stats.max_depth : ""}
+Bounding Box:  ${(this.props.lowering.lowering_additional_meta.stats) ? this.props.lowering.lowering_additional_meta.stats.bounding_box.join(', ') : ""}`
       )
     }
   }

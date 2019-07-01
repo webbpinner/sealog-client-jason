@@ -49,6 +49,8 @@ class UpdateLoweringStatsForm extends Component {
       bbox_east: (this.props.stats.bounding_box.length == 4) ? this.props.stats.bounding_box[1] : null,
       bbox_south: (this.props.stats.bounding_box.length == 4) ? this.props.stats.bounding_box[2] : null,
       bbox_west: (this.props.stats.bounding_box.length == 4) ? this.props.stats.bounding_box[3] : null,
+      origin_lat: (this.props.stats.dive_origin.length == 2) ? this.props.stats.dive_origin[0] : null,
+      origin_lng: (this.props.stats.dive_origin.length == 2) ? this.props.stats.dive_origin[1] : null,
     }
 
     this.props.initialize(initialValues);
@@ -78,6 +80,13 @@ class UpdateLoweringStatsForm extends Component {
       stats.bounding_box=[formProps.bbox_north, formProps.bbox_east, formProps.bbox_south, formProps.bbox_west]
     }
 
+    if((formProps.origin_lat == null || formProps.origin_lat == "") && (formProps.origin_lng == null || formProps.origin_lng == "")) {
+      stats.dive_origin=[]
+    }
+    else {
+      stats.dive_origin=[formProps.origin_lat, formProps.origin_lng]
+    }
+
     this.props.handleFormSubmit(milestones, stats)
   }
 
@@ -87,8 +96,8 @@ class UpdateLoweringStatsForm extends Component {
 
     return (
       <Form.Group as={Row}>
-        <Form.Label column sm={3}>{label}{requiredField}</Form.Label>
-        <Col sm={5}>
+        <Form.Label column sm={4} xs={5}><span className="float-right">{label}{requiredField}</span></Form.Label>
+        <Col sm={8} xs={7}>
           <Form.Control size="sm" type="text" {...input} placeholder={placeholder_txt} isInvalid={touched && error}/>
           <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
         </Col>
@@ -102,7 +111,7 @@ class UpdateLoweringStatsForm extends Component {
     return (
       <Form.Group as={Row}>
         <Form.Label column sm={6}>{label}{requiredField}</Form.Label>
-        <Col sm={5}>
+        <Col xs={7} sm={5}>
           <Datetime {...input} inputProps={{className: "form-control form-control-sm"}} utc={true} value={input.value ? moment.utc(input.value).format(dateFormat + ' ' + timeFormat) : null} dateFormat={dateFormat} timeFormat={timeFormat} selected={input.value ? moment.utc(input.value) : null }/>
           {touched && (error && <div style={{width: "100%", marginTop: "0.25rem", fontSize: "80%"}} className='text-danger'>{error}</div>)}
         </Col>
@@ -145,36 +154,75 @@ class UpdateLoweringStatsForm extends Component {
                   />
                 </Col>
                 <Col md={6}>
-                  <Field
-                    name="max_depth"
-                    component={this.renderTextField}
-                    label="Max Depth"
-                    placeholder="in meters"
-                  />
-                  <Field
-                    name="bbox_north"
-                    component={this.renderTextField}
-                    label="North"
-                    placeholder="in ddeg"
-                  />
-                  <Field
-                    name="bbox_east"
-                    component={this.renderTextField}
-                    label="East"
-                    placeholder="in ddeg"
-                  />
-                  <Field
-                    name="bbox_south"
-                    component={this.renderTextField}
-                    label="South"
-                    placeholder="in ddeg"
-                  />
-                  <Field
-                    name="bbox_west"
-                    component={this.renderTextField}
-                    label="West"
-                    placeholder="in ddeg"
-                  />
+                  <Row>
+                    <Col xs={{span:6, offset:3}} sm={{span:6, offset:3}} md={{span:12, offset:0}} lg={{span:7, offset: 0}}>
+                      <Field
+                        name="max_depth"
+                        component={this.renderTextField}
+                        label="Max Depth"
+                        placeholder="in meters"
+                      />
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col xs={{span: 6, offset: 3}}>
+                      <Field
+                        name="bbox_north"
+                        component={this.renderTextField}
+                        label="North"
+                        placeholder="in ddeg"
+                      />
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col>
+                      <Field
+                        name="bbox_west"
+                        component={this.renderTextField}
+                        label="West"
+                        placeholder="in ddeg"
+                      />
+                    </Col>
+                    <Col>
+                      <Field
+                        name="bbox_east"
+                        component={this.renderTextField}
+                        label="East"
+                        placeholder="in ddeg"
+                      />
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col xs={{span: 6, offset: 3}}>
+                      <Field
+                        name="bbox_south"
+                        component={this.renderTextField}
+                        label="South"
+                        placeholder="in ddeg"
+                      />
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col xs={12}>
+                      <span>Origin:</span>
+                    </Col>
+                    <Col xs={{span:6, offset:3}} sm={{span:6, offset:3}} md={{span:12, offset:0}} lg={{span:7, offset: 0}}>
+                      <Field
+                        name="origin_lat"
+                        component={this.renderTextField}
+                        label="Latitude"
+                        placeholder="in ddeg"
+                      />
+                    </Col>
+                    <Col xs={{span:6, offset:3}} sm={{span:6, offset:3}} md={{span:12, offset:0}} lg={{span:7, offset: 0}}>
+                      <Field
+                        name="origin_lng"
+                        component={this.renderTextField}
+                        label="Longitude"
+                        placeholder="in ddeg"
+                      />
+                    </Col>
+                  </Row>
                 </Col>
               </Row>
               <Row>
@@ -237,6 +285,14 @@ function validate(formProps) {
 
   if (!(formProps.bbox_west >= -180 && formProps.bbox_west <= 180)) {
     errors.bbox_west = 'Must be a number between +/- 180'
+  }
+
+  if (!(formProps.origin_lat >= -60 && formProps.origin_lat <= 60)) {
+    errors.origin_lat = 'Must be a number between +/- 60'
+  }
+
+  if (!(formProps.origin_lng >= -180 && formProps.origin_lng <= 180)) {
+    errors.origin_lng = 'Must be a number between +/- 180'
   }
 
   return errors;
