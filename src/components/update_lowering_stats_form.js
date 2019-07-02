@@ -51,6 +51,7 @@ class UpdateLoweringStatsForm extends Component {
       bbox_west: (this.props.stats.bounding_box.length == 4) ? this.props.stats.bounding_box[3] : null,
       origin_lat: (this.props.stats.dive_origin.length == 2) ? this.props.stats.dive_origin[0] : null,
       origin_lng: (this.props.stats.dive_origin.length == 2) ? this.props.stats.dive_origin[1] : null,
+      origin_utm: (this.props.stats.dive_utm) ? this.props.stats.dive_utm : null,
     }
 
     this.props.initialize(initialValues);
@@ -222,6 +223,13 @@ class UpdateLoweringStatsForm extends Component {
                         placeholder="in ddeg"
                       />
                     </Col>
+                    <Col xs={{span:6, offset:3}} sm={{span:6, offset:3}} md={{span:12, offset:0}} lg={{span:7, offset: 0}}>
+                      <Field
+                        name="origin_utm"
+                        component={this.renderTextField}
+                        label="UTM Zone"
+                      />
+                    </Col>
                   </Row>
                 </Col>
               </Row>
@@ -250,21 +258,33 @@ function validate(formProps) {
   const errors = {};
 
   if (formProps.start === '') {
-    errors.start_ts = 'Required'
-  } else if (!moment.utc(formProps.start_ts).isValid()) {
-    errors.start_ts = 'Invalid timestamp'
+    errors.start = 'Required'
+  } else if (!moment.utc(formProps.start).isValid()) {
+    errors.start = 'Invalid timestamp'
   }
 
   if (formProps.stop === '') {
-    errors.stop_ts = 'Required'
-  } else if (!moment.utc(formProps.stop_ts).isValid()) {
-    errors.stop_ts = 'Invalid timestamp'
+    errors.stop = 'Required'
+  } else if (!moment.utc(formProps.stop).isValid()) {
+    errors.stop = 'Invalid timestamp'
   }
 
   if ((formProps.start !== '') && (formProps.stop !== '')) {
-    if(moment(formProps.stop_ts, dateFormat + " " + timeFormat).isBefore(moment(formProps.start_ts, dateFormat + " " + timeFormat))) {
-      errors.stop_ts = 'Stop date must be later than start data'
+    if(moment(formProps.stop, dateFormat + " " + timeFormat).isBefore(moment(formProps.start, dateFormat + " " + timeFormat))) {
+      errors.stop = 'Stop date must be later than start data'
     }
+  }
+
+  if ((formProps.on_bottom === '') && (formProps.off_bottom !== '')) {
+    errors.on_bottom = 'Required if Off Bottom specified'
+  } else if ((formProps.on_bottom !== '') && !moment.utc(formProps.on_bottom).isValid()) {
+    errors.on_bottom = 'Invalid timestamp'
+  }
+
+  if ((formProps.off_bottom === '') && (formProps.on_bottom !== '')) {
+    errors.off_bottom = 'Required if On Bottom specified'
+  } else if ((formProps.off_bottom !== '') && !moment.utc(formProps.off_bottom).isValid()) {
+    errors.off_bottom = 'Invalid timestamp'
   }
 
   if (!(formProps.max_depth >= 0)) {
