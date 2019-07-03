@@ -49,9 +49,9 @@ class UpdateLoweringStatsForm extends Component {
       bbox_east: (this.props.stats.bounding_box.length == 4) ? this.props.stats.bounding_box[1] : null,
       bbox_south: (this.props.stats.bounding_box.length == 4) ? this.props.stats.bounding_box[2] : null,
       bbox_west: (this.props.stats.bounding_box.length == 4) ? this.props.stats.bounding_box[3] : null,
-      origin_lat: (this.props.stats.dive_origin.length == 2) ? this.props.stats.dive_origin[0] : null,
-      origin_lng: (this.props.stats.dive_origin.length == 2) ? this.props.stats.dive_origin[1] : null,
-      origin_utm: (this.props.stats.dive_utm) ? this.props.stats.dive_utm : null,
+      origin_lat: (this.props.stats.dive_origin.length == 3) ? this.props.stats.dive_origin[0] : null,
+      origin_lng: (this.props.stats.dive_origin.length == 3) ? this.props.stats.dive_origin[1] : null,
+      origin_utm: (this.props.stats.dive_origin.length == 3) ? this.props.stats.dive_origin[2] : null,
     }
 
     this.props.initialize(initialValues);
@@ -81,11 +81,11 @@ class UpdateLoweringStatsForm extends Component {
       stats.bounding_box=[formProps.bbox_north, formProps.bbox_east, formProps.bbox_south, formProps.bbox_west]
     }
 
-    if((formProps.origin_lat == null || formProps.origin_lat == "") && (formProps.origin_lng == null || formProps.origin_lng == "")) {
+    if((formProps.origin_lat == null || formProps.origin_lat == "") || (formProps.origin_lng == null || formProps.origin_lng == "") || (formProps.origin_utm == null || formProps.origin_utm == "")) {
       stats.dive_origin=[]
     }
     else {
-      stats.dive_origin=[formProps.origin_lat, formProps.origin_lng]
+      stats.dive_origin=[formProps.origin_lat, formProps.origin_lng, formProps.origin_utm]
     }
 
     this.props.handleFormSubmit(milestones, stats)
@@ -313,6 +313,14 @@ function validate(formProps) {
 
   if (!(formProps.origin_lng >= -180 && formProps.origin_lng <= 180)) {
     errors.origin_lng = 'Must be a number between +/- 180'
+  }
+
+  if (!(formProps.origin_lng >= -180 && formProps.origin_lng <= 180)) {
+    errors.origin_lng = 'Must be a number between +/- 180'
+  }
+
+  if (!(formProps.origin_utm >= 0 && formProps.origin_utm <= 60)) {
+    errors.origin_utm = 'Must be a number between 0 and 60'
   }
 
   return errors;
