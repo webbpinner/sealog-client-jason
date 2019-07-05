@@ -332,7 +332,7 @@ class SetLoweringStatsModal extends Component {
       event_txt = `<span>${event_txt}<br/><b>Text:</b> ${this.state.event.event_free_text}</span>`
     }
     else if(this.state.event.event_value === 'VEHICLE') {
-      const milestone = this.state.event.event_options.find((option) => option['event_option_name'] == 'Milestone')
+      const milestone = this.state.event.event_options.find((option) => option['event_option_name'] === 'milestone')
       if(milestone) {
         event_txt = `<span>${event_txt}<br/><b>Milestone:</b> ${milestone['event_option_value']}</span>`
       }
