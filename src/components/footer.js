@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
-import { Client } from 'nes/client';
+import { Client } from '@hapi/nes/lib/client';
 import { WS_ROOT_URL } from '../client_config';
 
 import * as actions from '../actions';
@@ -11,7 +11,7 @@ class Footer extends Component {
     super(props);
 
     this.state = {
-      intervalID: null
+      // intervalID: null
     };
 
     this.handleASNAPNotification = this.handleASNAPNotification.bind(this);
@@ -21,18 +21,24 @@ class Footer extends Component {
   }
 
   componentDidMount() {
-    // this.connectToWS();
-
     this.handleASNAPNotification();
 
-    let intervalID = setInterval(this.handleASNAPNotification, 5000);
-    this.setState({intervalID: intervalID});
+    if(this.props.authenticated) {
+      this.connectToWS();
+    }
+    
+    // let intervalID = setInterval(this.handleASNAPNotification, 5000);
+    // this.setState({intervalID: intervalID});
 
   }
 
   componentWillUnmount() {
-    clearInterval(this.state.intervalID);
-    this.setState({intervalID: null});
+    if(this.props.authenticated) {
+      this.client.disconnect();
+    }
+
+    // clearInterval(this.state.intervalID);
+    // this.setState({intervalID: null});
   }
 
   async connectToWS() {
@@ -48,11 +54,11 @@ class Footer extends Component {
       // })
 
       const updateHandler = (update, flags) => {
-        console.log("update:", update);
+        // console.log("update:", update);
         this.handleASNAPNotification();
       };
 
-      this.client.subscribe('/ws/status/updateCustomVar', updateHandler);
+      this.client.subscribe('/ws/status/updateCustomVars', updateHandler);
 
     } catch(error) {
       console.log(error);

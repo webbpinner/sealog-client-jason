@@ -119,7 +119,6 @@ class LoweringReplay extends Component {
   }
 
   fetchEventAuxData() {
-
     const cookies = new Cookies();
     let startTS = (this.props.event.eventFilter.startTS)? `startTS=${this.props.event.eventFilter.startTS}` : '';
     let stopTS = (this.props.event.eventFilter.stopTS)? `&stopTS=${this.props.event.eventFilter.stopTS}` : '';
@@ -259,7 +258,7 @@ class LoweringReplay extends Component {
   }
 
   sliderTooltipFormatter(v) {
-    if(this.props.event.events.length > 0) {
+    if(this.props.event.events && this.props.event.events[v]) {
       let loweringStartTime = moment(this.props.lowering.start_ts);
       let loweringNow = moment(this.props.event.events[v].ts);
       let loweringElapse = loweringNow.diff(loweringStartTime);
@@ -270,7 +269,7 @@ class LoweringReplay extends Component {
   }
 
   handleSliderChange(index) {
-    if(this.props.event.events[index]) {
+    if(this.props.event.events && this.props.event.events.length > index) {
       this.handleLoweringReplayPause();
       this.setState({replayEventIndex: index});
       this.props.advanceLoweringReplayTo(this.props.event.events[index].id);
@@ -281,7 +280,7 @@ class LoweringReplay extends Component {
   handleEventClick(index) {
     this.handleLoweringReplayPause();
     this.setState({replayEventIndex: index});
-    if(this.props.event.events[index]) {
+    if(this.props.event.events && this.props.event.events.length > index) {
       this.props.advanceLoweringReplayTo(this.props.event.events[index].id);
       this.setState({activePage: Math.ceil((index+1)/maxEventsPerPage)});
     }

@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import { Button, ListGroup, Card, Tooltip, OverlayTrigger, Row, Col } from 'react-bootstrap';
 import * as actions from '../actions';
-import { Client } from 'nes/client';
+import { Client } from '@hapi/nes/lib/client';
 import Cookies from 'universal-cookie';
 import { WS_ROOT_URL } from '../client_config';
 
