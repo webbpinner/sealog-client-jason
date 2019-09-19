@@ -56,10 +56,11 @@ import { faVial } from '@fortawesome/free-solid-svg-icons/faVial';
 import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
 import { faWindowMaximize } from '@fortawesome/free-solid-svg-icons/faWindowMaximize';
 
-
 library.add(faArrowLeft,faArrowRight,faBackward,faCalculator,faChevronDown,faChevronUp,faClipboard,faComment,faCompress,faDownload,faExpand,faEye,faEyeSlash,faForward,faLink,faPause,faPencilAlt,faPlay,faPlus,faStepBackward,faStepForward,faTrash,faVial,faUser,faWindowMaximize);
 
-require('typeface-roboto');
+import './assets/style/bootstrap.min.css';
+import 'leaflet/dist/leaflet.css';
+import './assets/style/style.css';
 
 import configureStore from './store';
 import history from './history';

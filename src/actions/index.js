@@ -224,6 +224,55 @@ export function gotoCruiseMenu() {
   };
 }
 
+export function gotoCruises() {
+
+  return function (dispatch) {
+    dispatch(push(`/cruises`));
+  };
+}
+
+export function gotoEventManagement() {
+
+  return function (dispatch) {
+    dispatch(push(`/event_management`));
+  };
+}
+
+export function gotoEventTemplates() {
+
+  return function (dispatch) {
+    dispatch(push(`/event_templates`));
+  };
+}
+
+export function gotoLowerings() {
+
+  return function (dispatch) {
+    dispatch(push(`/lowerings`));
+  };
+}
+
+export function gotoProfile() {
+
+  return function (dispatch) {
+    dispatch(push(`/profile`));
+  };
+}
+
+export function gotoTasks() {
+
+  return function (dispatch) {
+    dispatch(push(`/tasks`));
+  };
+}
+
+export function gotoUsers() {
+
+  return function (dispatch) {
+    dispatch(push(`/users`));
+  };
+}
+
 export function gotoLoweringGallery(id) {
 
   return function (dispatch) {
@@ -1284,9 +1333,9 @@ export function fetchCustomVars() {
     }
   });
 
-  return function (dispatch) {
+  return async function (dispatch) {
     
-    request.then(({data}) => {
+    await request.then(({data}) => {
       dispatch({type: FETCH_CUSTOM_VARS, payload: data});
     }).catch((error) => {
       if(error.response.status !== 404) {

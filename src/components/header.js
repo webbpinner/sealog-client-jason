@@ -30,7 +30,7 @@ class Header extends Component {
   renderUserOptions() {
     if(this.props.roles.includes('admin') || this.props.roles.includes('cruise_manager')) {
       return (
-        <NavDropdown.Item href="/users">Users</NavDropdown.Item>
+        <NavDropdown.Item onClick={this.props.gotoUsers}>Users</NavDropdown.Item>
       );
     }
   }
@@ -38,7 +38,7 @@ class Header extends Component {
   renderEventLoggingOptions() {
     if(this.props.authenticated) {
       return (
-        <Nav.Link href="/cruise_menu">Review Cruises/Lowerings</Nav.Link>
+        <Nav.Link onClick={this.props.gotoCruiseMenu}>Review Cruises/Lowerings</Nav.Link>
       );
     }
   }
@@ -46,7 +46,7 @@ class Header extends Component {
   renderEventManagementOptions() {
     if(this.props.roles.includes('admin') || this.props.roles.includes('event_manager')) {
       return (
-        <NavDropdown.Item href="/event_management">Event Management</NavDropdown.Item>
+        <NavDropdown.Item onClick={this.props.gotoEventManagement}>Event Management</NavDropdown.Item>
       );
     }
   }
@@ -54,7 +54,7 @@ class Header extends Component {
   renderEventTemplateOptions() {
     if(this.props.roles.includes('admin') || this.props.roles.includes('template_manager')) {
       return (
-        <NavDropdown.Item href="/event_templates">Event Templates</NavDropdown.Item>
+        <NavDropdown.Item onClick={this.props.gotoEventTemplates}>Event Templates</NavDropdown.Item>
       );
     }
   }
@@ -62,7 +62,7 @@ class Header extends Component {
   renderLoweringOptions() {
     if(this.props.roles.includes('admin') || this.props.roles.includes('cruise_manager')) {
       return (
-        <NavDropdown.Item href="/lowerings">Lowerings</NavDropdown.Item>
+        <NavDropdown.Item onClick={this.props.gotoLowerings}>Lowerings</NavDropdown.Item>
       );
     }
   }
@@ -70,7 +70,7 @@ class Header extends Component {
   renderCruiseOptions() {
     if(this.props.roles.includes('admin') || this.props.roles.includes('cruise_manager')) {
       return (
-        <NavDropdown.Item href="/cruises">Cruises</NavDropdown.Item>
+        <NavDropdown.Item onClick={this.props.gotoCruises}>Cruises</NavDropdown.Item>
       );
     }
   }
@@ -78,7 +78,7 @@ class Header extends Component {
   renderTaskOptions() {
     if(this.props.roles.includes('admin')) {
       return (
-        <NavDropdown.Item href="/tasks">Tasks</NavDropdown.Item>
+        <NavDropdown.Item onClick={this.props.gotoTasks}>Tasks</NavDropdown.Item>
       );
     }
   }
@@ -111,7 +111,7 @@ class Header extends Component {
     if(this.props.authenticated) {
       return (
         <NavDropdown title={<span>{this.props.fullname} <FontAwesomeIcon icon="user" /></span>} id="basic-nav-dropdown-user">
-          {(this.props.fullname !== "Guest") ? <NavDropdown.Item href="/profile" key="profile" >User Profile</NavDropdown.Item> : null }
+          {(this.props.fullname !== "Guest") ? <NavDropdown.Item onClick={this.props.gotoProfile} key="profile" >User Profile</NavDropdown.Item> : null }
           {(this.props.fullname !== 'Guest' && RECAPTCHA_SITE_KEY === "")? (<NavDropdown.Item key="switch2Guest" onClick={ () => this.handleSwitchToGuest() } >Switch to Guest</NavDropdown.Item>) : null }
           <NavDropdown.Item key="logout" onClick={ () => this.handleLogout() } >Log Out</NavDropdown.Item>
         </NavDropdown>
@@ -130,7 +130,7 @@ class Header extends Component {
   render () {
     return (
       <Navbar collapseOnSelect expand="md" variant="dark" bg="dark">
-        <Navbar.Brand href="/">{HEADER_TITLE}</Navbar.Brand>
+        <Navbar.Brand onClick={this.props.gotoHome}>{HEADER_TITLE}</Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-nav"/>
         <Navbar.Collapse id="responsive-navbar-nav"className="justify-content-end">
           <Nav>

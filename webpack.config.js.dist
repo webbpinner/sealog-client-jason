@@ -1,18 +1,32 @@
+const { ROOT_PATH } = require('./src/client_config');
 const path = require('path');
-
-const ROOT_PATH = '/sealog/';
+const CopyPlugin = require('copy-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
   entry: './src/index.js',
   output: {
     filename: '[name].bundle.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'dist'),
+    publicPath: ROOT_PATH
   },
   devServer: {
-    contentBase: './dist',
+    contentBase: path.resolve(__dirname, 'dist'),
+    publicPath: ROOT_PATH,
     historyApiFallback: true
   },
-  plugins: [],
+  plugins: [
+    new HtmlWebpackPlugin({
+        title: 'Sealog',
+        filename: 'index.html',
+        template: path.resolve(__dirname, 'src/assets/index.html')
+      }),
+    new CopyPlugin([
+      { from: path.resolve(__dirname, 'node_modules/typeface-roboto/files/'), to: 'style/fonts' },
+      { from: path.resolve(__dirname, 'node_modules/leaflet/dist/images/'), to: 'style/images' },
+      { from: path.resolve(__dirname, 'src/assets/images/'), to: 'images' }
+    ]),
+  ],
   module: {
     rules: [
       {
@@ -28,7 +42,20 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: [ 'style-loader','css-loader']
+        use: [
+          {
+            loader: 'style-loader',
+            options: {
+              injectType: 'linkTag',
+            }
+          },
+          { loader: 'file-loader',
+            options: {
+              outputPath: 'style/',
+              publicPath: ROOT_PATH + 'style/'
+            }
+          }
+        ]
       },
       {
         test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
@@ -36,8 +63,8 @@ module.exports = {
           loader: 'file-loader',
           options: {
             name: '[name].[ext]',
-            outputPath: '/fonts/',
-            publicPath: ROOT_PATH + 'fonts/'
+            outputPath: 'style/fonts/',
+            publicPath: ROOT_PATH + 'style/fonts/'
           }
         }]
       }

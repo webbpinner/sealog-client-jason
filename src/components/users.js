@@ -97,7 +97,6 @@ class Users extends Component {
   }
 
   handleSystemSearchChange(event) {
-    console.log(this.props.users)
     let fieldVal = event.target.value;
     if(fieldVal !== "") {
       this.setState({filteredSystemUsers: this.props.users.filter((user) => {
