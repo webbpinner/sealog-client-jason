@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import { Button, ListGroup, Card, Tooltip, OverlayTrigger, Row, Col } from 'react-bootstrap';
+import CustomPagination from './custom_pagination';
 import * as actions from '../actions';
 import { Client } from '@hapi/nes/lib/client';
 import Cookies from 'universal-cookie';
@@ -38,7 +39,6 @@ class EventHistory extends Component {
   }
 
   componentDidUpdate() {
-    // this.scrollToBottom();
   }
 
   async connectToWS() {

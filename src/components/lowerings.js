@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { reduxForm, Field, reset } from 'redux-form';
-import { Row, Button, Col, Card, Form, FormControl, Alert, Table, OverlayTrigger, Tooltip, Pagination } from 'react-bootstrap';
+import { Row, Button, Col, Card, Form, FormControl, Alert, Table, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import moment from 'moment';
 import momentDurationFormatSetup from 'moment-duration-format';
 import CreateLowering from './create_lowering';
@@ -11,6 +11,7 @@ import UpdateLowering from './update_lowering';
 import DeleteLoweringModal from './delete_lowering_modal';
 import ImportLoweringsModal from './import_lowerings_modal';
 import SetLoweringStatsModal from './set_lowering_stats_modal';
+import CustomPagination from './custom_pagination';
 import * as actions from '../actions';
 
 let fileDownload = require('js-file-download');
@@ -95,7 +96,7 @@ class Lowerings extends Component {
       })
     }
     else {
-      this.setState({filteredLowerings: this.props.lowerings});
+      this.setState({filteredLowerings: null});
     }
     this.handlePageSelect(1);
   }
@@ -208,51 +209,6 @@ class Lowerings extends Component {
     );
   }
 
-  renderPagination() {
-
-    const lowerings = (Array.isArray(this.state.filteredLowerings)) ? this.state.filteredLowerings : this.props.lowerings
-
-    if(lowerings && lowerings.length > maxLoweringsPerPage) {
-
-      let priceCount = lowerings.length;
-      let last = Math.ceil(priceCount/maxLoweringsPerPage);
-      let delta = 2;
-      let left = this.state.activePage - delta;
-      let right = this.state.activePage + delta + 1;
-      let range = [];
-      let rangeWithDots = [];
-      let l = null;
-
-      for (let i = 1; i <= last; i++) {
-        if (i === 1 || i === last || i >= left && i < right) {
-          range.push(i);
-        }
-      }
-
-      for (let i of range) {
-        if (l) {
-          if (i - l === 2) {
-            rangeWithDots.push(<Pagination.Item key={l + 1} active={(this.state.activePage === l+1)} onClick={() => this.handlePageSelect(l + 1)}>{l + 1}</Pagination.Item>);
-          } else if (i - l !== 1) {
-            rangeWithDots.push(<Pagination.Ellipsis key={`ellipsis_${i}`} />);
-          }
-        }
-        rangeWithDots.push(<Pagination.Item key={i} active={(this.state.activePage === i)} onClick={() => this.handlePageSelect(i)}>{i}</Pagination.Item>);
-        l = i;
-      }
-
-      return (
-        <Pagination>
-          <Pagination.First onClick={() => this.handlePageSelect(1)} />
-          <Pagination.Prev onClick={() => { if(this.state.activePage > 1) { this.handlePageSelect(this.state.activePage-1)}}} />
-          {rangeWithDots}
-          <Pagination.Next onClick={() => { if(this.state.activePage < last) { this.handlePageSelect(this.state.activePage+1)}}} />
-          <Pagination.Last onClick={() => this.handlePageSelect(last)} />
-        </Pagination>
-      );
-    }
-  }
-
   render() {
     if (!this.props.roles) {
       return (
@@ -282,8 +238,8 @@ class Lowerings extends Component {
               <Card border="secondary">
                 <Card.Header>{this.renderLoweringHeader()}</Card.Header>
                 {this.renderLoweringTable()}
-                {this.renderPagination()}
               </Card>
+              <CustomPagination style={{marginTop: "8px"}} page={this.state.activePage} count={(this.state.filteredLowerings)? this.state.filteredLowerings.length : this.props.lowerings.length} pageSelectFunc={this.handlePageSelect} maxPerPage={maxLoweringsPerPage}/>
               <div style={{marginTop: "8px", marginRight: "-8px"}}>
                 {this.renderAddLoweringButton()}
                 {this.renderImportLoweringsButton()}

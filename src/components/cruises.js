@@ -3,12 +3,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { reduxForm, Field, reset } from 'redux-form';
-import { FormGroup, Row, Button, Col, Card, Alert, Form, FormControl, Table, OverlayTrigger, Tooltip, Pagination } from 'react-bootstrap';
+import { FormGroup, Row, Button, Col, Card, Alert, Form, FormControl, Table, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import moment from 'moment';
 import CreateCruise from './create_cruise';
 import UpdateCruise from './update_cruise';
 import DeleteCruiseModal from './delete_cruise_modal';
 import ImportCruisesModal from './import_cruises_modal';
+import CustomPagination from './custom_pagination';
 import * as actions from '../actions';
 
 let fileDownload = require('js-file-download');
@@ -98,7 +99,7 @@ class Cruises extends Component {
       })
     }
     else {
-      this.setState({filteredCruises: this.props.cruises});
+      this.setState({filteredCruises: null});
     }
     this.handlePageSelect(1);
   }
@@ -209,51 +210,6 @@ class Cruises extends Component {
     );
   }
 
-  renderPagination() {
-
-    const cruises = (Array.isArray(this.state.filteredCruises)) ? this.state.filteredCruises : this.props.cruises
-
-    if(cruises && cruises.length > maxCruisesPerPage) {
-
-      let priceCount = this.props.cruises.length;
-      let last = Math.ceil(priceCount/maxCruisesPerPage);
-      let delta = 2;
-      let left = this.state.activePage - delta;
-      let right = this.state.activePage + delta + 1;
-      let range = [];
-      let rangeWithDots = [];
-      let l = null;
-
-      for (let i = 1; i <= last; i++) {
-        if (i === 1 || i === last || i >= left && i < right) {
-          range.push(i);
-        }
-      }
-
-      for (let i of range) {
-        if (l) {
-          if (i - l === 2) {
-            rangeWithDots.push(<Pagination.Item key={l + 1} active={(this.state.activePage === l+1)} onClick={() => this.handlePageSelect(l + 1)}>{l + 1}</Pagination.Item>);
-          } else if (i - l !== 1) {
-            rangeWithDots.push(<Pagination.Ellipsis key={`ellipsis_${i}`} />);
-          }
-        }
-        rangeWithDots.push(<Pagination.Item key={i} active={(this.state.activePage === i)} onClick={() => this.handlePageSelect(i)}>{i}</Pagination.Item>);
-        l = i;
-      }
-
-      return (
-        <Pagination>
-          <Pagination.First onClick={() => this.handlePageSelect(1)} />
-          <Pagination.Prev onClick={() => { if(this.state.activePage > 1) { this.handlePageSelect(this.state.activePage-1)}}} />
-          {rangeWithDots}
-          <Pagination.Next onClick={() => { if(this.state.activePage < last) { this.handlePageSelect(this.state.activePage+1)}}} />
-          <Pagination.Last onClick={() => this.handlePageSelect(last)} />
-        </Pagination>
-      );
-    }
-  }
-
   render() {
     if (!this.props.roles) {
       return (
@@ -282,8 +238,8 @@ class Cruises extends Component {
               <Card border="secondary">
                 <Card.Header>{this.renderCruiseHeader()}</Card.Header>
                 {this.renderCruiseTable()}
-                {this.renderPagination()}
               </Card>
+              <CustomPagination style={{marginTop: "8px"}} page={this.state.activePage} count={(this.state.filteredCruises)? this.state.filteredCruises.length : this.props.cruises.length} pageSelectFunc={this.handlePageSelect} maxPerPage={maxCruisesPerPage}/>
               <div style={{marginTop: "8px", marginRight: "-8px"}}>
                 {this.renderAddCruiseButton()}
                 {this.renderImportCruisesButton()}

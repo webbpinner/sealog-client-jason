@@ -2,11 +2,9 @@ import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import path from 'path';
 import moment from 'moment';
-import axios from 'axios';
-import Cookies from 'universal-cookie';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
-import { Button, Row, Col, Dropdown, Card, Accordion, Pagination, ListGroup, Container, Image, OverlayTrigger, Tooltip, ButtonToolbar, DropdownButton, Breadcrumb } from 'react-bootstrap';
+import { Row, Col, Card, ListGroup, Image, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import 'rc-slider/assets/index.css';
 import Slider, { createSliderWithTooltip } from 'rc-slider';
 import EventFilterForm from './event_filter_form';
@@ -14,15 +12,12 @@ import ImagePreviewModal from './image_preview_modal';
 import EventCommentModal from './event_comment_modal';
 import LoweringDropdown from './lowering_dropdown';
 import LoweringModeDropdown from './lowering_mode_dropdown';
+import CustomPagination from './custom_pagination';
+import ExportDropdown from './export_dropdown';
 import * as actions from '../actions';
 import { ROOT_PATH, API_ROOT_URL, IMAGE_PATH } from '../client_config';
 
 let fileDownload = require('js-file-download');
-
-const dateFormat = "YYYYMMDD";
-const timeFormat = "HHmm";
-
-const cookies = new Cookies();
 
 const imageCardStyle = {minHeight: "100px"};
 
@@ -116,145 +111,6 @@ class LoweringReplay extends Component {
       this.props.hideASNAP();
       this.handleEventClick(0);
     }
-  }
-
-  fetchEventAuxData() {
-    const cookies = new Cookies();
-    let startTS = (this.props.event.eventFilter.startTS)? `startTS=${this.props.event.eventFilter.startTS}` : '';
-    let stopTS = (this.props.event.eventFilter.stopTS)? `&stopTS=${this.props.event.eventFilter.stopTS}` : '';
-    let value = (this.props.event.eventFilter.value)? `&value=${this.props.event.eventFilter.value.split(',').join("&value=")}` : '';
-    value = (this.props.event.hideASNAP)? `&value=!ASNAP${value}` : value;
-    let author = (this.props.event.eventFilter.author)? `&author=${this.props.event.eventFilter.author.split(',').join("&author=")}` : '';
-    let freetext = (this.props.event.eventFilter.freetext)? `&freetext=${this.props.event.eventFilter.freetext}` : '';
-    let datasource = (this.props.event.eventFilter.datasource)? `&datasource=${this.props.event.eventFilter.datasource}` : '';
-
-    return axios.get(`${API_ROOT_URL}/api/v1/event_aux_data/bylowering/${this.props.lowering.id}?${startTS}${stopTS}${value}${author}${freetext}${datasource}`,
-      {
-        headers: {
-          authorization: cookies.get('token')
-        }
-      }).then((response) => {
-      // console.log(response)
-      return response.data;
-    }).catch((error)=>{
-      if(error.response.data.statusCode === 404){
-        return [];
-      } else {
-        console.log(error.response);
-        return [];
-      }
-    }
-    );
-  }
-
-  fetchEventsWithAuxData(format = 'json') {
-
-    const cookies = new Cookies();
-    // console.log("event export update")
-    format = `format=${format}`;
-    let startTS = (this.props.event.eventFilter.startTS)? `&startTS=${this.props.event.eventFilter.startTS}` : '';
-    let stopTS = (this.props.event.eventFilter.stopTS)? `&stopTS=${this.props.event.eventFilter.stopTS}` : '';
-    let value = (this.props.event.eventFilter.value)? `&value=${this.props.event.eventFilter.value.split(',').join("&value=")}` : '';
-    value = (this.props.event.hideASNAP)? `&value=!ASNAP${value}` : value;
-    let author = (this.props.event.eventFilter.author)? `&author=${this.props.event.eventFilter.author.split(',').join("&author=")}` : '';
-    let freetext = (this.props.event.eventFilter.freetext)? `&freetext=${this.props.event.eventFilter.freetext}` : '';
-    let datasource = (this.props.event.eventFilter.datasource)? `&datasource=${this.props.event.eventFilter.datasource}` : '';
-
-    return axios.get(`${API_ROOT_URL}/api/v1/event_exports/bylowering/${this.props.lowering.id}?${format}${startTS}${stopTS}${value}${author}${freetext}${datasource}`,
-      {
-        headers: {
-          authorization: cookies.get('token')
-        }
-      }).then((response) => {
-      return response.data;
-    }).catch((error)=>{
-      if(error.response.data.statusCode === 404){
-        return [];
-      } else {
-        console.log(error.response);
-        return [];
-      }
-    }
-    );
-  }
-
-  fetchEvents(format = 'json') {
-
-    const cookies = new Cookies();
-    // console.log("event export update")
-    format = `format=${format}`;
-    let startTS = (this.props.event.eventFilter.startTS)? `&startTS=${this.props.event.eventFilter.startTS}` : '';
-    let stopTS = (this.props.event.eventFilter.stopTS)? `&stopTS=${this.props.event.eventFilter.stopTS}` : '';
-    let value = (this.props.event.eventFilter.value)? `&value=${this.props.event.eventFilter.value.split(',').join("&value=")}` : '';
-    value = (this.props.event.hideASNAP)? `&value=!ASNAP${value}` : value;
-    let author = (this.props.event.eventFilter.author)? `&author=${this.props.event.eventFilter.author.split(',').join("&author=")}` : '';
-    let freetext = (this.props.event.eventFilter.freetext)? `&freetext=${this.props.event.eventFilter.freetext}` : '';
-    let datasource = (this.props.event.eventFilter.datasource)? `&datasource=${this.props.event.eventFilter.datasource}` : '';
-
-    return axios.get(`${API_ROOT_URL}/api/v1/events/bylowering/${this.props.lowering.id}?${format}${startTS}${stopTS}${value}${author}${freetext}${datasource}`,
-      {
-        headers: {
-          authorization: cookies.get('token')
-        }
-      }).then((response) => {
-      return response.data;
-    }).catch((error)=>{
-      if(error.response.data.statusCode === 404){
-        return [];
-      } else {
-        console.log(error.response);
-        return [];
-      }
-    }
-    );
-  }
-
-  exportEventsWithAuxDataToCSV() {
-    this.fetchEventsWithAuxData('csv').then((results) => {
-      let prefix = moment.utc(this.props.event.events[0].ts).format(dateFormat + "_" + timeFormat);
-      fileDownload(results, `${prefix}.sealog_export.csv`);
-    }).catch((error) => {
-      console.log(error);
-    });
-  }
-
-  exportEventsToCSV() {
-    this.fetchEvents('csv').then((results) => {
-      let prefix = moment.utc(this.props.event.events[0].ts).format(dateFormat + "_" + timeFormat);
-      fileDownload(results, `${prefix}.sealog_eventExport.csv`);
-    }).catch((error) => {
-      console.log(error);
-    });
-  }
-
-  exportEventsWithAuxDataToJSON() {
-
-    this.fetchEventsWithAuxData().then((results) => {
-      let prefix = moment.utc(this.props.event.events[0].ts).format(dateFormat + "_" + timeFormat);
-      fileDownload(JSON.stringify(results, null, 2), `${prefix}.sealog_export.json`);
-    }).catch((error) => {
-      console.log(error);
-    });
-  }
-
-  exportEventsToJSON() {
-
-    this.fetchEvents().then((results) => {
-      let prefix = moment.utc(this.props.event.events[0].ts).format(dateFormat + "_" + timeFormat);
-      fileDownload(JSON.stringify(results, null, 2), `${prefix}.sealog_eventExport.json`);
-    }).catch((error) => {
-      console.log(error);
-    });
-  }
-
-  exportAuxDataToJSON() {
-
-    this.fetchEventAuxData().then((results) => {
-      let prefix = moment.utc(this.props.event.events[0].ts).format(dateFormat + "_" + timeFormat);
-      fileDownload(JSON.stringify(results, null, 2), `${prefix}.sealog_auxDataExport.json`);
-    }).catch((error) => {
-      console.log(error);
-    });
   }
 
   sliderTooltipFormatter(v) {
@@ -872,19 +728,7 @@ class LoweringReplay extends Component {
         { Label }
         <span className="float-right">
           {ASNAPToggle}
-          <Dropdown as={'span'} disabled={this.props.event.fetching} id="dropdown-download">
-            <Dropdown.Toggle as={'span'}><OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesomeIcon icon='download' fixedWidth/></OverlayTrigger></Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Header className="text-warning" key="toJSONHeader">JSON format</Dropdown.Header>
-              <Dropdown.Item key="toJSONAll" onClick={ () => this.exportEventsWithAuxDataToJSON()}>Events w/aux data</Dropdown.Item>
-              <Dropdown.Item key="toJSONEvents" onClick={ () => this.exportEventsToJSON()}>Events Only</Dropdown.Item>
-              <Dropdown.Item key="toJSONAuxData" onClick={ () => this.exportAuxDataToJSON()}>Aux Data Only</Dropdown.Item>
-              <Dropdown.Divider />
-              <Dropdown.Header className="text-warning" key="toCSVHeader">CSV format</Dropdown.Header>
-              <Dropdown.Item key="toCSVAll" onClick={ () => this.exportEventsWithAuxDataToCSV()}>Events w/aux data</Dropdown.Item>
-              <Dropdown.Item key="toCSVEvents" onClick={ () => this.exportEventsToCSV()}>Events Only</Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
+          <ExportDropdown id="dropdown-download" disabled={this.props.event.fetching} hideASNAP={this.props.event.hideASNAP} eventFilter={this.props.event.eventFilter} loweringID={this.props.lowering.id} prefix={this.props.lowering.lowering_id}/>
         </span>
       </div>
     );
@@ -941,48 +785,6 @@ class LoweringReplay extends Component {
     }
 
     return (this.props.event.fetching)? (<ListGroup.Item className="event-list-item">Loading...</ListGroup.Item>) : (<ListGroup.Item>No events found</ListGroup.Item>);
-  }
-
-  renderPagination() {
-
-    if(!this.props.event.fetching && this.props.event.events.length > maxEventsPerPage) {
-      let eventCount = this.props.event.events.length;
-      let last = Math.ceil(eventCount/maxEventsPerPage);
-      let delta = 2;
-      let left = this.state.activePage - delta;
-      let right = this.state.activePage + delta + 1;
-      let range = [];
-      let rangeWithDots = [];
-      let l = null;
-
-      for (let i = 1; i <= last; i++) {
-        if (i === 1 || i === last || i >= left && i < right) {
-          range.push(i);
-        }
-      }
-
-      for (let i of range) {
-        if (l) {
-          if (i - l === 2) {
-            rangeWithDots.push(<Pagination.Item key={l + 1} active={(this.state.activePage === l+1)} onClick={() => this.handlePageSelect(l + 1)}>{l + 1}</Pagination.Item>);
-          } else if (i - l !== 1) {
-            rangeWithDots.push(<Pagination.Ellipsis key={`ellipsis_${i}`} />);
-          }
-        }
-        rangeWithDots.push(<Pagination.Item key={i} active={(this.state.activePage === i)} onClick={() => this.handlePageSelect(i)}>{i}</Pagination.Item>);
-        l = i;
-      }
-
-      return (
-        <Pagination style={{marginTop: "8px"}}>
-          <Pagination.First onClick={() => this.handlePageSelect(1)} />
-          <Pagination.Prev onClick={() => { if(this.state.activePage > 1) { this.handlePageSelect(this.state.activePage-1);}}} />
-          {rangeWithDots}
-          <Pagination.Next onClick={() => { if(this.state.activePage < last) { this.handlePageSelect(this.state.activePage+1);}}} />
-          <Pagination.Last onClick={() => this.handlePageSelect(last)} />
-        </Pagination>
-      );
-    }
   }
 
   // renderMapCard() {
@@ -1045,7 +847,7 @@ class LoweringReplay extends Component {
           <Col md={9} lg={9}>
             {this.renderControlsCard()}
             {this.renderEventCard()}
-            {this.renderPagination()}
+            <CustomPagination style={{marginTop: "8px"}} page={this.state.activePage} count={this.props.event.events.length} pageSelectFunc={this.handlePageSelect} maxPerPage={maxEventsPerPage}/>
           </Col>          
           <Col md={3} lg={3}>
             <EventFilterForm disabled={this.props.event.fetching} hideASNAP={this.props.event.hideASNAP} handlePostSubmit={ this.updateEventFilter } minDate={this.props.lowering.start_ts} maxDate={this.props.lowering.stop_ts} initialValues={this.props.event.eventFilter}/>

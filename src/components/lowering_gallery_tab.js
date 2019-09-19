@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Row, Col, Card, Pagination, Image } from 'react-bootstrap';
+import { Row, Col, Card, Image } from 'react-bootstrap';
+import CustomPagination from './custom_pagination';
 import * as actions from '../actions';
 import { ROOT_PATH } from '../client_config';
 
 let fileDownload = require('js-file-download');
 
-const maxEventsPerPage = 12
+const maxImagesPerPage = 16
 
 class LoweringGalleryTab extends Component {
 
@@ -25,15 +26,6 @@ class LoweringGalleryTab extends Component {
     imagesSource: PropTypes.string.isRequired,
     imagesData: PropTypes.object.isRequired
   };
-
-  componentDidMount() {
-  }
-
-  componentDidUpdate() {
-  }
-
-  componentWillUnmount(){
-  }
 
   handlePageSelect(eventKey) {
     this.setState({activePage: eventKey});
@@ -59,7 +51,7 @@ class LoweringGalleryTab extends Component {
 
   renderGallery(imagesSource, imagesData) {
     return imagesData.images.map((image, index) => {
-      if(index >= (this.state.activePage-1) * maxEventsPerPage && index < (this.state.activePage * maxEventsPerPage)) {
+      if(index >= (this.state.activePage-1) * maxImagesPerPage && index < (this.state.activePage * maxImagesPerPage)) {
         return (
           <Col key={`${imagesSource}_${image.event_id}`} xs={12} sm={6} md={4} lg={3}>
             {this.renderImage(imagesSource, image.filepath, image.event_id)}
@@ -67,48 +59,6 @@ class LoweringGalleryTab extends Component {
         )
       }
     })
-  }
-
-  renderPagination() {
-
-    if( this.props.imagesData.images.length > maxEventsPerPage) {
-      let eventCount = this.props.imagesData.images.length
-      let last = Math.ceil(eventCount/maxEventsPerPage);
-      let delta = 2
-      let left = this.state.activePage - delta
-      let right = this.state.activePage + delta + 1
-      let range = []
-      let rangeWithDots = []
-      let l = null
-
-      for (let i = 1; i <= last; i++) {
-        if (i === 1 || i === last || i >= left && i < right) {
-            range.push(i);
-        }
-      }
-
-      for (let i of range) {
-        if (l) {
-          if (i - l === 2) {
-            rangeWithDots.push(<Pagination.Item key={l + 1} active={(this.state.activePage === l+1)} onClick={() => this.handlePageSelect(l + 1)}>{l + 1}</Pagination.Item>);
-          } else if (i - l !== 1) {
-            rangeWithDots.push(<Pagination.Ellipsis key={`ellipsis_${i}`} />);
-          }
-        }
-        rangeWithDots.push(<Pagination.Item key={i} active={(this.state.activePage === i)} onClick={() => this.handlePageSelect(i)}>{i}</Pagination.Item>);
-        l = i;
-      }
-
-      return (
-        <Pagination>
-          <Pagination.First onClick={() => this.handlePageSelect(1)} />
-          <Pagination.Prev onClick={() => { if(this.state.activePage > 1) { this.handlePageSelect(this.state.activePage-1)}}} />
-          {rangeWithDots}
-          <Pagination.Next onClick={() => { if(this.state.activePage < last) { this.handlePageSelect(this.state.activePage+1)}}} />
-          <Pagination.Last onClick={() => this.handlePageSelect(last)} />
-        </Pagination>
-      );
-    }
   }
 
   render(){
@@ -120,7 +70,7 @@ class LoweringGalleryTab extends Component {
         </Row>
         <Row key={`${this.props.imagesSource}_images_pagination`}>
           <Col xs={12}>
-            {this.renderPagination()}
+            <CustomPagination page={this.state.activePage} count={(this.props.imagesData.images)? this.props.imagesData.images.length : 0} pageSelectFunc={this.handlePageSelect} maxPerPage={maxImagesPerPage}/>
           </Col>
         </Row>
       </div>

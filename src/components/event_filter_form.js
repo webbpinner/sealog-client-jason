@@ -34,7 +34,6 @@ class EventFilterForm extends Component {
   }
 
   componentWillUnmount() {
-    // this.props.leaveEventFilterForm();
   }
 
 

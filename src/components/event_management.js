@@ -4,12 +4,14 @@ import { Link } from 'react-router-dom';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import Cookies from 'universal-cookie';
-import { Button, Row, Col, Card, ListGroup, ButtonToolbar, Dropdown, Pagination, MenuItem, Tooltip, OverlayTrigger } from 'react-bootstrap';
+import { Button, Row, Col, Card, ListGroup, ButtonToolbar, Dropdown, MenuItem, Tooltip, OverlayTrigger } from 'react-bootstrap';
 import axios from 'axios';
 import EventFilterForm from './event_filter_form';
 import EventCommentModal from './event_comment_modal';
 import DeleteEventModal from './delete_event_modal';
 import EventShowDetailsModal from './event_show_details_modal';
+import CustomPagination from './custom_pagination';
+import ExportDropdown from './export_dropdown';
 import * as actions from '../actions';
 import { ROOT_PATH, API_ROOT_URL } from '../client_config';
 
@@ -159,145 +161,10 @@ class EventManagement extends Component {
     );
   }
 
-  fetchEvents(format = 'json', eventFilter = this.state.eventFilter) {
-
-    const cookies = new Cookies();
-    format = `format=${format}`;
-    let startTS = (eventFilter.startTS)? `&startTS=${eventFilter.startTS}` : '';
-    let stopTS = (eventFilter.stopTS)? `&stopTS=${eventFilter.stopTS}` : '';
-    let value = (eventFilter.value)? `&value=${eventFilter.value.split(',').join("&value=")}` : '';
-    value = (this.state.hideASNAP)? `&value=!ASNAP${value}` : value;
-    let author = (eventFilter.author)? `&author=${eventFilter.author.split(',').join("&author=")}` : '';
-    let freetext = (eventFilter.freetext)? `&freetext=${eventFilter.freetext}` : '';
-    let datasource = (eventFilter.datasource)? `&datasource=${eventFilter.datasource}` : '';
-
-    return axios.get(`${API_ROOT_URL}/api/v1/events?${format}${startTS}${stopTS}${value}${author}${freetext}${datasource}`,
-      {
-        headers: {
-          authorization: cookies.get('token')
-        }
-      }).then((response) => {
-      return response.data;
-    }).catch((error)=>{
-      if(error.response.data.statusCode === 404){
-        return [];
-      } else {
-        console.log(error.response);
-        return [];
-      }
-    }
-    );
-  }
-
-  fetchEventAuxData(eventFilter = this.state.eventFilter) {
-
-    const cookies = new Cookies();
-    let startTS = (eventFilter.startTS)? `startTS=${eventFilter.startTS}` : '';
-    let stopTS = (eventFilter.stopTS)? `&stopTS=${eventFilter.stopTS}` : '';
-    let value = (eventFilter.value)? `&value=${eventFilter.value.split(',').join("&value=")}` : '';
-    value = (this.state.hideASNAP)? `&value=!ASNAP${value}` : value;
-    let author = (eventFilter.author)? `&author=${eventFilter.author.split(',').join("&author=")}` : '';
-    let freetext = (eventFilter.freetext)? `&freetext=${eventFilter.freetext}` : '';
-    let datasource = (eventFilter.datasource)? `&datasource=${eventFilter.datasource}` : '';
-
-    return axios.get(`${API_ROOT_URL}/api/v1/event_aux_data?${startTS}${stopTS}${value}${author}${freetext}${datasource}`,
-      {
-        headers: {
-          authorization: cookies.get('token')
-        }
-      }).then((response) => {
-      return response.data;
-    }).catch((error)=>{
-      if(error.response.data.statusCode === 404){
-        return [];
-      } else {
-        console.log(error.response);
-        return [];
-      }
-    }
-    );
-  }
-
-  fetchEventsWithAuxData(format = 'json', eventFilter = this.state.eventFilter) {
-
-    const cookies = new Cookies();
-    format = `format=${format}`;
-    let startTS = (eventFilter.startTS)? `&startTS=${eventFilter.startTS}` : '';
-    let stopTS = (eventFilter.stopTS)? `&stopTS=${eventFilter.stopTS}` : '';
-    let value = (eventFilter.value)? `&value=${eventFilter.value.split(',').join("&value=")}` : '';
-    value = (this.state.hideASNAP)? `&value=!ASNAP${value}` : value;
-    let author = (eventFilter.author)? `&author=${eventFilter.author.split(',').join("&author=")}` : '';
-    let freetext = (eventFilter.freetext)? `&freetext=${eventFilter.freetext}` : '';
-    let datasource = (eventFilter.datasource)? `&datasource=${eventFilter.datasource}` : '';
-
-    return axios.get(`${API_ROOT_URL}/api/v1/event_exports?${format}${startTS}${stopTS}${value}${author}${freetext}${datasource}`,
-      {
-        headers: {
-          authorization: cookies.get('token')
-        }
-      }).then((response) => {
-      return response.data;
-    }).catch((error)=>{
-      if(error.response.data.statusCode === 404){
-        return [];
-      } else {
-        console.log(error.response);
-        return [];
-      }
-    }
-    );
-  }
-
-  exportEventsWithAuxDataToCSV() {
-    this.fetchEventsWithAuxData('csv').then((results) => {
-      let prefix = moment.utc(this.state.events[0].ts).format(dateFormat + "_" + timeFormat);
-      fileDownload(results, `${prefix}.sealog_export.csv`);
-    }).catch((error) => {
-      console.log(error);
-    });
-  }
-
-  exportEventsToCSV() {
-    this.fetchEvents('csv').then((results) => {
-      let prefix = moment.utc(this.state.events[0].ts).format(dateFormat + "_" + timeFormat);
-      fileDownload(results, `${prefix}.sealog_eventExport.csv`);
-    }).catch((error) => {
-      console.log(error);
-    });
-  }
-
-  exportEventsWithAuxDataToJSON() {
-    this.fetchEventsWithAuxData().then((results) => {
-      let prefix = moment.utc(this.state.events[0].ts).format(dateFormat + "_" + timeFormat);
-      fileDownload(JSON.stringify(results, null, 2), `${prefix}.sealog_export.json`);
-    }).catch((error) => {
-      console.log(error);
-    });
-  }
-
-  exportEventsToJSON() {
-
-    this.fetchEvents().then((results) => {
-      let prefix = moment.utc(this.state.events[0].ts).format(dateFormat + "_" + timeFormat);
-      fileDownload(JSON.stringify(results, null, 2), `${prefix}.sealog_eventExport.json`);
-    }).catch((error) => {
-      console.log(error);
-    });
-  }
-
-  exportAuxDataToJSON() {
-
-    this.fetchEventAuxData().then((results) => {
-      let prefix = moment.utc(this.state.events[0].ts).format(dateFormat + "_" + timeFormat);
-      fileDownload(JSON.stringify(results, null, 2), `${prefix}.sealog_auxDataExport.json`);
-    }).catch((error) => {
-      console.log(error);
-    });
-  }
-
   async toggleASNAP() {
     await this.setState( prevState => ({hideASNAP: !prevState.hideASNAP, activePage: 1}));
     this.fetchEventsForDisplay();
+    this.fetchEventCount();
   }
 
   renderEventListHeader() {
@@ -314,19 +181,7 @@ class EventManagement extends Component {
         { Label }
         <span className="float-right">
           {ASNAPToggle}
-          <Dropdown as={'span'} disabled={this.props.event.fetching} id="dropdown-download">
-            <Dropdown.Toggle as={'span'}><OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesomeIcon icon='download' fixedWidth/></OverlayTrigger></Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Header className="text-warning" key="toJSONHeader">JSON format</Dropdown.Header>
-              <Dropdown.Item key="toJSONAll" onClick={ () => this.exportEventsWithAuxDataToJSON()}>Events w/aux data</Dropdown.Item>
-              <Dropdown.Item key="toJSONEvents" onClick={ () => this.exportEventsToJSON()}>Events Only</Dropdown.Item>
-              <Dropdown.Item key="toJSONAuxData" onClick={ () => this.exportAuxDataToJSON()}>Aux Data Only</Dropdown.Item>
-              <Dropdown.Divider />
-              <Dropdown.Header className="text-warning" key="toCSVHeader">CSV format</Dropdown.Header>
-              <Dropdown.Item key="toCSVAll" onClick={ () => this.exportEventsWithAuxDataToCSV()}>Events w/aux data</Dropdown.Item>
-              <Dropdown.Item key="toCSVEvents" onClick={ () => this.exportEventsToCSV()}>Events Only</Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
+          <ExportDropdown id="dropdown-download" disabled={this.props.event.fetching} hideASNAP={this.state.hideASNAP} eventFilter={this.state.eventFilter} />
         </span>
       </div>
     );
@@ -389,48 +244,6 @@ class EventManagement extends Component {
     );
   }
 
-  renderPagination() {
-
-    if(this.state.eventCount > maxEventsPerPage) {
-      let eventCount = this.state.eventCount;
-      let last = Math.ceil(eventCount/maxEventsPerPage);
-      let delta = 2;
-      let left = this.state.activePage - delta;
-      let right = this.state.activePage + delta + 1;
-      let range = [];
-      let rangeWithDots = [];
-      let l = null;
-
-      for (let i = 1; i <= last; i++) {
-        if (i === 1 || i === last || i >= left && i < right) {
-          range.push(i);
-        }
-      }
-
-      for (let i of range) {
-        if (l) {
-          if (i - l === 2) {
-            rangeWithDots.push(<Pagination.Item key={l + 1} active={(this.state.activePage === l+1)} onClick={() => this.handlePageSelect((l + 1))}>{l + 1}</Pagination.Item>);
-          } else if (i - l !== 1) {
-            rangeWithDots.push(<Pagination.Ellipsis key={`ellipsis_${i}`} />);
-          }
-        }
-        rangeWithDots.push(<Pagination.Item key={i} active={(this.state.activePage === i)} onClick={() => this.handlePageSelect(i)}>{i}</Pagination.Item>);
-        l = i;
-      }
-
-      return (
-        <Pagination style={{marginTop: "8px"}}>
-          <Pagination.First onClick={() => this.handlePageSelect(1)} />
-          <Pagination.Prev onClick={() => { if(this.state.activePage > 1) { this.handlePageSelect(this.state.activePage-1)}}} />
-          {rangeWithDots}
-          <Pagination.Next onClick={() => { if(this.state.activePage < last) { this.handlePageSelect(this.state.activePage+1)}}} />
-          <Pagination.Last onClick={() => this.handlePageSelect(last)} />
-        </Pagination>
-      );
-    }
-  }
-
   render(){
     return (
       <div>
@@ -440,7 +253,7 @@ class EventManagement extends Component {
         <Row>
           <Col sm={12} md={8} lg={8}>
             {this.renderEventCard()}
-            {this.renderPagination()}
+            <CustomPagination style={{marginTop: "8px"}} page={this.state.activePage} count={this.state.eventCount} pageSelectFunc={this.handlePageSelect} maxPerPage={maxEventsPerPage}/>
           </Col>
           <Col sm={12} md={4} lg={4}>
             <EventFilterForm disabled={this.state.fetching} hideASNAP={this.state.hideASNAP} handlePostSubmit={ this.updateEventFilter } lowering_id={null}/>

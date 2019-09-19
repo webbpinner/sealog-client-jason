@@ -443,7 +443,6 @@ class SetLoweringStatsModal extends Component {
         </div>
       </Col>]     
 
-    // console.log(this.state.depthChartOptions)
     const depth_profile = 
       <HighchartsReact
         highcharts={Highcharts}

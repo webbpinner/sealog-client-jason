@@ -24,23 +24,21 @@ class EventLogging extends Component {
         <div>
           <EventShowDetailsModal />
           <EventCommentModal/>
-          <Container>
-            <Row>
-              <Col>
-                <EventTemplateList style={{marginBottom: "8px"}} />
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                <EventInput style={{marginBottom: "14px"}} />
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                <EventHistory />
-              </Col>
-            </Row>
-          </Container>
+          <Row>
+            <Col>
+              <EventTemplateList style={{marginBottom: "8px"}} />
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <EventInput style={{marginBottom: "14px"}} />
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <EventHistory />
+            </Col>
+          </Row>
         </div>
       );
     }
@@ -48,13 +46,11 @@ class EventLogging extends Component {
       return (
         <div>
           <EventShowDetailsModal />
-          <Container>
-            <Row>
-              <Col>
-                <EventHistory />
-              </Col>
-            </Row>
-          </Container>
+          <Row>
+            <Col>
+              <EventHistory />
+            </Col>
+          </Row>
         </div>
       );
     }
