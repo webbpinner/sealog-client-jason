@@ -8,6 +8,7 @@ import moment from 'moment';
 import Datetime from 'react-datetime';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import FileDownload from 'js-file-download';
 
 import { FilePond, File, registerPlugin } from 'react-filepond';
@@ -106,6 +107,22 @@ class UpdateCruise extends Component {
     .catch((error)=>{
       console.log("JWT is invalid, logging out");
     });
+  }
+
+
+  copyToClipboard() {
+    if(this.props.cruise.cruise_id) {
+      return  (
+`Cruise:          ${this.props.cruise.cruise_id}
+Cruise Name:     ${(this.props.cruise.cruise_additional_meta.cruise_name) ? this.props.cruise.cruise_additional_meta.cruise_name : ""}
+Description:     ${(this.props.cruise.cruise_additional_meta.cruise_description) ? this.props.cruise.cruise_additional_meta.cruise_description : ""}
+Location:        ${this.props.cruise.cruise_location}\n
+Chief Scientist: ${this.props.cruise.cruise_pi}
+Vessel:          ${(this.props.cruise.cruise_additional_meta.cruise_vessel) ? this.props.cruise.cruise_additional_meta.cruise_vessel : ""}\n
+Start of Cruise: ${this.props.cruise.start_ts}
+End of Cruise:   ${this.props.cruise.stop_ts}\n`
+      )
+    }
   }
 
   renderTextField({ input, label, placeholder, required, meta: { touched, error } }) {
@@ -254,7 +271,7 @@ class UpdateCruise extends Component {
   render() {
 
     const { handleSubmit, pristine, reset, submitting, valid } = this.props;
-    const updateCruiseFormHeader = (<div>Update Cruise</div>);
+    const updateCruiseFormHeader = (<div>Update Cruise<span className="float-right"><OverlayTrigger placement="top" overlay={<Tooltip id="copyToClipboardTooltip">Copy Cruise to Clipboard</Tooltip>}><CopyToClipboard text={this.copyToClipboard()} ><FontAwesomeIcon icon='clipboard' fixedWidth /></CopyToClipboard></OverlayTrigger></span></div>);
 
     if (this.props.roles && (this.props.roles.includes("admin") || this.props.roles.includes('cruise_manager'))) {
 

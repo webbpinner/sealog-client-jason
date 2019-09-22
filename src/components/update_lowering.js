@@ -8,8 +8,7 @@ import moment from 'moment';
 import Datetime from 'react-datetime';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {CopyToClipboard} from 'react-copy-to-clipboard';
-
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import FileDownload from 'js-file-download';
 
 import { FilePond, File, registerPlugin } from 'react-filepond';
@@ -108,13 +107,13 @@ class UpdateLowering extends Component {
 Description:   ${(this.props.lowering.lowering_additional_meta.lowering_description) ? this.props.lowering.lowering_additional_meta.lowering_description : ""}
 Location:      ${this.props.lowering.lowering_location}\n
 Start of Dive: ${this.props.lowering.start_ts}
-On Bottom:     ${(this.props.lowering.lowering_additional_meta.milestones) ? this.props.lowering.lowering_additional_meta.milestones.lowering_on_bottom : ""}
-Off Bottom:    ${(this.props.lowering.lowering_additional_meta.milestones) ? this.props.lowering.lowering_additional_meta.milestones.lowering_off_bottom : ""}
+On Bottom:     ${(this.props.lowering.lowering_additional_meta.milestones && this.props.lowering.lowering_additional_meta.milestones.lowering_on_bottom) ? this.props.lowering.lowering_additional_meta.milestones.lowering_on_bottom : ""}
+Off Bottom:    ${(this.props.lowering.lowering_additional_meta.milestones && this.props.lowering.lowering_additional_meta.milestones.lowering_off_bottom) ? this.props.lowering.lowering_additional_meta.milestones.lowering_off_bottom : ""}
 End of Dive:   ${this.props.lowering.stop_ts}\n
-Dive Origin:   ${(this.props.lowering.lowering_additional_meta.stats && this.props.lowering.lowering_additional_meta.stats.dive_origin) ? this.props.lowering.lowering_additional_meta.stats.dive_origin[0] + ', ' + this.props.lowering.lowering_additional_meta.stats.dive_origin[1] : ""}
-Dive UTM Zone: ${(this.props.lowering.lowering_additional_meta.stats && this.props.lowering.lowering_additional_meta.stats.dive_origin) ? this.props.lowering.lowering_additional_meta.stats.dive_origin[2] : ""}\n
+Dive Origin:   ${(this.props.lowering.lowering_additional_meta.stats && this.props.lowering.lowering_additional_meta.stats.dive_origin.length >= 2) ? this.props.lowering.lowering_additional_meta.stats.dive_origin[0] + ', ' + this.props.lowering.lowering_additional_meta.stats.dive_origin[1] : ""}
+Dive UTM Zone: ${(this.props.lowering.lowering_additional_meta.stats && this.props.lowering.lowering_additional_meta.stats.dive_origin.length == 3) ? this.props.lowering.lowering_additional_meta.stats.dive_origin[2] : ""}\n
 Max Depth:     ${(this.props.lowering.lowering_additional_meta.stats && this.props.lowering.lowering_additional_meta.stats.max_depth) ? this.props.lowering.lowering_additional_meta.stats.max_depth : ""}
-Bounding Box:  ${(this.props.lowering.lowering_additional_meta.stats && this.props.lowering.lowering_additional_meta.stats.bounding_box) ? this.props.lowering.lowering_additional_meta.stats.bounding_box.join(', ') : ""}`
+Bounding Box:  ${(this.props.lowering.lowering_additional_meta.stats && this.props.lowering.lowering_additional_meta.stats.bounding_box) ? this.props.lowering.lowering_additional_meta.stats.bounding_box.join(', ') : ""}\n`
       )
     }
   }
