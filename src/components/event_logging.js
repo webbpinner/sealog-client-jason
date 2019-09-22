@@ -17,6 +17,12 @@ class EventLogging extends Component {
 
   }
 
+  componentDidMount() {
+    if(this.props.authenticated) {
+      this.props.fetchCustomVars();
+    }
+  }
+
   render() {
 
     if(this.props.roles && this.props.roles.includes("event_logger") && this.props.roles.includes("event_watcher")) {
@@ -61,7 +67,8 @@ class EventLogging extends Component {
 function mapStateToProps(state) {
 
   return {
-    roles: state.user.profile.roles
+    roles: state.user.profile.roles,
+    authenticated: state.auth.authenticated
   };
 }
 

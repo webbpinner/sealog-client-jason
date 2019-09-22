@@ -51,7 +51,7 @@ class CruiseMenu extends Component {
       this.buildYearList();
     }
 
-    if(this.props.cruise.id && this.props.cruises.length > 0 && this.props.lowerings.length > 0 && this.state.activeCruise === null) {
+    if(this.props.cruise && this.props.cruise.id && this.props.cruises.length > 0 && this.props.lowerings.length > 0 && this.state.activeCruise === null) {
       this.handleYearSelect(moment.utc(this.props.cruise.start_ts).format("YYYY"));
       this.handleCruiseSelect(this.props.cruise.id);
     }

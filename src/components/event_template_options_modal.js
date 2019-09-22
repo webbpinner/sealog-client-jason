@@ -23,7 +23,7 @@ class EventTemplateOptionsModal extends Component {
     super(props);
 
     this.state = {
-      event_id: (this.props.event)?this.props.event.event_id:null
+      event_id: (this.props.event)?this.props.event.id:null
     }
 
     this.renderDatePicker = this.renderDatePicker.bind(this);
@@ -65,7 +65,7 @@ class EventTemplateOptionsModal extends Component {
   }
 
   async populateDefaultValues() {
-    let timestring = await this.getServerTime()
+    let timestring = this.props.event.ts;
     let eventDefaultValues = {event_ts: moment.utc(timestring)};
     this.props.eventTemplate.event_options.forEach((option, index) => {
       if(option.event_option_default_value && option.event_option_type !== 'checkboxes') {

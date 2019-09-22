@@ -325,7 +325,7 @@ export async function createEventRequest(eventValue, eventFreeText, eventOptions
       }
     })
     .then((response) => {
-      return { event_id: response.data.insertedId };
+      return response.data.insertedEvent;
     })
     .catch((error)=>{
       console.log(error);
@@ -375,11 +375,11 @@ export async function updateEventRequest(event_id, eventValue, eventFreeText = '
   return response;
 }
 
-export function updateEvent(eventValue, eventFreeText = '', eventOptions = [], eventTS = '') {
+export function updateEvent(event_id, eventValue, eventFreeText = '', eventOptions = [], eventTS = '') {
 
   return async dispatch => {
     try {
-      const event = await updateEventRequest(eventValue, eventFreeText, eventOptions, eventTS);
+      const event = await updateEventRequest(event_id, eventValue, eventFreeText, eventOptions, eventTS);
       return event;
     } catch (e) {
       console(e);

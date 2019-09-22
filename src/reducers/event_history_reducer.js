@@ -26,6 +26,15 @@ export default function(state={event_templates: [], history: []}, action) {
         completeHistory = state.history.map(event => {
           return (event.id === action.payload.id)? action.payload : event;
         });
+        completeHistory.sort((eventA, eventB) => {
+          if (eventA.ts > eventB.ts) {
+            return -1
+          }
+          if (eventA.ts < eventB.ts) {
+            return 1
+          }
+          return 0
+        });
       }
       let recentHistory = [];
       if(completeHistory.length > historyLimit) {

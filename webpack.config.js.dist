@@ -1,4 +1,4 @@
-const { ROOT_PATH } = require('./src/client_config');
+const { ROOT_PATH, HEADER_TITLE } = require('./src/client_config');
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
@@ -13,11 +13,11 @@ module.exports = {
   devServer: {
     contentBase: path.resolve(__dirname, 'dist'),
     publicPath: ROOT_PATH,
-    historyApiFallback: true
+    historyApiFallback: { index: ROOT_PATH }
   },
   plugins: [
     new HtmlWebpackPlugin({
-        title: 'Sealog',
+        title: HEADER_TITLE,
         filename: 'index.html',
         template: path.resolve(__dirname, 'src/assets/index.html')
       }),
