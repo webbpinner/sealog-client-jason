@@ -27,7 +27,7 @@ class ImportLoweringsModal extends Component {
 
   static propTypes = {
     handleHide: PropTypes.func.isRequired,
-    handleDestroy: PropTypes.func.isRequired,
+    // handleDestroy: PropTypes.func.isRequired,
     handleExit: PropTypes.func
   };
 
@@ -118,14 +118,12 @@ class ImportLoweringsModal extends Component {
       let json = JSON.parse(e.target.result);
 
       if(Array.isArray(json)) {
-        this.setState( prevState => (
-          {
-            pending: json.length,
-            imported: 0,
-            errors: 0,
-            skipped: 0
-          }
-        ))     
+        this.setState({
+          pending: json.length,
+          imported: 0,
+          errors: 0,
+          skipped: 0
+        })
 
         let currentLowering;
 
@@ -135,21 +133,15 @@ class ImportLoweringsModal extends Component {
             break;
           }
           currentLowering = json[i];
-          try {
-            const result = await this.insertLowering(currentLowering);
-          } catch(error) {
-            throw(error)
-          }
+          await this.insertLowering(currentLowering);
         }
       } else {
-        this.setState( prevState => (
-          {
-            pending: 1,
-            imported: 0,
-            errors: 0,
-            skipped: 0
-          }
-        ))
+        this.setState({
+          pending: 1,
+          imported: 0,
+          errors: 0,
+          skipped: 0
+        })
         await this.insertLowering(json);
       }
     } catch (err) {
@@ -173,10 +165,10 @@ class ImportLoweringsModal extends Component {
 
   render() {
 
-    const { show, handleExit } = this.props
+    const { show } = this.props
 
     return (
-      <Modal show={show} onExit={handleExit} onHide={this.quitImport}>
+      <Modal show={show} onExit={this.props.handleExit} onHide={this.quitImport}>
         <Modal.Header closeButton>
           <Modal.Title>Import Lowerings</Modal.Title>
         </Modal.Header>

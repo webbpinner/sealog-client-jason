@@ -1,15 +1,11 @@
 import React, { Component } from 'react';
+import { compose } from 'redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Button, Form, Modal } from 'react-bootstrap';
 import { connectModal } from 'redux-modal';
-import Cookies from 'universal-cookie';
-import axios from 'axios';
-import { reduxForm, Field, initialize, formValueSelector } from 'redux-form';
-import * as actions from '../actions';
-import { API_ROOT_URL} from '../client_config';
-
-const cookies = new Cookies();
+import { reduxForm, Field } from 'redux-form';
+import * as mapDispatchToProps from '../actions';
 
 class EventCommentModal extends Component {
 
@@ -64,7 +60,7 @@ class EventCommentModal extends Component {
   }
 
   render() {
-    const { show, handleHide, handleSubmit, eventTemplate, pristine, submitting, valid } = this.props
+    const { show, handleHide, handleSubmit, submitting, valid } = this.props
 
     return (
       <Modal show={show} onHide={handleHide}>
@@ -90,17 +86,6 @@ class EventCommentModal extends Component {
   }
 }
 
-function validate(formProps) {
-  const errors = {};
-  return errors;
-
-}
-
-EventCommentModal = reduxForm({
-  form: 'EventCommentModal',
-  enableReinitialize: true,
-})(EventCommentModal);
-
 function mapStateToProps(state, ownProps) {
 
   let event_option_comment = ownProps.event.event_options.find(event_option => event_option.event_option_name === 'event_comment')
@@ -113,8 +98,8 @@ function mapStateToProps(state, ownProps) {
   return {}
 }
 
-EventCommentModal = connect(
-  mapStateToProps, actions
+export default compose(
+  reduxForm({form: 'EventCommentModal', enableReinitialize: true}),
+  connectModal({name: 'eventComment', destroyOnHide: true }),
+  connect(mapStateToProps, mapDispatchToProps)
 )(EventCommentModal)
-
-export default connectModal({ name: 'eventComment', destroyOnHide: true })(EventCommentModal)

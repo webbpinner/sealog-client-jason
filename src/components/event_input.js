@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
+import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { reduxForm, Field, reset } from 'redux-form';
 import { Button, Form, InputGroup } from 'react-bootstrap';
-import * as actions from '../actions';
+import * as mapDispatchToProps from '../actions';
 
 class EventInput extends Component {
 
@@ -15,7 +16,7 @@ class EventInput extends Component {
   }
 
   render() {
-    const { handleSubmit, pristine, reset, submitting, valid } = this.props;
+    const { handleSubmit, submitting, valid } = this.props;
 
     return (
       <Form style={this.props.style} onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
@@ -36,7 +37,7 @@ class EventInput extends Component {
   }
 }
 
-function mapStateToProps(state) {
+function mapStateToProps() {
   return {};
 }
 
@@ -44,9 +45,10 @@ function afterSubmit(result, dispatch) {
   dispatch(reset('eventInput'));
 }
 
-EventInput = reduxForm({
-  form: 'eventInput',
-  onSubmitSuccess: afterSubmit
-})(EventInput);
-
-export default connect(mapStateToProps, actions)(EventInput);
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  reduxForm({
+    form: 'eventInput',
+    onSubmitSuccess: afterSubmit
+  })
+)(EventInput);

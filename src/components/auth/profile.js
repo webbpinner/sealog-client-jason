@@ -1,13 +1,11 @@
 import React, { Component } from 'react';
+import { compose } from 'redux';
 import { connect } from 'react-redux';
-import axios from 'axios';
 import Cookies from 'universal-cookie';
-import { reduxForm, Field, initialize } from 'redux-form';
+import { reduxForm, Field } from 'redux-form';
 import { Alert, Button, Col, Form, Card} from 'react-bootstrap';
-import { API_ROOT_URL } from '../../client_config';
-import * as actions from '../../actions';
+import * as mapDispatchToProps from '../../actions';
 
-const style = {wordWrap:'break-word'};
 const cookies = new Cookies();
 
 class UserProfile extends Component {
@@ -176,10 +174,11 @@ function mapStateToProps(state) {
 
 }
 
-UserProfile = reduxForm({
-  form: 'user_profile',
-  enableReinitialize: true,
-  validate: validate
-})(UserProfile);
-
-export default connect(mapStateToProps, actions)(UserProfile);
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  reduxForm({
+    form: 'user_profile',
+    enableReinitialize: true,
+    validate: validate
+  })
+)(UserProfile);

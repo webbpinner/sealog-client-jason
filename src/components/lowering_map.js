@@ -11,18 +11,17 @@ import 'rc-slider/assets/index.css';
 import Slider, { createSliderWithTooltip } from 'rc-slider';
 import EventShowDetailsModal from './event_show_details_modal';
 import EventFilterForm from './event_filter_form';
-import ImagePreviewModal from './image_preview_modal';
 import EventCommentModal from './event_comment_modal';
 import LoweringDropdown from './lowering_dropdown';
 import LoweringModeDropdown from './lowering_mode_dropdown';
 import CustomPagination from './custom_pagination';
 import ExportDropdown from './export_dropdown';
 
-import * as actions from '../actions';
-import { API_ROOT_URL, IMAGE_PATH } from '../client_config';
+import * as mapDispatchToProps from '../actions';
+import { API_ROOT_URL } from '../client_config';
 import tilelayers from '../map_tilelayers';
 
-const { BaseLayer, Overlay } = LayersControl
+const { BaseLayer } = LayersControl;
 
 const cookies = new Cookies();
 
@@ -72,13 +71,13 @@ class LoweringMap extends Component {
     if(!this.props.lowering.id || this.props.lowering.id !== this.props.match.params.id || this.props.event.events.length === 0) {
       this.props.initLoweringReplay(this.props.match.params.id, this.props.event.hideASNAP);
     } else {
-    	const eventIndex = this.props.event.events.findIndex((event) => event.id === this.props.event.selected_event.id);
-    	this.setState(
-    		{
-    			replayEventIndex: eventIndex,
-    			activePage: Math.ceil((eventIndex+1)/maxEventsPerPage)
-    		}
-    	);
+      const eventIndex = this.props.event.events.findIndex((event) => event.id === this.props.event.selected_event.id);
+      this.setState(
+        {
+          replayEventIndex: eventIndex,
+          activePage: Math.ceil((eventIndex+1)/maxEventsPerPage)
+        }
+      );
     }
 
     // if(!this.props.cruise.id || this.props.lowering.id !== this.props.match.params.id){
@@ -109,46 +108,42 @@ class LoweringMap extends Component {
 
     for (let index=0;index<this.auxDatasourceFilters.length;index++) {
 
-    	tracklines[this.auxDatasourceFilters[index]] = {
-    		eventIDs: [],
-    		polyline: L.polyline([]),
-    	};
+      tracklines[this.auxDatasourceFilters[index]] = {
+        eventIDs: [],
+        polyline: L.polyline([]),
+      };
 
       let url = `${API_ROOT_URL}/api/v1/event_aux_data/bylowering/${id}?datasource=${this.auxDatasourceFilters[index]}`;
-      const data = await axios.get(url,
-        {
-          headers: {
-            authorization: cookies.get('token')
-          }
-        }).then((response) => {
-      	response.data.map((r_data) => {
-      		tracklines[this.auxDatasourceFilters[index]].polyline.addLatLng([ parseFloat(r_data['data_array'].find(data => data['data_name'] == 'latitude')['data_value']), parseFloat(r_data['data_array'].find(data => data['data_name'] == 'longitude')['data_value'])]);
-      		tracklines[this.auxDatasourceFilters[index]].eventIDs.push(r_data['event_id']);
-      	});
+      await axios.get(url, {
+        headers: {
+          authorization: cookies.get('token')
+        }
+      }).then((response) => {
+        response.data.map((r_data) => {
+          tracklines[this.auxDatasourceFilters[index]].polyline.addLatLng([ parseFloat(r_data['data_array'].find(data => data['data_name'] == 'latitude')['data_value']), parseFloat(r_data['data_array'].find(data => data['data_name'] == 'longitude')['data_value'])]);
+          tracklines[this.auxDatasourceFilters[index]].eventIDs.push(r_data['event_id']);
+        });
 
       }).catch((error)=>{
-	      if(error.response && error.response.data.statusCode === 404) {
-	      }
-	      else {
-	      	console.log(error);
-	      }
-
-	    });
-	  }
+        if(error.response && error.response.data.statusCode !== 404) {
+          console.log(error);
+        }
+      });
+    }
 
     this.setState({ tracklines: tracklines, fetching: false });
     this.initMapView();
   }
 
   initMapView() {
-  	if(this.state.tracklines.vehicleReNavData && !this.state.tracklines.vehicleReNavData.polyline.isEmpty()) {
-  		this.map.leafletElement.panTo(this.state.tracklines.vehicleReNavData.polyline.getBounds());
-  		this.map.leafletElement.fitBounds(this.state.tracklines.vehicleReNavData.polyline.getBounds());
-  	}
-  	else if(this.state.tracklines.vehicleRealtimeNavData && !this.state.tracklines.vehicleRealtimeNavData.polyline.isEmpty()) {
-  		this.map.leafletElement.panTo(this.state.tracklines.vehicleRealtimeNavData.polyline.getBounds().getCenter());
-  		this.map.leafletElement.fitBounds(this.state.tracklines.vehicleRealtimeNavData.polyline.getBounds());
-  	}
+    if(this.state.tracklines.vehicleReNavData && !this.state.tracklines.vehicleReNavData.polyline.isEmpty()) {
+      this.map.leafletElement.panTo(this.state.tracklines.vehicleReNavData.polyline.getBounds());
+      this.map.leafletElement.fitBounds(this.state.tracklines.vehicleReNavData.polyline.getBounds());
+    }
+    else if(this.state.tracklines.vehicleRealtimeNavData && !this.state.tracklines.vehicleRealtimeNavData.polyline.isEmpty()) {
+      this.map.leafletElement.panTo(this.state.tracklines.vehicleRealtimeNavData.polyline.getBounds().getCenter());
+      this.map.leafletElement.fitBounds(this.state.tracklines.vehicleRealtimeNavData.polyline.getBounds());
+    }
   }
 
   updateEventFilter(filter = {}) {
@@ -158,15 +153,15 @@ class LoweringMap extends Component {
   }
 
   toggleASNAP() {
-  	this.props.eventUpdateLoweringReplay(this.props.match.params.id, !this.props.event.hideASNAP);
+    this.props.eventUpdateLoweringReplay(this.props.match.params.id, !this.props.event.hideASNAP);
     if(this.props.event.hideASNAP) {
-    	this.props.showASNAP();
-    	this.handleEventClick(0);
+      this.props.showASNAP();
+      this.handleEventClick(0);
     }
     else {
       this.props.hideASNAP();
-    	this.setState({replayEventIndex: 0});
-    	this.handleEventClick(0);
+      this.setState({replayEventIndex: 0});
+      this.handleEventClick(0);
     }
   }
 
@@ -192,9 +187,9 @@ class LoweringMap extends Component {
   handleEventClick(index) {
     this.setState({replayEventIndex: index});
     if(this.props.event.events && this.props.event.events.length > index) {
-	    this.props.advanceLoweringReplayTo(this.props.event.events[index].id);
-	    this.setState({activePage: Math.ceil((index+1)/maxEventsPerPage)});
-	  }
+      this.props.advanceLoweringReplayTo(this.props.event.events[index].id);
+      this.setState({activePage: Math.ceil((index+1)/maxEventsPerPage)});
+    }
   }
 
   handleEventCommentModal(index) {
@@ -209,17 +204,17 @@ class LoweringMap extends Component {
   }
 
   handleZoomEnd() {
-  	if(this.map) {
-  		// console.log("zoom end:", this.map.leafletElement.getZoom())
-	    this.setState({zoom: this.map.leafletElement.getZoom()});
-	  }
+    if(this.map) {
+      // console.log("zoom end:", this.map.leafletElement.getZoom())
+      this.setState({zoom: this.map.leafletElement.getZoom()});
+    }
   }
 
   handleMoveEnd() {
-  	if(this.map) {
-  		// console.log("move end:", this.map.leafletElement.getCenter())
-	  	this.setState({center: this.map.leafletElement.getCenter()});
-	  }
+    if(this.map) {
+      // console.log("move end:", this.map.leafletElement.getCenter())
+      this.setState({center: this.map.leafletElement.getCenter()});
+    }
   }
 
   calcVehiclePosition(selected_event) {
@@ -299,8 +294,6 @@ class LoweringMap extends Component {
   renderEventListHeader() {
 
     const Label = "Filtered Events";
-    const exportTooltip = (<Tooltip id="deleteTooltip">Export these events</Tooltip>);
-    const toggleASNAPTooltip = (<Tooltip id="toggleASNAPTooltip">Show/Hide ASNAP Events</Tooltip>);
 
     const ASNAPToggleIcon = (this.props.event.hideASNAP)? "Show ASNAP" : "Hide ASNAP";
     const ASNAPToggle = (<span disabled={this.props.event.fetching} style={{ marginRight: "10px" }} onClick={() => this.toggleASNAP()}>{ASNAPToggleIcon}</span>);
@@ -340,13 +333,13 @@ class LoweringMap extends Component {
             if(option.event_option_name === 'event_comment') {
               comment_exists = (option.event_option_value !== '')? true : false;
             } else {
-              filtered.push(`${option.event_option_name}: \"${option.event_option_value}\"`);
+              filtered.push(`${option.event_option_name}: "${option.event_option_value}"`);
             }
             return filtered;
           },[]);
           
           if (event.event_free_text) {
-            eventOptionsArray.push(`free_text: \"${event.event_free_text}\"`);
+            eventOptionsArray.push(`free_text: "${event.event_free_text}"`);
           } 
 
           let active = (this.props.event.selected_event.id === event.id)? true : false;
@@ -373,17 +366,17 @@ class LoweringMap extends Component {
 
   renderMarker() {
 
-  	if(this.props.event.selected_event.aux_data && typeof this.props.event.selected_event.aux_data.find((data) => data['data_source'] === 'vehicleRealtimeNavData') !== 'undefined') {
+    if(this.props.event.selected_event.aux_data && typeof this.props.event.selected_event.aux_data.find((data) => data['data_source'] === 'vehicleRealtimeNavData') !== 'undefined') {
 
-  		const realtimeNavData = this.props.event.selected_event.aux_data.find((data) => data['data_source'] === 'vehicleRealtimeNavData');
-  		return (
-	      <Marker position={[ parseFloat(realtimeNavData['data_array'].find(data => data['data_name'] == 'latitude')['data_value']), parseFloat(realtimeNavData['data_array'].find(data => data['data_name'] == 'longitude')['data_value'])]}>
-	        <Popup>
-	          You are here! :-)
-	        </Popup>
-	      </Marker>
-	    );
-  	}
+      const realtimeNavData = this.props.event.selected_event.aux_data.find((data) => data['data_source'] === 'vehicleRealtimeNavData');
+      return (
+        <Marker position={[ parseFloat(realtimeNavData['data_array'].find(data => data['data_name'] == 'latitude')['data_value']), parseFloat(realtimeNavData['data_array'].find(data => data['data_name'] == 'longitude')['data_value'])]}>
+          <Popup>
+            You are here! :-)
+          </Popup>
+        </Marker>
+      );
+    }
   }
 
   render() {
@@ -411,7 +404,7 @@ class LoweringMap extends Component {
               transparent={layer.transparent}
             />
           </BaseLayer>
-        )
+        );
       }
       else {
         return (
@@ -421,24 +414,24 @@ class LoweringMap extends Component {
               url={layer.url}
             />
           </BaseLayer>
-        )
+        );
       }
-    })
+    });
 
     const realtimeTrack = (this.state.tracklines.vehicleRealtimeNavData && !this.state.tracklines.vehicleRealtimeNavData.polyline.isEmpty()) ? 
-    	<Polyline color="lime" positions={this.state.tracklines.vehicleRealtimeNavData.polyline.getLatLngs()} />
+      <Polyline color="lime" positions={this.state.tracklines.vehicleRealtimeNavData.polyline.getLatLngs()} />
       : null;
 
     const reNavTrack = (this.state.tracklines.vehicleReNavData && !this.state.tracklines.vehicleReNavData.polyline.isEmpty()) ? 
-    	<Polyline color="red" positions={this.state.tracklines.vehicleReNavData.polyline.getLatLngs()} />
+      <Polyline color="red" positions={this.state.tracklines.vehicleReNavData.polyline.getLatLngs()} />
       : null;
 
     const cruise_id = (this.props.cruise.cruise_id)? this.props.cruise.cruise_id : "Loading...";
-    const lowering_id = (this.props.lowering.lowering_id)? this.props.lowering.lowering_id : "Loading...";
+    
     return (
       <div>
-      	<EventCommentModal />
-      	<EventShowDetailsModal />
+        <EventCommentModal />
+        <EventShowDetailsModal />
         <Row>
           <Col lg={12}>
             <span style={{paddingLeft: "8px"}}>
@@ -452,26 +445,26 @@ class LoweringMap extends Component {
         </Row>
         <Row style={{paddingTop: "8px"}}>
           <Col sm={12}>
-          	<Card border="secondary">
-	          	<Card.Body className="data-card-body">
-		            <Map
-		              style={{ height: this.state.height }}
-		              center={this.state.center}
-		              zoom={this.state.zoom}
-		              onMoveEnd={this.handleMoveEnd}
-		              onZoomEnd={this.handleZoomEnd}
-		              ref={ (map) => this.map = map}
-		            >
+            <Card border="secondary">
+              <Card.Body className="data-card-body">
+                <Map
+                  style={{ height: this.state.height }}
+                  center={this.state.center}
+                  zoom={this.state.zoom}
+                  onMoveEnd={this.handleMoveEnd}
+                  onZoomEnd={this.handleZoomEnd}
+                  ref={ (map) => this.map = map}
+                >
                   <ScaleControl position="bottomleft" />
-		              <LayersControl position="topright">
+                  <LayersControl position="topright">
                     {baseLayers}
                   </LayersControl>
-		              {realtimeTrack}
-		              {reNavTrack}
-		              {this.renderMarker()}
-		            </Map>
-		          </Card.Body>
-		        </Card>
+                  {realtimeTrack}
+                  {reNavTrack}
+                  {this.renderMarker()}
+                </Map>
+              </Card.Body>
+            </Card>
           </Col>
         </Row>
         <Row style={{paddingTop: "8px"}}>
@@ -500,4 +493,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, actions)(LoweringMap);
+export default connect(mapStateToProps, mapDispatchToProps)(LoweringMap);

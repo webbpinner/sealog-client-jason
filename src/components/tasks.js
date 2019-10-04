@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
+import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { Row, Col, Container, ListGroup } from 'react-bootstrap';
 import ImportEventsModal from './import_events_modal';
 import ImportAuxDataModal from './import_aux_data_modal';
 import DataWipeModal from './data_wipe_modal';
-import * as actions from '../actions';
+import * as mapDispatchToProps from '../actions';
 
 const importEventsDescription = (<div><h5>Import Event Records</h5><p>Add new event data records from a JSON-formated file.</p></div>);
 
@@ -106,4 +107,6 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, actions)(Tasks);
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+)(Tasks);

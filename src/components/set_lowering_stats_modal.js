@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { connectModal } from 'redux-modal';
 import PropTypes from 'prop-types';
@@ -12,18 +13,18 @@ import HighchartsReact from 'highcharts-react-official';
 import moment from 'moment';
 import axios from 'axios';
 import Cookies from 'universal-cookie';
-import { Alert, Button, Row, Col, Card, Modal, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Alert, Button, Row, Col, Modal, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import UpdateLoweringStatsForm from './update_lowering_stats_form';
 import tilelayers from '../map_tilelayers';
 
 HighchartsExporting(Highcharts);
 HighchartsNoDataToDisplay(Highcharts);
 
-import * as actions from '../actions';
+import * as mapDispatchToProps from '../actions';
 
-import { API_ROOT_URL, ROOT_PATH } from '../client_config';
+import { API_ROOT_URL } from '../client_config';
 
-const { BaseLayer, Overlay } = LayersControl
+const { BaseLayer } = LayersControl
 
 const cookies = new Cookies();
 
@@ -139,7 +140,7 @@ class SetLoweringStatsModal extends Component {
     this.initLoweringTrackline(this.props.lowering.id)
   }
 
-  componentWillUpdate() {
+  componentDidUpdate() {
   }
 
   componentWillUnmount() {
@@ -204,7 +205,7 @@ class SetLoweringStatsModal extends Component {
       this.setState((prevState) => { return { events: events, tracklines: tracklines, fetching: false, depthChartOptions: Object.assign(prevState.depthChartOptions, { series: [ { data: tracklines.vehicleRealtimeNavData.depth } ] }) } });
     }
     else {
-      this.setState((prevState) => { return { events: events, tracklines: tracklines, fetching: false } }); 
+      this.setState({ events: events, tracklines: tracklines, fetching: false }); 
     }
     this.initMapView();
   }
@@ -248,7 +249,7 @@ class SetLoweringStatsModal extends Component {
     }
   }
 
-  handleClick(e) {
+  handleClick() {
     if(this.state.milestone_to_edit) {
       this.setState((prevState) => { return { touched: true, milestones: Object.assign(prevState.milestones, { [prevState.milestone_to_edit]: prevState.event.ts }) } });
       this.setMilestoneToEdit()
@@ -316,7 +317,7 @@ class SetLoweringStatsModal extends Component {
   //   this.setState((prevState) => { return { depthChartOptions: Object.assign(prevState.depthChartOptions, { xAxis: xAxis }) } });
   // }
 
-  clearEvent(e){
+  clearEvent(){
     this.setState({event: null})
   }
 
@@ -325,7 +326,7 @@ class SetLoweringStatsModal extends Component {
     this.setState({event: this.state.events.find(event => event.ts === tsStr)});
   }
 
-  tooltipFormatter(e) {
+  tooltipFormatter() {
     // console.log(this)
     let event_txt = `<b>EVENT: ${this.state.event.event_value}</b>`
     if(this.state.event.event_value === 'FREE_FORM') {
@@ -543,8 +544,7 @@ function mapStateToProps(state) {
 
 }
 
-SetLoweringStatsModal = connect(
-  mapStateToProps, actions
-)(SetLoweringStatsModal)
-
-export default connectModal({ name: 'setLoweringStats', destroyOnHide: true })(SetLoweringStatsModal)
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  connectModal({ name: 'setLoweringStats', destroyOnHide: true })
+)(SetLoweringStatsModal);

@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
+import { compose } from 'redux';
 import { reduxForm, Field, reset } from 'redux-form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Row, Col, Form, Card, Button, Alert } from 'react-bootstrap';
 import ReCAPTCHA from "react-google-recaptcha";
-import * as actions from '../../actions';
-import { ROOT_PATH, RECAPTCHA_SITE_KEY } from '../../client_config';
+import * as mapDispatchToProps from '../../actions';
+import { RECAPTCHA_SITE_KEY } from '../../client_config';
 
 class ResetPassword extends Component {
  
@@ -71,7 +72,7 @@ class ResetPassword extends Component {
     if(!this.props.successMessage) {
 
       const loginCardHeader = (<h5 className="form-signin-heading">Reset Password</h5>);
-      const { handleSubmit, pristine, reset, submitting, valid } = this.props;
+      const { handleSubmit, submitting, valid } = this.props;
 
       const loginButton = ( RECAPTCHA_SITE_KEY === "")? <Button variant="primary" type="submit" block disabled={submitting || !valid}>Login</Button> : <Button variant="primary" type="submit" block disabled={submitting || !valid || !this.state.reCaptcha}>Login</Button>;
       const recaptcha = ( RECAPTCHA_SITE_KEY !== "")? (
@@ -126,7 +127,6 @@ class ResetPassword extends Component {
   }
 
   render() {
-
     return(
       <Row>
         <Col>
@@ -135,11 +135,13 @@ class ResetPassword extends Component {
       </Row>
     );
   }
-
 }
 
-const validate = values => {
+const afterSubmit = (result, dispatch) => {
+  dispatch(reset('resetPassword'));
+};
 
+const validate = values => {
   const errors = {};
 
   if (!values.password) {
@@ -164,14 +166,11 @@ function mapStateToProps(state) {
   };
 }
 
-const afterSubmit = (result, dispatch) => {
-  dispatch(reset('resetPassword'));
-};
-
-ResetPassword = reduxForm({
-  form: 'resetPassword',
-  validate: validate,
-  onSubmitSuccess: afterSubmit
-})(ResetPassword);
-
-export default connect(mapStateToProps, actions)(ResetPassword);
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  reduxForm({
+    form: 'resetPassword',
+    validate: validate,
+    onSubmitSuccess: afterSubmit
+  })
+)(ResetPassword);

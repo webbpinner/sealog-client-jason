@@ -28,12 +28,12 @@ export default function(state={event_templates: [], history: []}, action) {
         });
         completeHistory.sort((eventA, eventB) => {
           if (eventA.ts > eventB.ts) {
-            return -1
+            return -1;
           }
           if (eventA.ts < eventB.ts) {
-            return 1
+            return 1;
           }
-          return 0
+          return 0;
         });
       }
       let recentHistory = [];

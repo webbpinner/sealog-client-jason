@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
+import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { reduxForm, Field, FieldArray, initialize, formValueSelector, reset } from 'redux-form';
+import { reduxForm, Field, FieldArray, formValueSelector, reset } from 'redux-form';
 import { Alert, Button, Card, Form } from 'react-bootstrap';
-import * as actions from '../actions';
+import * as mapDispatchToProps from '../actions';
 import { EventTemplateOptionTypes } from '../event_template_option_types';
 
 
@@ -350,6 +351,11 @@ function validate(formProps) {
   return errors;
 }
 
+const afterSubmit = (result, dispatch) =>
+  dispatch(reset('createEventTemplate'));
+
+const selector = formValueSelector('createEventTemplate');
+
 function mapStateToProps(state) {
 
   return {
@@ -358,19 +364,14 @@ function mapStateToProps(state) {
     roles: state.user.profile.roles,
     event_options: selector(state, 'event_options')
   };
-
 }
 
-const afterSubmit = (result, dispatch) =>
-  dispatch(reset('createEventTemplate'));
-
-CreateEventTemplate = reduxForm({
-  form: 'createEventTemplate',
-  enableReinitialize: true,
-  validate: validate,
-  onSubmitSuccess: afterSubmit
-})(CreateEventTemplate);
-
-const selector = formValueSelector('createEventTemplate');
-
-export default connect(mapStateToProps, actions)(CreateEventTemplate);
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  reduxForm({
+    form: 'createEventTemplate',
+    enableReinitialize: true,
+    validate: validate,
+    onSubmitSuccess: afterSubmit
+  })
+)(CreateEventTemplate)

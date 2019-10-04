@@ -1,16 +1,14 @@
 import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { reduxForm, Field, reset } from 'redux-form';
-import { FormGroup, Row, Button, Col, Card, Alert, Form, FormControl, Table, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Row, Button, Col, Card, Form, FormControl, Table, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import moment from 'moment';
 import CreateCruise from './create_cruise';
 import UpdateCruise from './update_cruise';
 import DeleteCruiseModal from './delete_cruise_modal';
 import ImportCruisesModal from './import_cruises_modal';
 import CustomPagination from './custom_pagination';
-import * as actions from '../actions';
+import * as mapDispatchToProps from '../actions';
 
 let fileDownload = require('js-file-download');
 
@@ -23,7 +21,6 @@ class Cruises extends Component {
 
     this.state = {
       activePage: 1,
-      cruiseAccess: false,
       cruiseUpdate: false,
       filteredCruises: null
     };
@@ -82,21 +79,21 @@ class Cruises extends Component {
     let fieldVal = event.target.value;
     if(fieldVal !== "") {
       this.setState({filteredCruises: this.props.cruises.filter((cruise) => {
-          const regex = RegExp(fieldVal, 'i')
-          if(cruise.cruise_id.match(regex) || cruise.cruise_additional_meta.cruise_vessel.match(regex) || cruise.cruise_pi.match(regex)) {
-            return cruise
-          }
-          else if (cruise.cruise_additional_meta.cruise_name && cruise.cruise_additional_meta.cruise_name.match(regex)) {
-            return cruise
-          }
-          else if (cruise.cruise_location && cruise.cruise_location.match(regex)) {
-            return cruise
-          }
-          else if (cruise.cruise_tags.includes(fieldVal)){
-            return cruise 
-          }
-        })
+        const regex = RegExp(fieldVal, 'i');
+        if(cruise.cruise_id.match(regex) || cruise.cruise_additional_meta.cruise_vessel.match(regex) || cruise.cruise_pi.match(regex)) {
+          return cruise;
+        }
+        else if (cruise.cruise_additional_meta.cruise_name && cruise.cruise_additional_meta.cruise_name.match(regex)) {
+          return cruise;
+        }
+        else if (cruise.cruise_location && cruise.cruise_location.match(regex)) {
+          return cruise;
+        }
+        else if (cruise.cruise_tags.includes(fieldVal)){
+          return cruise; 
+        }
       })
+      });
     }
     else {
       this.setState({filteredCruises: null});
@@ -136,7 +133,7 @@ class Cruises extends Component {
     const showTooltip = (<Tooltip id="showTooltip">Cruise is hidden, click to show.</Tooltip>);
     const hideTooltip = (<Tooltip id="hideTooltip">Cruise is visible, click to hide.</Tooltip>);
 
-    const cruises = (Array.isArray(this.state.filteredCruises)) ? this.state.filteredCruises : this.props.cruises
+    const cruises = (Array.isArray(this.state.filteredCruises)) ? this.state.filteredCruises : this.props.cruises;
 
     return cruises.map((cruise, index) => {
       if(index >= (this.state.activePage-1) * maxCruisesPerPage && index < (this.state.activePage * maxCruisesPerPage)) {
@@ -223,8 +220,6 @@ class Cruises extends Component {
   
       if(this.state.cruiseUpdate) {
         cruiseForm = <UpdateCruise handleFormSubmit={ this.props.fetchCruises } />;
-      } else if(this.state.cruiseAccess) {
-        cruiseForm = <AccessCruise handleFormSubmit={ this.props.fetchCruises } />;
       } else {
         cruiseForm = <CreateCruise handleFormSubmit={ this.props.fetchCruises } />;
       }
@@ -269,4 +264,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, actions)(Cruises);
+export default connect(mapStateToProps, mapDispatchToProps)(Cruises);

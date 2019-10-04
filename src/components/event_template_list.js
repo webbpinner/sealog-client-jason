@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Alert, Button } from 'react-bootstrap';
 import EventTemplateOptionsModal from './event_template_options_modal';
-import * as actions from '../actions';
+import * as mapDispatchToProps from '../actions';
 
 class EventTemplateList extends Component {
 
@@ -77,4 +77,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, actions)(EventTemplateList);
+export default connect(mapStateToProps, mapDispatchToProps)(EventTemplateList);

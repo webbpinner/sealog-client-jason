@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
-import { Row, Button, Col, Card, Form, FormControl, Table, OverlayTrigger, Tooltip, Pagination } from 'react-bootstrap';
+import { Row, Button, Col, Card, Form, FormControl, Table, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import CreateUser from './create_user';
 import UpdateUser from './update_user';
 import DisplayUserTokenModal from './display_user_token_modal';
@@ -9,7 +9,7 @@ import NonSystemUsersWipeModal from './non_system_users_wipe_modal';
 import ImportUsersModal from './import_users_modal';
 import DeleteUserModal from './delete_user_modal';
 import CustomPagination from './custom_pagination';
-import * as actions from '../actions';
+import * as mapDispatchToProps from '../actions';
 
 const disabledAccounts = ['admin', 'guest', 'pi'];
 
@@ -82,13 +82,13 @@ class Users extends Component {
     let fieldVal = event.target.value;
     if(fieldVal !== "") {
       this.setState({filteredUsers: this.props.users.filter((user) => {
-          const regex = RegExp(fieldVal, 'i')
-          if(user.system_user === false && (user.username.match(regex) || user.email.match(regex) || user.fullname.match(regex))) {
-            return user
-          }
-        }),
-        activePage: 1
-      })
+        const regex = RegExp(fieldVal, 'i');
+        if(user.system_user === false && (user.username.match(regex) || user.email.match(regex) || user.fullname.match(regex))) {
+          return user;
+        }
+      }),
+      activePage: 1
+      });
     }
     else {
       this.setState({filteredUsers: null});
@@ -100,13 +100,13 @@ class Users extends Component {
     let fieldVal = event.target.value;
     if(fieldVal !== "") {
       this.setState({filteredSystemUsers: this.props.users.filter((user) => {
-          const regex = RegExp(fieldVal, 'i')
-          if(user.system_user === true && (user.username.match(regex) || user.email.match(regex) || user.fullname.match(regex))) {
-            return user
-          }
-        }),
-        activeSystemPage: 1
-      })
+        const regex = RegExp(fieldVal, 'i');
+        if(user.system_user === true && (user.username.match(regex) || user.email.match(regex) || user.fullname.match(regex))) {
+          return user;
+        }
+      }),
+      activeSystemPage: 1
+      });
     }
     else {
       this.setState({filteredSystemUsers: null});
@@ -149,8 +149,8 @@ class Users extends Component {
     const tokenTooltip = (<Tooltip id="viewTooltip">Show user&apos;s JWT token.</Tooltip>);
     const deleteTooltip = (<Tooltip id="deleteTooltip">Delete this user.</Tooltip>);
 
-    let users = (Array.isArray(this.state.filteredUsers)) ? this.state.filteredUsers : this.props.users.filter(user => user.system_user === false)
-    users = users.slice((this.state.activePage - 1) * maxUsersPerPage, this.state.activePage * maxUsersPerPage)
+    let users = (Array.isArray(this.state.filteredUsers)) ? this.state.filteredUsers : this.props.users.filter(user => user.system_user === false);
+    users = users.slice((this.state.activePage - 1) * maxUsersPerPage, this.state.activePage * maxUsersPerPage);
 
     return users.map((user) => {
       const style = (user.disabled)? {"textDecoration": "line-through"}: {};
@@ -166,12 +166,6 @@ class Users extends Component {
         </tr>
       );
     });      
-
-    return (
-      <tr key="noUsersFound">
-        <td colSpan="5"> No users found!</td>
-      </tr>
-    );
   }
 
   renderSystemUsers() {
@@ -180,8 +174,8 @@ class Users extends Component {
     const tokenTooltip = (<Tooltip id="deleteTooltip">Show user&apos;s JWT token.</Tooltip>);
     const deleteTooltip = (<Tooltip id="deleteTooltip">Delete this user.</Tooltip>);
 
-    let system_users = (Array.isArray(this.state.filteredSystemUsers)) ? this.state.filteredSystemUsers : this.props.users.filter(user => user.system_user === true)
-    system_users = system_users.slice((this.state.activeSystemPage - 1) * maxSystemUsersPerPage, this.state.activeSystemPage * maxSystemUsersPerPage)
+    let system_users = (Array.isArray(this.state.filteredSystemUsers)) ? this.state.filteredSystemUsers : this.props.users.filter(user => user.system_user === true);
+    system_users = system_users.slice((this.state.activeSystemPage - 1) * maxSystemUsersPerPage, this.state.activeSystemPage * maxSystemUsersPerPage);
 
     return system_users.map((user) => {
 
@@ -200,12 +194,6 @@ class Users extends Component {
         );
       }
     });
-
-    return (
-      <tr key="noUsersFound">
-        <td colSpan="3"> No users found!</td>
-      </tr>
-    );   
   }
 
   renderUserTable() {
@@ -360,4 +348,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, actions)(Users);
+export default connect(mapStateToProps, mapDispatchToProps)(Users);

@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import EventTemplateList from './event_template_list';
 import EventHistory from './event_history';
 import EventInput from './event_input';
 import EventCommentModal from './event_comment_modal';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Row, Col } from 'react-bootstrap';
 import EventShowDetailsModal from './event_show_details_modal';
 
-import * as actions from '../actions';
+import * as mapDispatchToProps from '../actions';
 
 class EventLogging extends Component {
 
@@ -72,4 +71,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, actions)(EventLogging);
+export default connect(mapStateToProps, mapDispatchToProps)(EventLogging);

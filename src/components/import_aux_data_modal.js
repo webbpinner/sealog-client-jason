@@ -7,7 +7,6 @@ import ReactFileReader from 'react-file-reader';
 import { Button, Modal, Row, Col } from 'react-bootstrap';
 import { API_ROOT_URL } from '../client_config';
 
-
 const cookies = new Cookies();
 
 class ImportAuxDataModal extends Component {
@@ -25,6 +24,12 @@ class ImportAuxDataModal extends Component {
 
     this.handleHideCustom = this.handleHideCustom.bind(this);
   }
+
+  static propTypes = {
+    handleHide: PropTypes.func.isRequired
+    // handleDestroy: PropTypes.func.isRequired,
+    // handleExit: PropTypes.func
+  };
 
   handleHideCustom() {
     this.setState({quit: true})
@@ -76,14 +81,12 @@ class ImportAuxDataModal extends Component {
     try {
 
       let json = JSON.parse(e.target.result);
-        this.setState( prevState => (
-          {
-            pending: json.length,
-            imported: 0,
-            errors: 0,
-            updated: 0
-          }
-        ))
+      this.setState({
+        pending: json.length,
+        imported: 0,
+        errors: 0,
+        updated: 0
+      })
 
       let currentAuxData;
 

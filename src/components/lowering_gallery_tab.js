@@ -3,10 +3,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Row, Col, Card, Image } from 'react-bootstrap';
 import CustomPagination from './custom_pagination';
-import * as actions from '../actions';
+import * as mapDispatchToProps from '../actions';
 import { ROOT_PATH } from '../client_config';
-
-let fileDownload = require('js-file-download');
 
 const maxImagesPerPage = 16
 
@@ -78,8 +76,8 @@ class LoweringGalleryTab extends Component {
   }
 }
 
-function mapStateToProps(state) {
+function mapStateToProps() {
   return {}
 }
 
-export default connect(mapStateToProps, actions)(LoweringGalleryTab);
+export default connect(mapStateToProps, mapDispatchToProps)(LoweringGalleryTab);

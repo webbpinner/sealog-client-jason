@@ -2,8 +2,7 @@ import axios from 'axios';
 import Cookies from 'universal-cookie';
 import queryString from 'querystring';
 import { push } from 'connected-react-router';
-import { bindActionCreators } from 'redux';
-import { show, destroy } from 'redux-modal';
+import { show } from 'redux-modal';
 import {change, untouch} from 'redux-form';
 import { API_ROOT_URL} from '../client_config';
 
@@ -19,33 +18,27 @@ import {
   REGISTER_USER_ERROR,
   LEAVE_REGISTER_USER_FORM,
   INIT_USER,
-  UPDATE_USER,
   UPDATE_USER_SUCCESS,
   UPDATE_USER_ERROR,
   LEAVE_UPDATE_USER_FORM,
-  DELETE_USER,
   FETCH_USERS,
   FETCH_EVENT_TEMPLATES_FOR_MAIN,
   FETCH_EVENTS,
   SET_SELECTED_EVENT,
   CLEAR_SELECTED_EVENT,
   FETCH_FILTERED_EVENTS,
-  CREATE_EVENT,
   LEAVE_AUTH_LOGIN_FORM,
   FETCH_EVENT_HISTORY,
   UPDATE_EVENT_HISTORY,
-  INIT_PROFILE,
   UPDATE_PROFILE,
   UPDATE_PROFILE_SUCCESS,
   UPDATE_PROFILE_ERROR,
   LEAVE_UPDATE_PROFILE_FORM,
   INIT_EVENT_TEMPLATE,
   FETCH_EVENT_TEMPLATES,
-  UPDATE_EVENT_TEMPLATE,
   UPDATE_EVENT_TEMPLATE_SUCCESS,
   UPDATE_EVENT_TEMPLATE_ERROR,
   LEAVE_UPDATE_EVENT_TEMPLATE_FORM,
-  CREATE_EVENT_TEMPLATE,
   CREATE_EVENT_TEMPLATE_SUCCESS,
   CREATE_EVENT_TEMPLATE_ERROR,
   LEAVE_CREATE_EVENT_TEMPLATE_FORM,
@@ -58,9 +51,7 @@ import {
   UPDATE_EVENT,
   UPDATE_EVENTS,
   FETCH_CUSTOM_VARS,
-  UPDATE_CUSTOM_VAR,
   INIT_CRUISE,
-  UPDATE_CRUISE,
   UPDATE_CRUISE_SUCCESS,
   UPDATE_CRUISE_ERROR,
   LEAVE_UPDATE_CRUISE_FORM,
@@ -69,17 +60,13 @@ import {
   LEAVE_CREATE_CRUISE_FORM,
   FETCH_CRUISES,
   INIT_LOWERING,
-  UPDATE_LOWERING,
   UPDATE_LOWERING_SUCCESS,
   UPDATE_LOWERING_ERROR,
   LEAVE_UPDATE_LOWERING_FORM,
   CREATE_LOWERING_SUCCESS,
   CREATE_LOWERING_ERROR,
   LEAVE_CREATE_LOWERING_FORM,
-  FETCH_LOWERINGS,
-  INIT_LOWERING_REPLAY,
-  LOWERING_REPLAY_ADVANCE,
-  LOWERING_REPLAY_REVERSE,
+  FETCH_LOWERINGS
 
 } from './types';
 
@@ -103,10 +90,10 @@ export function validateJWT() {
           authorization: token
         }
       })
-      .then((response) => {
+      .then(() => {
         dispatch({type: AUTH_USER});
       })
-      .catch((error)=>{
+      .catch(()=>{
         console.log("JWT is invalid, logging out");
         dispatch(logout());
       });
@@ -196,7 +183,7 @@ export function login({username, password, reCaptcha = null}) {
         // If request is good save the JWT token to a cookie
         cookies.set('token', response.data.token, { path: '/' });
         cookies.set('id', response.data.id, { path: '/' });
-
+        
         dispatch(updateProfileState());
         dispatch({ type: AUTH_USER });
 
@@ -391,7 +378,7 @@ export function updateLoweringReplayEvent(event_id) {
 
   return function (dispatch) {
     
-    const request = axios.get(API_ROOT_URL + '/api/v1/events/' + event_id, {
+    axios.get(API_ROOT_URL + '/api/v1/events/' + event_id, {
       headers: {
         authorization: cookies.get('token')
       },
@@ -462,8 +449,7 @@ export function resetPassword({token, password, reCaptcha = null}) {
   
   return function (dispatch) {
     axios.patch(`${API_ROOT_URL}/api/v1/resetPassword`, payload)
-      .then((response) => {
-
+      .then(() => {
         dispatch(authSuccess('Password Reset'));
       })
       .catch((error) => {
@@ -483,8 +469,7 @@ export function registerUser({username, fullname, password, email, reCaptcha = n
 
   return function (dispatch) {
     axios.post(`${API_ROOT_URL}/api/v1/register`, payload)
-      .then((response) => {
-
+      .then(() => {
         dispatch(registerUserSuccess('User created'));
       })
       .catch((error) => {
@@ -508,7 +493,7 @@ export function createUser({username, fullname, password = '', email, roles, sys
           'content-type': 'application/json'
         }
       })
-      .then((response) => {
+      .then(() => {
         dispatch(createUserSuccess('Account created'));
         dispatch(fetchUsers());
       })
@@ -529,8 +514,7 @@ export function createCruise({cruise_id, start_ts, stop_ts, cruise_location = ''
           authorization: cookies.get('token'),
           'content-type': 'application/json'
         }
-      }).then((response) => {
-
+      }).then(() => {
       dispatch(createCruiseSuccess('Cruise created'));
       dispatch(fetchCruises());
     }).catch((error) => {
@@ -551,7 +535,7 @@ export function createLowering({lowering_id, start_ts, stop_ts, lowering_locatio
           authorization: cookies.get('token'),
           'content-type': 'application/json'
         }
-      }).then((response) => {
+      }).then(() => {
       dispatch(createLoweringSuccess('Lowering created'));
       dispatch(fetchLowerings());
     }).catch((error) => {
@@ -585,14 +569,10 @@ export function createEventTemplate(formProps) {
 
       if(!event_option.event_option_allow_freeform) {
         event_option.event_option_allow_freeform = false;
-      } else {
-        event_option.event_option_allow_freeform = event_option.event_option_allow_freeform;
       }
 
       if(!event_option.event_option_required) {
         event_option.event_option_required = false;
-      } else {
-        event_option.event_option_required = event_option.event_option_required;
       }
 
       if(event_option.event_option_type === 'dropdown') {
@@ -624,7 +604,7 @@ export function createEventTemplate(formProps) {
         }
       }      
     )
-      .then((response) => {
+      .then(() => {
         dispatch(fetchEventTemplates());
         dispatch(createEventTemplateSuccess('Event Template created'));
       })
@@ -666,8 +646,7 @@ export function updateProfile(formProps) {
         }
       }      
     )
-      .then((response) => {
-
+      .then(() => {
         dispatch(updateProfileState());
         dispatch(updateProfileSuccess('Account updated'));
 
@@ -695,7 +674,7 @@ export function showCruise(id) {
           authorization: cookies.get('token')
         }
       }      
-    ).then((response) => {
+    ).then(() => {
       dispatch(fetchCruises());
       dispatch(updateCruiseSuccess('Cruise updated'));
     }).catch((error) => {
@@ -717,7 +696,7 @@ export function hideCruise(id) {
           authorization: cookies.get('token')
         }
       }      
-    ).then((response) => {
+    ).then(() => {
       dispatch(fetchCruises());
       dispatch(updateCruiseSuccess('Cruise updated'));
     }).catch((error) => {
@@ -779,7 +758,7 @@ export function updateCruise(formProps) {
           authorization: cookies.get('token')
         }
       }      
-    ).then((response) => {
+    ).then(() => {
       dispatch(fetchCruises());
       dispatch(updateCruiseSuccess('Cruise updated'));
     }).catch((error) => {
@@ -801,7 +780,7 @@ export function hideLowering(id) {
           authorization: cookies.get('token')
         }
       }      
-    ).then((response) => {
+    ).then(() => {
       dispatch(fetchLowerings());
       dispatch(updateLoweringSuccess('Lowering updated'));
     }).catch((error) => {
@@ -823,7 +802,7 @@ export function showLowering(id) {
           authorization: cookies.get('token')
         }
       }      
-    ).then((response) => {
+    ).then(() => {
       dispatch(fetchLowerings());
       dispatch(updateLoweringSuccess('Lowering updated'));
     }).catch((error) => {
@@ -881,7 +860,7 @@ export function updateLowering(formProps) {
           authorization: cookies.get('token')
         }
       }      
-    ).then((response) => {
+    ).then(() => {
       dispatch(fetchLowerings());
       dispatch(updateLoweringSuccess('Lowering updated'));
     }).catch((error) => {
@@ -935,7 +914,7 @@ export function updateUser(formProps) {
           authorization: cookies.get('token')
         }
       }      
-    ).then((response) => {
+    ).then(() => {
       dispatch(fetchUsers());
       dispatch(updateUserSuccess('Account updated'));
     }).catch((error) => {
@@ -974,14 +953,10 @@ export function updateEventTemplate(formProps) {
 
       if(!event_option.event_option_allow_freeform) {
         event_option.event_option_allow_freeform = false;
-      } else {
-        event_option.event_option_allow_freeform = event_option.event_option_allow_freeform;
       }
 
       if(!event_option.event_option_required) {
         event_option.event_option_required = false;
-      } else {
-        event_option.event_option_required = event_option.event_option_required;
       }
 
       if(event_option.event_option_type === 'dropdown') {
@@ -1012,7 +987,7 @@ export function updateEventTemplate(formProps) {
           authorization: cookies.get('token')
         }
       }      
-    ).then((response) => {
+    ).then(() => {
       dispatch(fetchEventTemplates());
       dispatch(updateEventTemplateSuccess('Event template updated'));
     }).catch((error) => {
@@ -1033,7 +1008,7 @@ export function deleteCruise(id) {
           authorization: cookies.get('token')
         }
       }      
-    ).then((response) => {
+    ).then(() => {
       dispatch(fetchCruises());
 
       if(getState().cruise.cruise.id === id) {
@@ -1054,7 +1029,7 @@ export function deleteLowering(id) {
           authorization: cookies.get('token')
         }
       }      
-    ).then((response) => {
+    ).then(() => {
       dispatch(fetchLowerings());
 
       if(getState().lowering.lowering.id === id) {
@@ -1075,7 +1050,7 @@ export function deleteUser(id) {
           authorization: cookies.get('token')
         }
       }      
-    ).then((response) => {
+    ).then(() => {
       dispatch(fetchUsers());
     }).catch((error) => {
       console.log(error);
@@ -1092,7 +1067,7 @@ export function deleteEventTemplate(id) {
           authorization: cookies.get('token')
         }
       }      
-    ).then((response) => {
+    ).then(() => {
       dispatch(fetchEventTemplates());
     }).catch((error) => {
       console.log(error);
@@ -1357,8 +1332,7 @@ export function updateCustomVars(id, value) {
           authorization: cookies.get('token')
         }
       }      
-    ).then((response) => {
-
+    ).then(() => {
       dispatch(fetchCustomVars());
     }).catch((error) => {
       console.log(error);
@@ -1531,27 +1505,6 @@ export function fetchEventTemplates() {
       } else {
         console.log(error);
       }
-    });
-  };
-}
-
-export function initEvent() {
-  return function (dispatch) {
-    dispatch({ type: EVENT_FETCHING, payload: true});
-    axios.get(`${API_ROOT_URL}/api/v1/events`,
-      {
-        headers: {
-          authorization: cookies.get('token')
-        }
-      }).then((response) => {
-      // console.log("Init export:", response.data)
-      dispatch({ type: INIT_EVENT_EXPORT, payload: response.data });
-      dispatch({ type: EVENT_EXPORT_FETCHING, payload: false});
-
-      //console.log("Initialized event template data successfully");
-    }).catch((error)=>{
-      dispatch({ type: EVENT_EXPORT_FETCHING, payload: false});
-      console.log(error);
     });
   };
 }
@@ -1835,32 +1788,6 @@ export function eventUpdateLoweringReplay(lowering_id, hideASNAP = false) {
   };
 }
 
-export function eventSetActivePage(page) {
-  return function(dispatch) {
-    dispatch({type: EVENT_SET_ACTIVE_PAGE, payload: page});
-  };
-}
-
-export function eventSetActiveEvent(id) {
-  return function(dispatch) {
-    axios.get(`${API_ROOT_URL}/api/v1/events/${id}`,
-      {
-        headers: {
-          authorization: cookies.get('token')
-        }
-      }).then((response) => {
-      dispatch({ type: EVENT_SET_ACTIVE_EVENT, payload: response.data});
-    }).catch((error)=> {
-      console.log(error.response);
-      if(error.response.data.statusCode === 404){
-        dispatch({type: EVENT_SET_ACTIVE_EVENT, payload: {} });
-      } else {
-        console.log(error.response);
-      }
-    });
-  };
-}
-
 export function deleteAllEvents() {
   return function(dispatch) {
     // console.log("set active event to:", id)
@@ -1869,7 +1796,7 @@ export function deleteAllEvents() {
         headers: {
           authorization: cookies.get('token')
         }
-      }).then((response) => {
+      }).then(() => {
       dispatch(fetchEventHistory());
     }).catch((error)=> {
       console.log(error.response);
@@ -1884,7 +1811,7 @@ export function deleteAllLowerings() {
         headers: {
           authorization: cookies.get('token')
         }
-      }).then((response) => {
+      }).then(() => {
       dispatch(fetchLowerings());
     }).catch((error)=> {
       console.log(error.response);
@@ -1899,7 +1826,7 @@ export function deleteAllCruises() {
         headers: {
           authorization: cookies.get('token')
         }
-      }).then((response) => {
+      }).then(() => {
       dispatch(fetchCruises());
     }).catch((error)=> {
       console.log(error.response);
@@ -1922,7 +1849,7 @@ export function deleteAllNonSystemUsers() {
               headers: {
                 authorization: cookies.get('token')
               }
-            }).then((respose) => {
+            }).then(() => {
             dispatch(fetchUsers());
           }).catch((error) => {
             console.log(error.response);
@@ -1954,7 +1881,7 @@ export function deleteAllNonSystemEventTemplates() {
               headers: {
                 authorization: cookies.get('token')
               }
-            }).then((response) => {
+            }).then(() => {
             dispatch(fetchEventTemplates());
           }).catch((error)=> {
             console.log(error.response);

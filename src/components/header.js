@@ -2,8 +2,8 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Navbar, Nav, NavDropdown } from 'react-bootstrap';
-import { ROOT_PATH, HEADER_TITLE, RECAPTCHA_SITE_KEY } from '../client_config';
-import * as actions from '../actions';
+import { HEADER_TITLE, RECAPTCHA_SITE_KEY } from '../client_config';
+import * as mapDispatchToProps from '../actions';
 
 class Header extends Component {
 
@@ -145,8 +145,6 @@ class Header extends Component {
 }
 
 function mapStateToProps(state){
-  let asnapStatus = (state.custom_var)? state.custom_var.custom_vars.find(custom_var => custom_var.custom_var_name === "asnapStatus") : null;
-
   return {
     authenticated: state.auth.authenticated,
     fullname: state.user.profile.fullname,
@@ -155,4 +153,4 @@ function mapStateToProps(state){
   };
 }
 
-export default connect(mapStateToProps, actions)(Header);
+export default connect(mapStateToProps, mapDispatchToProps)(Header);

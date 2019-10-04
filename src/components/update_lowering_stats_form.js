@@ -1,33 +1,20 @@
 import React, { Component } from 'react';
+import { compose } from 'redux';
 import { connect } from 'react-redux';
-import { reduxForm, Field, initialize, reset } from 'redux-form';
-import { Alert, Button, Col, Card, Form, Row, Tooltip, OverlayTrigger} from 'react-bootstrap';
-import axios from 'axios';
-import Cookies from 'universal-cookie';
+import { reduxForm, Field } from 'redux-form';
+import { Button, Col, Form, Row} from 'react-bootstrap';
 import moment from 'moment';
 import Datetime from 'react-datetime';
 import PropTypes from 'prop-types';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import FileDownload from 'js-file-download';
-
-import { FilePond, File, registerPlugin } from 'react-filepond';
-import 'filepond/dist/filepond.min.css';
-
-import { API_ROOT_URL } from '../client_config';
-import * as actions from '../actions';
+import * as mapDispatchToProps from '../actions';
 
 const dateFormat = "YYYY-MM-DD"
 const timeFormat = "HH:mm:ss.SSS"
-
-const LOWERING_ROUTE = "/files/lowerings";
-
-const cookies = new Cookies();
 
 class UpdateLoweringStatsForm extends Component {
 
   constructor (props) {
     super(props);
-
   }
 
   static propTypes = {
@@ -106,7 +93,7 @@ class UpdateLoweringStatsForm extends Component {
     )
   }
 
-  renderDatePicker({ input, label, type, required, meta: { touched, error } }) {
+  renderDatePicker({ input, label, required, meta: { touched, error } }) {
     let requiredField = (required)? <span className='text-danger'> *</span> : ''
     
     return (
@@ -122,8 +109,7 @@ class UpdateLoweringStatsForm extends Component {
 
   render() {
 
-    const { handleSubmit, pristine, reset, submitting, valid } = this.props;
-    const updateLoweringFormHeader = (<div>Update Lowering</div>);
+    const { handleSubmit, submitting, valid } = this.props;
 
     if (this.props.roles && (this.props.roles.includes("admin") || this.props.roles.includes('cruise_manager'))) {
 
@@ -328,16 +314,15 @@ function validate(formProps) {
 }
 
 function mapStateToProps(state) {
-
   return {
     roles: state.user.profile.roles
   };
 }
 
-UpdateLoweringStatsForm = reduxForm({
-  form: 'editLoweringStats',
-  // enableReinitialize: true,
-  validate: validate
-})(UpdateLoweringStatsForm);
-
-export default connect(mapStateToProps, actions)(UpdateLoweringStatsForm);
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  reduxForm({
+    form: 'editLoweringStats',
+    validate: validate
+  })
+)(UpdateLoweringStatsForm);

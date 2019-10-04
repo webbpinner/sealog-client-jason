@@ -7,7 +7,6 @@ import ReactFileReader from 'react-file-reader';
 import Cookies from 'universal-cookie';
 import { API_ROOT_URL } from '../client_config';
 
-
 const cookies = new Cookies();
 
 class ImportEventsModal extends Component {
@@ -25,6 +24,12 @@ class ImportEventsModal extends Component {
 
     this.handleHideCustom = this.handleHideCustom.bind(this);
   }
+
+  static propTypes = {
+    handleHide: PropTypes.func.isRequired
+    // handleDestroy: PropTypes.func.isRequired,
+    // handleExit: PropTypes.func
+  };
 
   handleHideCustom() {
     this.setState({quit: true})
@@ -82,16 +87,13 @@ class ImportEventsModal extends Component {
 
       // console.log("processing file")
       let json = JSON.parse(e.target.result);
-        this.setState( prevState => (
-          {
-            pending: json.length,
-            imported: 0,
-            errors: 0,
-            skipped: 0
-          }
-        ))
+      this.setState({
+        pending: json.length,
+        imported: 0,
+        errors: 0,
+        skipped: 0
+      })
 
-      // console.log("done")
       let currentEvent;
 
       for(let i = 0; i < json.length; i++) {
@@ -100,13 +102,7 @@ class ImportEventsModal extends Component {
           break;
         }
         currentEvent = json[i];
-
-        try{
-          // console.log("adding event")
-          const results = await this.insertEvent(currentEvent);
-        } catch(error) {
-          throw(error)
-        }
+        await this.insertEvent(currentEvent);
       }
 
     } catch (err) {

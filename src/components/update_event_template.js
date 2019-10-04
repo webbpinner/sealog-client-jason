@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
+import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { reduxForm, Field, FieldArray, formValueSelector } from 'redux-form';
 import { Alert, Button, Form, Card } from 'react-bootstrap';
-import * as actions from '../actions';
+import * as mapDispatchToProps from '../actions';
 import { EventTemplateOptionTypes } from '../event_template_option_types';
 
 class UpdateEventTemplate extends Component {
@@ -348,7 +349,6 @@ function validate(formProps) {
           }
         } else if (event_option.event_option_type === 'checkboxes') {
 
-          // console.log(event_option.event_option_values)
           let valueArray = [];
 
           try {
@@ -388,12 +388,13 @@ function mapStateToProps(state) {
 
 }
 
-UpdateEventTemplate = reduxForm({
-  form: 'editEventTemplate',
-  enableReinitialize: true,
-  validate: validate
-})(UpdateEventTemplate);
-
 const selector = formValueSelector('editEventTemplate');
 
-export default connect(mapStateToProps, actions)(UpdateEventTemplate);
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  reduxForm({
+    form: 'editEventTemplate',
+    enableReinitialize: true,
+    validate: validate
+  })
+)(UpdateEventTemplate);

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import * as actions from '../../actions';
+import * as mapDispatchToProps from '../../actions';
 
 export default function(ComposedComponent) {
   class Authentication extends Component {
@@ -20,10 +20,10 @@ export default function(ComposedComponent) {
       }
     }
 
-    componentWillUpdate(nextProps) {
+    componentDidUpdate() {
       this.props.validateJWT();
-      if (!nextProps.authenticated) {
-        this.props.logout()
+      if (!this.props.authenticated) {
+        this.props.logout();
       }
     }
 
@@ -36,5 +36,5 @@ export default function(ComposedComponent) {
     return { authenticated: state.auth.authenticated };
   }
 
-  return connect(mapStateToProps, actions)(Authentication);
+  return connect(mapStateToProps, mapDispatchToProps)(Authentication);
 }

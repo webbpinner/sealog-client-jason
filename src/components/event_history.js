@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
-import { Button, ListGroup, Card, Tooltip, OverlayTrigger, Row, Col } from 'react-bootstrap';
-import CustomPagination from './custom_pagination';
-import * as actions from '../actions';
+import { ListGroup, Card, Tooltip, OverlayTrigger } from 'react-bootstrap';
+import * as mapDispatchToProps from '../actions';
 import { Client } from '@hapi/nes/lib/client';
-import Cookies from 'universal-cookie';
 import { WS_ROOT_URL } from '../client_config';
 
-const cookies = new Cookies();
+const eventHistoryRef = "eventHistory";
 
 class EventHistory extends Component {
 
@@ -44,7 +42,7 @@ class EventHistory extends Component {
   async connectToWS() {
 
     try {
-      const result = await this.client.connect();
+      await this.client.connect();
       // {
       //   auth: {
       //     headers: {
@@ -88,7 +86,6 @@ class EventHistory extends Component {
     const compressTooltip = (<Tooltip id="editTooltip">Compress this panel</Tooltip>);
     const showTooltip = (<Tooltip id="editTooltip">Show this panel</Tooltip>);
     const hideTooltip = (<Tooltip id="editTooltip">Hide this panel</Tooltip>);
-    const toggleASNAPTooltip = (<Tooltip id="toggleASNAPTooltip">Show/Hide ASNAP Events</Tooltip>);
 
     const ASNAPToggleIcon = (this.state.hideASNAP)? "Show ASNAP" : "Hide ASNAP";
     const ASNAPToggle = (<span style={{ marginRight: "10px" }} variant="secondary" size="sm" onClick={() => this.toggleASNAP()}>{ASNAPToggleIcon} </span>);
@@ -171,13 +168,13 @@ class EventHistory extends Component {
               comment_exists = true;
             }
           } else {
-            filtered.push(`${option.event_option_name}: \"${option.event_option_value}\"`);
+            filtered.push(`${option.event_option_name}: "${option.event_option_value}"`);
           }
           return filtered;
         },[]);
         
         if (event.event_free_text) {
-          eventOptionsArray.push(`free_text: \"${event.event_free_text}\"`);
+          eventOptionsArray.push(`free_text: "${event.event_free_text}"`);
         } 
 
         let eventOptions = (eventOptionsArray.length > 0)? '--> ' + eventOptionsArray.join(', '): '';
@@ -208,7 +205,7 @@ class EventHistory extends Component {
         return (
           <Card>
             <Card.Header>{ this.renderEventHistoryHeader() }</Card.Header>
-            <ListGroup ref="eventHistory">
+            <ListGroup ref={eventHistoryRef}>
               {this.renderEventHistory()}
             </ListGroup>
           </Card>
@@ -218,7 +215,7 @@ class EventHistory extends Component {
       return (
         <Card>
           <Card.Header>{ this.renderEventHistoryHeader() }</Card.Header>
-          <ListGroup className="eventHistory" ref="eventHistory">
+          <ListGroup className="eventHistory" ref={eventHistoryRef}>
             {this.renderEventHistory()}
           </ListGroup>
         </Card>
@@ -241,4 +238,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, actions)(EventHistory);
+export default connect(mapStateToProps, mapDispatchToProps)(EventHistory);

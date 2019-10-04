@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
+import { compose } from 'redux';
 import { connect } from 'react-redux';
-import { reduxForm, Field, initialize, reset } from 'redux-form';
-import { Alert, Button, Col, Card, Form, Row, Tooltip, OverlayTrigger} from 'react-bootstrap';
+import { reduxForm, Field } from 'redux-form';
+import { Alert, Button, Col, Card, Form, Tooltip, OverlayTrigger} from 'react-bootstrap';
 import axios from 'axios';
 import Cookies from 'universal-cookie';
 import moment from 'moment';
@@ -11,11 +12,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import FileDownload from 'js-file-download';
 
-import { FilePond, File, registerPlugin } from 'react-filepond';
+import { FilePond } from 'react-filepond';
 import 'filepond/dist/filepond.min.css';
 
 import { API_ROOT_URL } from '../client_config';
-import * as actions from '../actions';
+import * as mapDispatchToProps from '../actions';
 
 const dateFormat = "YYYY-MM-DD"
 const timeFormat = "HH:mm"
@@ -76,7 +77,7 @@ class UpdateLowering extends Component {
     .then((response) => {
         FileDownload(response.data, filename);
      })
-    .catch((error)=>{
+    .catch(()=>{
       console.log("JWT is invalid, logging out");
     });
   }
@@ -88,15 +89,15 @@ class UpdateLowering extends Component {
         authorization: cookies.get('token')
       }
     })
-    .then((response) => {
+    .then(() => {
         this.props.initLowering(loweringID)
      })
-    .catch((error)=>{
+    .catch(()=>{
       console.log("JWT is invalid, logging out");
     });
   }
 
-  handleSetLoweringStatsModal(index) {
+  handleSetLoweringStatsModal() {
     this.props.showModal('setLoweringStats', { lowering: this.props.lowering, handleUpdateLowering: this.props.updateLowering });
   }
 
@@ -131,7 +132,7 @@ Bounding Box:  ${(this.props.lowering.lowering_additional_meta.stats && this.pro
     )
   }
 
-  renderTextArea({ input, label, placeholder, required, rows = 4, meta: { touched, error, warning } }) {
+  renderTextArea({ input, label, placeholder, required, rows = 4, meta: { error } }) {
     let requiredField = (required)? <span className='text-danger'> *</span> : ''
     let placeholder_txt = (placeholder)? placeholder: label
 
@@ -167,7 +168,7 @@ Bounding Box:  ${(this.props.lowering.lowering_additional_meta.stats && this.pro
     )
   }
 
-  renderDatePicker({ input, label, type, required, meta: { touched, error } }) {
+  renderDatePicker({ input, label, required, meta: { touched, error } }) {
     let requiredField = (required)? <span className='text-danger'> *</span> : ''
     
     return (
@@ -179,7 +180,7 @@ Bounding Box:  ${(this.props.lowering.lowering_additional_meta.stats && this.pro
     )
   }
 
-  renderCheckboxGroup({ label, name, options, input, required, meta: { dirty, error } }) {
+  renderCheckboxGroup({ label, options, input, required, meta: { dirty, error } }) {
 
     let requiredField = (required)? (<span className='text-danger'> *</span>) : ''
     let checkboxList = options.map((option, index) => {
@@ -345,7 +346,7 @@ Bounding Box:  ${(this.props.lowering.lowering_additional_meta.stats && this.pro
               <Button variant="warning" size="sm" onClick={this.handleSetLoweringStatsModal}>Milestones/Stats</Button>
               <div className="float-right" style={{marginRight: "-20px", marginBottom: "-8px"}}>
                 <Button variant="secondary" size="sm" disabled={pristine || submitting} onClick={reset}>Reset Values</Button>
-                <Button variant="primary" size="sm" type="submit" disabled={submitting || !valid}>Update</Button>
+                <Button variant="primary" size="sm" type="submit" disabled={submitting || !valid || pristine}>Update</Button>
               </div>
             </Form>
           </Card.Body>
@@ -427,10 +428,11 @@ function mapStateToProps(state) {
   };
 }
 
-UpdateLowering = reduxForm({
-  form: 'editLowering',
-  enableReinitialize: true,
-  validate: validate
-})(UpdateLowering);
-
-export default connect(mapStateToProps, actions)(UpdateLowering);
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  reduxForm({
+    form: 'editLowering',
+    enableReinitialize: true,
+    validate: validate
+  })
+)(UpdateLowering);

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Client } from '@hapi/nes/lib/client';
 import { WS_ROOT_URL } from '../client_config';
 
-import * as actions from '../actions';
+import * as mapDispatchToProps from '../actions';
 
 class Footer extends Component {
 
@@ -44,7 +44,7 @@ class Footer extends Component {
   async connectToWS() {
 
     try {
-      const result = await this.client.connect();
+      await this.client.connect();
       // {
       //   auth: {
       //     headers: {
@@ -127,4 +127,4 @@ function mapStateToProps(state){
   };
 }
 
-export default connect(mapStateToProps, actions)(Footer);
+export default connect(mapStateToProps, mapDispatchToProps)(Footer);

@@ -9,7 +9,7 @@ class CustomPagination extends Component {
     super(props);
 
     this.state = {
-    	maxPerPage: (this.props.maxPerPage)? this.props.maxPerPage : 10
+      maxPerPage: (this.props.maxPerPage)? this.props.maxPerPage : 10
     };
   }
 
@@ -23,7 +23,7 @@ class CustomPagination extends Component {
 
   render() {
 
-  	const count = (this.props.count)? this.props.count : 0;
+    const count = (this.props.count)? this.props.count : 0;
 
     if(count > this.state.maxPerPage) {
       let last = Math.ceil(count/this.state.maxPerPage);

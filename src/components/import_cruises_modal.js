@@ -27,7 +27,7 @@ class ImportCruisesModal extends Component {
 
   static propTypes = {
     handleHide: PropTypes.func.isRequired,
-    handleDestroy: PropTypes.func.isRequired,
+    // handleDestroy: PropTypes.func.isRequired,
     handleExit: PropTypes.func
   };
 
@@ -116,14 +116,12 @@ class ImportCruisesModal extends Component {
       let json = JSON.parse(e.target.result);
 
       if(Array.isArray(json)) {
-        this.setState( prevState => (
-          {
-            pending: json.length,
-            imported: 0,
-            errors: 0,
-            skipped: 0
-          }
-        ))
+        this.setState({
+          pending: json.length,
+          imported: 0,
+          errors: 0,
+          skipped: 0
+        })
 
         let currentCruise;
 
@@ -133,30 +131,19 @@ class ImportCruisesModal extends Component {
             break;
           }
           currentCruise = json[i];
-          // console.log("adding cruise")
-          try {
-            const result = await this.insertCruise(currentCruise)
-          } catch(error) {
-            throw(error)
-          }
+          await this.insertCruise(currentCruise)
         }
       } else {
-        this.setState( prevState => (
-          {
-            pending: 1,
-            imported: 0,
-            errors: 0,
-            skipped: 0
-          }
-        ))
+        this.setState({
+          pending: 1,
+          imported: 0,
+          errors: 0,
+          skipped: 0
+        })
 
-        try {
-          const result = await this.insertCruise(json);
-          if(result) {
-            this.setState({pending: "Complete!"})
-          }
-        } catch(error) {
-          throw(error)
+        const result = await this.insertCruise(json);
+        if(result) {
+          this.setState({pending: "Complete!"})
         }
       }
     } catch (err) {

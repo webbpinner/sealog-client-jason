@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Row, Col, Card, ListGroup, Tooltip, OverlayTrigger } from 'react-bootstrap';
 import EventFilterForm from './event_filter_form';
@@ -10,7 +9,7 @@ import LoweringDropdown from './lowering_dropdown';
 import LoweringModeDropdown from './lowering_mode_dropdown';
 import CustomPagination from './custom_pagination';
 import ExportDropdown from './export_dropdown';
-import * as actions from '../actions';
+import * as mapDispatchToProps from '../actions';
 
 const maxEventsPerPage = 15;
 
@@ -37,7 +36,7 @@ class LoweringReview extends Component {
     }
     else {
       const eventIndex = this.props.event.events.findIndex((event) => event.id === this.props.event.selected_event.id);
-      this.handlePageSelect(Math.ceil((eventIndex+1)/maxEventsPerPage))
+      this.handlePageSelect(Math.ceil((eventIndex+1)/maxEventsPerPage));
     }
 
     // if(!this.props.cruise.id || this.props.lowering.id !== this.props.match.params.id){
@@ -116,9 +115,6 @@ class LoweringReview extends Component {
   renderEventListHeader() {
 
     const Label = "Filtered Events";
-    const exportTooltip = (<Tooltip id="deleteTooltip">Export these events</Tooltip>);
-    const toggleASNAPTooltip = (<Tooltip id="toggleASNAPTooltip">Show/Hide ASNAP Events</Tooltip>);
-
     const ASNAPToggleIcon = (this.props.event.hideASNAP)? "Show ASNAP" : "Hide ASNAP";
     const ASNAPToggle = (<span disabled={this.props.event.fetching} style={{ marginRight: "10px" }} onClick={() => this.toggleASNAP()}>{ASNAPToggleIcon}</span>);
 
@@ -167,13 +163,13 @@ class LoweringReview extends Component {
             if(option.event_option_name === 'event_comment') {
               comment_exists = (option.event_option_value !== '')? true : false;
             } else {
-              filtered.push(`${option.event_option_name}: \"${option.event_option_value}\"`);
+              filtered.push(`${option.event_option_name}: "${option.event_option_value}"`);
             }
             return filtered;
           },[]);
           
           if (event.event_free_text) {
-            eventOptionsArray.push(`free_text: \"${event.event_free_text}\"`);
+            eventOptionsArray.push(`free_text: "${event.event_free_text}"`);
           } 
 
           let active = (this.props.event.selected_event.id === event.id)? true : false;
@@ -200,7 +196,6 @@ class LoweringReview extends Component {
   render(){
 
     const cruise_id = (this.props.cruise.cruise_id)? this.props.cruise.cruise_id : "Loading...";
-    const lowering_id = (this.props.lowering.lowering_id)? this.props.lowering.lowering_id : "Loading...";
 
     return (
       <div>
@@ -240,4 +235,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, null)(LoweringReview);
+export default connect(mapStateToProps, mapDispatchToProps)(LoweringReview);

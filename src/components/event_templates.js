@@ -1,17 +1,14 @@
 import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { reduxForm, Field, reset } from 'redux-form';
-import { Row, Button, Col, Card, Alert, Table, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { ROOT_PATH } from '../client_config';
+import { Row, Button, Col, Card, Table, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import CreateEventTemplate from './create_event_template';
 import UpdateEventTemplate from './update_event_template';
 import NonSystemEventTemplatesWipeModal from './non_system_event_templates_wipe_modal';
 import DeleteEventTemplateModal from './delete_event_template_modal';
 import ImportEventTemplatesModal from './import_event_templates_modal';
 import EventTemplateOptionsModal from './event_template_options_modal';
-import * as actions from '../actions';
+import * as mapDispatchToProps from '../actions';
 
 let fileDownload = require('js-file-download');
 
@@ -296,4 +293,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, actions)(EventTemplates);
+export default connect(mapStateToProps, mapDispatchToProps)(EventTemplates);

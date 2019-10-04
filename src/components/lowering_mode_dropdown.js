@@ -70,7 +70,7 @@ class LoweringModeDropdown extends Component {
 
   componentDidUpdate() {}
 
-  componentWillReceiveProps() {
+  UNSAFE_componentWillReceiveProps() {
     this.setState(
       {
         toggleText: (this.props.active_mode)? this.props.active_mode : 'Loading...',
@@ -89,7 +89,7 @@ class LoweringModeDropdown extends Component {
         </Dropdown.Menu>
       </Dropdown>
     )
-  };
+  }
 }
 
 export default LoweringModeDropdown;

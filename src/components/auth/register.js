@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
+import { compose } from 'redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import { reduxForm, Field } from 'redux-form';
 import { Link } from 'react-router-dom';
-import { Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
+import { Row, Col, Card, Form, Button } from 'react-bootstrap';
 import ReCAPTCHA from "react-google-recaptcha";
 import { RECAPTCHA_SITE_KEY } from '../../client_config';
-import * as actions from '../../actions';
+import * as mapDispatchToProps from '../../actions';
 
 class Register extends Component {
 
@@ -81,7 +82,7 @@ class Register extends Component {
     if (!this.props.message) {
 
       const panelHeader = (<h5 className="form-signin-heading">New User Registration</h5>);
-      const { handleSubmit, pristine, reset, submitting, valid } = this.props;
+      const { handleSubmit, submitting, valid } = this.props;
       //console.log(this.props);
       const recaptcha = ( RECAPTCHA_SITE_KEY !== "")? (
         <span>
@@ -205,27 +206,26 @@ function validate(formProps) {
   }
 
   return errors;
-
 }
+
+let recaptchaInstance = null;
+
+const afterSubmit = () => {
+  recaptchaInstance.reset();
+};
 
 function mapStateToProps(state) {
   return {
     errorMessage: state.user.register_error,
     message: state.user.register_message
   };
-
 }
 
-let recaptchaInstance = null;
-
-const afterSubmit = (result, dispatch) => {
-  recaptchaInstance.reset();
-};
-
-Register = reduxForm({
-  form: 'register',
-  validate: validate,
-  onSubmitSuccess: afterSubmit
-})(Register);
-
-export default connect(mapStateToProps, actions)(Register);
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  reduxForm({
+    form: 'register',
+    validate: validate,
+    onSubmitSuccess: afterSubmit
+  })
+)(Register);

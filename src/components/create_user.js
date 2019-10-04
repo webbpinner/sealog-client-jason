@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
+import { compose } from 'redux';
 import { connect } from 'react-redux';
-import { reduxForm, Field, initialize, reset } from 'redux-form';
+import { reduxForm, Field, reset } from 'redux-form';
 import { Alert, Button, Col, Form, Card, Tooltip, OverlayTrigger } from 'react-bootstrap';
-import * as actions from '../actions';
+import * as mapDispatchToProps from '../actions';
 import { standardUserRoleOptions } from '../standard_user_role_options';
 import { systemUserRoleOptions } from '../system_user_role_options';
 
@@ -33,7 +34,7 @@ class CreateUser extends Component {
     );
   }
 
-  renderTextArea({ input, label, placeholder, required, rows = 4, meta: { touched, error, warning } }) {
+  renderTextArea({ input, label, placeholder, required, rows = 4, meta: { error } }) {
     let requiredField = (required)? <span className='text-danger'> *</span> : '';
     let placeholder_txt = (placeholder)? placeholder: label;
 
@@ -69,19 +70,7 @@ class CreateUser extends Component {
     );
   }
 
-  renderDatePicker({ input, label, type, required, meta: { touched, error } }) {
-    let requiredField = (required)? <span className='text-danger'> *</span> : '';
-    
-    return (
-      <Form.Group as={Col} lg="12">
-        <Form.Label>{label}{requiredField}</Form.Label>
-        <Datetime {...input} utc={true} value={input.value ? moment.utc(input.value).format(dateFormat) : null} dateFormat={dateFormat} timeFormat={false} selected={input.value ? moment.utc(input.value, dateFormat) : null }/>
-        {touched && (error && <div style={{width: "100%", marginTop: "0.25rem", fontSize: "80%"}} className='text-danger'>{error}</div>)}
-      </Form.Group>
-    );
-  }
-
-  renderCheckboxGroup({ label, name, options, input, required, meta: { dirty, error } }) {
+  renderCheckboxGroup({ label, options, input, required, meta: { dirty, error } }) {
 
     let requiredField = (required)? (<span className='text-danger'> *</span>) : '';
     let checkboxList = options.map((option, index) => {
@@ -300,6 +289,9 @@ function validate(formProps) {
 
 }
 
+const afterSubmit = (result, dispatch) =>
+  dispatch(reset('createUser'));
+
 function mapStateToProps(state) {
 
   return {
@@ -310,15 +302,12 @@ function mapStateToProps(state) {
 
 }
 
-const afterSubmit = (result, dispatch) =>
-  dispatch(reset('createUser'));
-
-
-CreateUser = reduxForm({
-  form: 'createUser',
-  enableReinitialize: true,
-  validate: validate,
-  onSubmitSuccess: afterSubmit
-})(CreateUser);
-
-export default connect(mapStateToProps, actions)(CreateUser);
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  reduxForm({
+    form: 'createUser',
+    enableReinitialize: true,
+    validate: validate,
+    onSubmitSuccess: afterSubmit
+  })
+)(CreateUser)

@@ -1,18 +1,15 @@
 import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { reduxForm, Field, reset } from 'redux-form';
-import { Row, Button, Col, Card, Form, FormControl, Alert, Table, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Row, Button, Col, Card, Form, FormControl, Table, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import moment from 'moment';
-import momentDurationFormatSetup from 'moment-duration-format';
 import CreateLowering from './create_lowering';
 import UpdateLowering from './update_lowering';
 import DeleteLoweringModal from './delete_lowering_modal';
 import ImportLoweringsModal from './import_lowerings_modal';
 import SetLoweringStatsModal from './set_lowering_stats_modal';
 import CustomPagination from './custom_pagination';
-import * as actions from '../actions';
+import * as mapDispatchToProps from '../actions';
 
 let fileDownload = require('js-file-download');
 
@@ -25,7 +22,6 @@ class Lowerings extends Component {
 
     this.state = {
       activePage: 1,
-      loweringAccess: false,
       loweringUpdate: false,
       filteredLowerings: null
     };
@@ -85,15 +81,15 @@ class Lowerings extends Component {
     let fieldVal = event.target.value;
     if(fieldVal !== "") {
       this.setState({filteredLowerings: this.props.lowerings.filter((lowering) => {
-          const regex = RegExp(fieldVal, 'i')
-          if(lowering.lowering_id.match(regex) || lowering.lowering_location.match(regex)) {
-            return lowering
-          }
-          else if (lowering.lowering_tags.includes(fieldVal)){
-            return lowering 
-          }
-        })
+        const regex = RegExp(fieldVal, 'i');
+        if(lowering.lowering_id.match(regex) || lowering.lowering_location.match(regex)) {
+          return lowering;
+        }
+        else if (lowering.lowering_tags.includes(fieldVal)){
+          return lowering; 
+        }
       })
+      });
     }
     else {
       this.setState({filteredLowerings: null});
@@ -132,7 +128,7 @@ class Lowerings extends Component {
     const showTooltip = (<Tooltip id="showTooltip">Cruise is hidden, click to show.</Tooltip>);
     const hideTooltip = (<Tooltip id="hideTooltip">Cruise is visible, click to hide.</Tooltip>);
 
-    const lowerings = (Array.isArray(this.state.filteredLowerings)) ? this.state.filteredLowerings : this.props.lowerings
+    const lowerings = (Array.isArray(this.state.filteredLowerings)) ? this.state.filteredLowerings : this.props.lowerings;
 
     return lowerings.map((lowering, index) => {
       if(index >= (this.state.activePage-1) * maxLoweringsPerPage && index < (this.state.activePage * maxLoweringsPerPage)) {
@@ -222,8 +218,6 @@ class Lowerings extends Component {
   
       if(this.state.loweringUpdate) {
         loweringForm = <UpdateLowering handleFormSubmit={ this.props.fetchLowerings } />;
-      } else if(this.state.loweringAccess) {
-        loweringForm = <AccessLowering handleFormSubmit={ this.props.fetchLowerings } />;
       } else {
         loweringForm = <CreateLowering handleFormSubmit={ this.props.fetchLowerings } />;
       }
@@ -269,4 +263,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, actions)(Lowerings);
+export default connect(mapStateToProps, mapDispatchToProps)(Lowerings);

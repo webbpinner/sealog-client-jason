@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
+import { compose } from 'redux';
 import path from 'path';
 import { connect } from 'react-redux';
 import { connectModal } from 'redux-modal';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 import axios from 'axios';
 import Cookies from 'universal-cookie';
-import { Button, Row, Col, Image, Card, Modal } from 'react-bootstrap';
+import { Row, Col, Image, Card, Modal } from 'react-bootstrap';
 import ImagePreviewModal from './image_preview_modal';
 
-import * as actions from '../actions';
+import * as mapDispatchToProps from '../actions';
 
 import { API_ROOT_URL, IMAGE_PATH, ROOT_PATH } from '../client_config';
 
@@ -30,8 +30,7 @@ class EventShowDetailsModal extends Component {
 
   static propTypes = {
     event: PropTypes.object.isRequired,
-    handleHide: PropTypes.func.isRequired,
-    handleUpdateEvent: PropTypes.func.isRequired
+    handleHide: PropTypes.func.isRequired
   };
 
   componentDidMount() {
@@ -54,7 +53,7 @@ class EventShowDetailsModal extends Component {
     }
     catch(error) {
       console.log(error);
-    };    
+    }    
   }
 
   handleMissingImage(ev) {
@@ -419,7 +418,7 @@ class EventShowDetailsModal extends Component {
   renderAuxDataCard() {
 
     if(this.props.event && this.state.event.aux_data) {
-      let return_aux_data = this.state.event.aux_data.reduce((filtered, aux_data, index) => {
+      let return_aux_data = this.state.event.aux_data.reduce((filtered, aux_data) => {
         if(!excludeAuxDataSources.includes(aux_data.data_source)) {
           let aux_data_points = aux_data.data_array.map((data, index) => {
             return(<div key={`${aux_data.data_source}_data_point_${index}`}><span>{data.data_name}:</span> <span style={{wordWrap:'break-word'}} >{data.data_value} {data.data_uom}</span><br/></div>)
@@ -451,7 +450,7 @@ class EventShowDetailsModal extends Component {
   }
 
   render() {
-    const { show, handleHide } = this.props
+    const { show } = this.props
 
     const event_free_text_card = (this.state.event.event_free_text)? (<Card border="secondary"><Card.Body className="data-card-body">Text: {this.state.event.event_free_text}</Card.Body></Card>) : null;
     const event_comment = (this.state.event.event_options) ? this.state.event.event_options.find((event_option) => (event_option.event_option_name === 'event_comment' && event_option.event_option_value.length > 0)) : null
@@ -460,7 +459,7 @@ class EventShowDetailsModal extends Component {
     
     if(this.state.event.event_options) {
       return (
-        <Modal size="lg" show={show} onHide={handleHide}>
+        <Modal size="lg" show={show} onHide={this.props.handleHide}>
             <ImagePreviewModal />
             <Modal.Header closeButton>
               <Modal.Title as="h5">Event Details: {this.state.event.event_value}</Modal.Title>
@@ -497,7 +496,7 @@ class EventShowDetailsModal extends Component {
       );
     } else {
       return (
-        <Modal size="lg" show={show} onHide={handleHide}>
+        <Modal size="lg" show={show} onHide={this.props.handleHide}>
           <Modal.Header closeButton>
             <Modal.Title as="h5">Event Details: {this.state.event.event_value}</Modal.Title>
           </Modal.Header>
@@ -516,11 +515,10 @@ function mapStateToProps(state) {
     lowering: state.lowering.lowering,
     roles: state.user.profile.roles,
   }
-
 }
 
-EventShowDetailsModal = connect(
-  mapStateToProps, actions
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  connectModal({ name: 'eventShowDetails', destroyOnHide: true }) 
 )(EventShowDetailsModal)
 
-export default connectModal({ name: 'eventShowDetails', destroyOnHide: true })(EventShowDetailsModal)

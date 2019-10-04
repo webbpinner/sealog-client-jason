@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
+import { compose } from 'redux';
 import { connectModal } from 'redux-modal';
-import { reduxForm, Field, initialize, formValueSelector } from 'redux-form';
+import { reduxForm, Field } from 'redux-form';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import Cookies from 'universal-cookie';
@@ -89,7 +90,7 @@ class EventTemplateOptionsModal extends Component {
 
     //Convert obecjts to arrays
     let optionValue = []
-    let optionIndex = Object.keys(temp).sort().map( (value, index) => { optionValue.push(temp[value]); return parseInt(value.split('_')[1])});
+    let optionIndex = Object.keys(temp).sort().map((value) => { optionValue.push(temp[value]); return parseInt(value.split('_')[1])});
 
     //Remove empty fields
     optionValue.forEach((value, index) => {
@@ -146,7 +147,7 @@ class EventTemplateOptionsModal extends Component {
     )
   }
 
-  renderTextArea({ input, label, placeholder, required, rows = 4, meta: { touched, error, warning } }) {
+  renderTextArea({ input, label, placeholder, required, rows = 4, meta: { error } }) {
     let requiredField = (required)? <span className='text-danger'> *</span> : ''
     let placeholder_txt = (placeholder)? placeholder: label
 
@@ -182,7 +183,7 @@ class EventTemplateOptionsModal extends Component {
     )
   }
 
-  renderCheckboxGroup({ label, name, options, input, required, meta: { dirty, error } }) {
+  renderCheckboxGroup({ label, options, input, required, meta: { dirty, error } }) {
 
     let requiredField = (required)? (<span className='text-danger'> *</span>) : ''
     let checkboxList = options.map((option, index) => {
@@ -234,7 +235,7 @@ class EventTemplateOptionsModal extends Component {
     );
   }
 
-  renderDatePicker({ input, required, label, type, disabled, meta: { touched, error } }) {
+  renderDatePicker({ input, required, label, disabled, meta: { touched, error } }) {
 
     let requiredField = (required)? <span className='text-danger'> *</span> : ''
 
@@ -279,9 +280,7 @@ class EventTemplateOptionsModal extends Component {
         )
       } else if (option.event_option_type === 'checkboxes') {
 
-        let defaultOption = ( <option key={`${option.event_option_name}.empty_value`}></option> );
-
-        let optionList = option.event_option_values.map((option_value, index) => {
+        let optionList = option.event_option_values.map((option_value) => {
           return { value: option_value, label: option_value }
         });
 
@@ -315,7 +314,7 @@ class EventTemplateOptionsModal extends Component {
 
   render() {
 
-    const { show, handleSubmit, eventTemplate, pristine, submitting, valid } = this.props
+    const { show, handleSubmit, eventTemplate, submitting, valid } = this.props
 
     const footer = (this.state.event_id) ? 
       <span className="float-right">
@@ -374,9 +373,10 @@ function validate(formProps) {
 
 }
 
-EventTemplateOptionsModal = reduxForm({
-  form: 'eventTemplateOptionsModal',
-  validate: validate
-})(EventTemplateOptionsModal);
-
-export default connectModal({ name: 'eventOptions' })(EventTemplateOptionsModal)
+export default compose(
+  connectModal({ name: 'eventOptions' }),
+  reduxForm({
+    form: 'eventTemplateOptionsModal',
+    validate: validate
+  })
+)(EventTemplateOptionsModal)

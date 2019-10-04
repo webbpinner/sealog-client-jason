@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Link } from 'react-router-dom';
-import moment from 'moment';
 import { connect } from 'react-redux';
 import Cookies from 'universal-cookie';
-import { Button, Row, Col, Card, ListGroup, ButtonToolbar, Dropdown, MenuItem, Tooltip, OverlayTrigger } from 'react-bootstrap';
+import { Row, Col, Card, ListGroup, Tooltip, OverlayTrigger } from 'react-bootstrap';
 import axios from 'axios';
 import EventFilterForm from './event_filter_form';
 import EventCommentModal from './event_comment_modal';
@@ -12,13 +10,8 @@ import DeleteEventModal from './delete_event_modal';
 import EventShowDetailsModal from './event_show_details_modal';
 import CustomPagination from './custom_pagination';
 import ExportDropdown from './export_dropdown';
-import * as actions from '../actions';
-import { ROOT_PATH, API_ROOT_URL } from '../client_config';
-
-let fileDownload = require('js-file-download');
-
-const dateFormat = "YYYYMMDD";
-const timeFormat = "HHmm";
+import * as mapDispatchToProps from '../actions';
+import { API_ROOT_URL } from '../client_config';
 
 const maxEventsPerPage = 15;
 
@@ -170,9 +163,6 @@ class EventManagement extends Component {
   renderEventListHeader() {
 
     const Label = "Filtered Events";
-    const exportTooltip = (<Tooltip id="deleteTooltip">Export these events</Tooltip>);
-    const toggleASNAPTooltip = (<Tooltip id="toggleASNAPTooltip">Show/Hide ASNAP Events</Tooltip>);
-
     const ASNAPToggleIcon = (this.state.hideASNAP)? "Show ASNAP" : "Hide ASNAP";
     const ASNAPToggle = (<span disabled={this.props.event.fetching} style={{ marginRight: "10px" }} onClick={() => this.toggleASNAP()}>{ASNAPToggleIcon}</span>);
 
@@ -191,20 +181,20 @@ class EventManagement extends Component {
 
     if(this.state.events && this.state.events.length > 0){
 
-      let eventList = this.state.events.map((event, index) => {
+      let eventList = this.state.events.map((event) => {
         let comment_exists = false;
 
         let eventOptionsArray = event.event_options.reduce((filtered, option) => {
           if(option.event_option_name === 'event_comment') {
             comment_exists = (option.event_option_value !== '')? true : false;
           } else {
-            filtered.push(`${option.event_option_name}: \"${option.event_option_value}\"`);
+            filtered.push(`${option.event_option_name}: "${option.event_option_value}"`);
           }
           return filtered;
         },[]);
         
         if (event.event_free_text) {
-          eventOptionsArray.push(`free_text: \"${event.event_free_text}\"`);
+          eventOptionsArray.push(`free_text: "${event.event_free_text}"`);
         } 
 
         let eventOptions = (eventOptionsArray.length > 0)? '--> ' + eventOptionsArray.join(', '): '';
@@ -271,4 +261,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, null)(EventManagement);
+export default connect(mapStateToProps, mapDispatchToProps)(EventManagement);

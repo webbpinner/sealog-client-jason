@@ -36,7 +36,7 @@ class DisplayUserTokenModal extends Component {
 
       this.setState( { token: response.data.token} )
     })
-    .catch((error) => {
+    .catch(() => {
       this.setState( {token: "There was an error retriving the JWT for this user."})
     })
   }
@@ -52,7 +52,7 @@ class DisplayUserTokenModal extends Component {
     return (
       <Modal show={show} onHide={handleHide}>
         <Modal.Header closeButton>
-          <Modal.Title>User's Java Web Token</Modal.Title>
+          <Modal.Title>User&#39;s Java Web Token</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>

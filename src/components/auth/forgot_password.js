@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
+import { compose } from 'redux';
 import { reduxForm, Field } from 'redux-form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Form, Row, Col, Card, Button, Alert } from 'react-bootstrap';
 import ReCAPTCHA from "react-google-recaptcha";
-import * as actions from '../../actions';
-import { ROOT_PATH, RECAPTCHA_SITE_KEY } from '../../client_config';
+import * as mapDispatchToProps from '../../actions';
+import { RECAPTCHA_SITE_KEY } from '../../client_config';
 
 class ForgotPassword extends Component {
  
@@ -89,7 +90,7 @@ class ForgotPassword extends Component {
     if(!this.props.successMessage) {
 
       const panelHeader = (<h5 className="form-signin-heading">Forgot Password</h5>);
-      const { handleSubmit, pristine, reset, submitting, valid } = this.props;
+      const { handleSubmit, submitting, valid } = this.props;
 
       const submitButton = (RECAPTCHA_SITE_KEY !== "")?  <Button variant="primary" type="submit" block disabled={submitting || !valid || !this.state.reCaptcha}>Submit</Button> : <Button variant="primary" type="submit" block disabled={submitting || !valid}>Submit</Button>;
       const recaptcha = ( RECAPTCHA_SITE_KEY !== "")? (
@@ -161,14 +162,10 @@ function mapStateToProps(state) {
   };
 }
 
-const afterSubmit = (result, dispatch) => {
-  // reCaptchaInstance.reset();
-};
-
-ForgotPassword = reduxForm({
-  form: 'forgotPassword',
-  validate: validate,
-  onSubmitSuccess: afterSubmit
-})(ForgotPassword);
-
-export default connect(mapStateToProps, actions)(ForgotPassword);
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  reduxForm({
+    form: 'forgotPassword',
+    validate: validate,
+  })
+)(ForgotPassword)

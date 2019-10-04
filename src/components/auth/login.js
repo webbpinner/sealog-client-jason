@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
+import { compose } from 'redux';
 import { reduxForm, Field } from 'redux-form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Row, Col, Container, Form, Card, Button, Alert, Image } from 'react-bootstrap';
 import ReCAPTCHA from "react-google-recaptcha";
-import * as actions from '../../actions';
+import * as mapDispatchToProps from '../../actions';
 import { ROOT_PATH, LOGIN_SCREEN_TXT, LOGIN_IMAGE, RECAPTCHA_SITE_KEY } from '../../client_config';
 
 class Login extends Component {
@@ -65,13 +66,12 @@ class Login extends Component {
   }
  
   render() {
-    const { handleSubmit, pristine, reset, submitting, valid } = this.props;
+    const { handleSubmit, submitting, valid } = this.props;
     const loginCardHeader = (<h5 className="form-signin-heading">Please Sign In</h5>);
 
     const recaptcha = ( RECAPTCHA_SITE_KEY !== "")? (
       <span>
         <ReCAPTCHA
-          ref={e => reCaptchaInstance = e}
           sitekey={RECAPTCHA_SITE_KEY}
           theme="dark"
           size="normal"
@@ -138,18 +138,6 @@ class Login extends Component {
   }
 }
 
-// <ReCAPTCHA
-// ref={e => reCaptchaInstance = e}
-// sitekey={RECAPTCHA_SITE_KEY}
-// theme="dark"
-// size="normal"
-// onChange={this.onCaptchaChange.bind(this)}
-// />
-// <br/>
-
-// <Button variant="primary" type="submit" block disabled={submitting || !valid || !this.state.reCaptcha}>Login</Button>
-
-
 const validate = values => {
 
   const errors = {};
@@ -164,12 +152,6 @@ const validate = values => {
   return errors;
 };
 
-let reCaptchaInstance = null;
-
-const afterSubmit = (result, dispatch) => {
-//  reCaptchaInstance.reset();
-};
-
 function mapStateToProps(state) {
   return {
     errorMessage: state.auth.error,
@@ -177,10 +159,10 @@ function mapStateToProps(state) {
   };
 }
 
-Login = reduxForm({
-  form: 'login',
-  validate: validate,
-  onSubmitSuccess: afterSubmit
-})(Login);
-
-export default connect(mapStateToProps, actions)(Login);
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  reduxForm({
+    form: 'login',
+    validate: validate,
+  })
+)(Login);

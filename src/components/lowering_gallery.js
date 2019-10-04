@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import path from 'path';
 import { connect } from 'react-redux';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import moment from 'moment';
 import axios from 'axios';
 import Cookies from 'universal-cookie';
 import { Row, Col, Tabs, Tab } from 'react-bootstrap';
@@ -10,17 +8,10 @@ import EventShowDetailsModal from './event_show_details_modal';
 import LoweringGalleryTab from './lowering_gallery_tab';
 import LoweringDropdown from './lowering_dropdown';
 import LoweringModeDropdown from './lowering_mode_dropdown';
-import * as actions from '../actions';
+import * as mapDispatchToProps from '../actions';
 import { API_ROOT_URL, IMAGE_PATH } from '../client_config';
 
-let fileDownload = require('js-file-download');
-
-const dateFormat = "YYYYMMDD";
-const timeFormat = "HHmm";
-
 const cookies = new Cookies();
-
-const maxEventsPerPage = 15;
 
 class LoweringGallery extends Component {
 
@@ -68,7 +59,6 @@ class LoweringGallery extends Component {
 
       let image_data = {};
       response.data.forEach((data) => {
-        let tmpData = [];
         for (let i = 0; i < data.data_array.length; i+=2) {
           if(!(data.data_array[i].data_value in image_data)){
             image_data[data.data_array[i].data_value] = { images: [] };
@@ -131,7 +121,6 @@ class LoweringGallery extends Component {
   render(){
 
     const cruise_id = (this.props.cruise.cruise_id)? this.props.cruise.cruise_id : "loading...";
-    const lowering_id = (this.props.lowering.lowering_id)? this.props.lowering.lowering_id : "loading...";
     const galleries = (this.state.fetching)? <div><hr className="border-secondary"/><span style={{paddingLeft: "8px"}}>Loading...</span></div> : this.renderGalleries();
     return (
       <div>
@@ -166,4 +155,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, null)(LoweringGallery);
+export default connect(mapStateToProps, mapDispatchToProps)(LoweringGallery);

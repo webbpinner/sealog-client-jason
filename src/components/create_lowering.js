@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
+import { compose } from 'redux';
 import { connect } from 'react-redux';
-import { reduxForm, Field, initialize, reset } from 'redux-form';
-import { Alert, Button, Col, Form, Card, Tooltip, OverlayTrigger } from 'react-bootstrap';
+import { reduxForm, Field, reset } from 'redux-form';
+import { Alert, Button, Col, Form, Card } from 'react-bootstrap';
 import moment from 'moment';
 import Datetime from 'react-datetime';
-import * as actions from '../actions';
+import * as mapDispatchToProps from '../actions';
 
 const dateFormat = "YYYY-MM-DD";
 const timeFormat = "HH:mm";
@@ -41,7 +42,7 @@ class CreateLowering extends Component {
     );
   }
 
-  renderTextArea({ input, label, placeholder, required, rows = 4, meta: { touched, error, warning } }) {
+  renderTextArea({ input, label, placeholder, required, rows = 4, meta: { error } }) {
     let requiredField = (required)? <span className='text-danger'> *</span> : '';
     let placeholder_txt = (placeholder)? placeholder: label;
 
@@ -77,7 +78,7 @@ class CreateLowering extends Component {
     );
   }
 
-  renderDatePicker({ input, label, type, required, meta: { touched, error } }) {
+  renderDatePicker({ input, label, required, meta: { touched, error } }) {
     let requiredField = (required)? <span className='text-danger'> *</span> : '';
     
     return (
@@ -89,7 +90,7 @@ class CreateLowering extends Component {
     );
   }
 
-  renderCheckboxGroup({ label, name, options, input, required, meta: { dirty, error } }) {
+  renderCheckboxGroup({ label, options, input, required, meta: { dirty, error } }) {
 
     let requiredField = (required)? (<span className='text-danger'> *</span>) : '';
     let checkboxList = options.map((option, index) => {
@@ -287,6 +288,10 @@ function validate(formProps) {
 
 }
 
+
+const afterSubmit = (result, dispatch) =>
+  dispatch(reset('createLowering'));
+
 function mapStateToProps(state) {
 
   return {
@@ -296,14 +301,12 @@ function mapStateToProps(state) {
   };
 }
 
-const afterSubmit = (result, dispatch) =>
-  dispatch(reset('createLowering'));
-
-CreateLowering = reduxForm({
-  form: 'createLowering',
-  enableReinitialize: true,
-  validate: validate,
-  onSubmitSuccess: afterSubmit
-})(CreateLowering);
-
-export default connect(mapStateToProps, actions)(CreateLowering);
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  reduxForm({
+    form: 'createLowering',
+    enableReinitialize: true,
+    validate: validate,
+    onSubmitSuccess: afterSubmit
+  })
+  )(CreateLowering)

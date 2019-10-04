@@ -27,7 +27,7 @@ class ImportEventTemplatesModal extends Component {
 
   static propTypes = {
     handleHide: PropTypes.func.isRequired,
-    handleDestroy: PropTypes.func.isRequired,
+    // handleDestroy: PropTypes.func.isRequired,
     handleExit: PropTypes.func
   };
 
@@ -116,16 +116,13 @@ class ImportEventTemplatesModal extends Component {
 
       // console.log("processing file")
       let json = JSON.parse(e.target.result);
-        this.setState( prevState => (
-          {
-            pending: json.length,
-            imported: 0,
-            errors: 0,
-            skipped: 0
-          }
-        ))
+      this.setState({
+        pending: json.length,
+        imported: 0,
+        errors: 0,
+        skipped: 0
+      })
 
-      // console.log("done")
       let currentTemplate;
 
       for(let i = 0; i < json.length; i++) {
@@ -135,11 +132,7 @@ class ImportEventTemplatesModal extends Component {
         }
         currentTemplate = json[i];
         // console.log("adding template")
-        try {
-          const result = await this.insertEventTemplate(currentTemplate);
-        } catch(error) {
-          throw(error)
-        }
+        await this.insertEventTemplate(currentTemplate);
       }
 
     } catch (err) {
@@ -157,16 +150,10 @@ class ImportEventTemplatesModal extends Component {
 
   render() {
 
-    const { show, handleExit } = this.props
-    const options = {
-      baseUrl: API_ROOT_URL,
-      query: {
-        warrior: 'fight'
-      }
-    }
+    const { show } = this.props
 
     return (
-      <Modal show={show} onExit={handleExit} onHide={this.quitImport}>
+      <Modal show={show} onExit={this.props.handleExit} onHide={this.quitImport}>
         <Modal.Header closeButton>
           <Modal.Title>Import Event Templates</Modal.Title>
         </Modal.Header>

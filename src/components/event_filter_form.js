@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
+import { compose } from 'redux';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { reduxForm, Field, initialize } from 'redux-form';
 import Datetime from 'react-datetime';
 import moment from 'moment';
-import { Alert, Button, Card, Form, Tooltip, OverlayTrigger} from 'react-bootstrap';
-import * as actions from '../actions';
+import { Alert, Button, Card, Form } from 'react-bootstrap';
+import * as mapDispatchToProps from '../actions';
 
 const dateFormat = "YYYY-MM-DD"
 const timeFormat = "HH:mm:ss"
@@ -30,15 +31,12 @@ class EventFilterForm extends Component {
     }
   }
 
-  componentWillReceiveProps() {
-  }
-
   componentWillUnmount() {
   }
 
 
   async populateDefaultValues() {
-    let eventDefaultValues = {event_ts: moment.utc(timestring)};
+    let eventDefaultValues = {event_ts: moment.utc()};
     this.props.eventTemplate.event_options.forEach((option, index) => {
       if(option.event_option_default_value) {
         eventDefaultValues[`option_${index}`] = option.event_option_default_value;
@@ -101,7 +99,7 @@ class EventFilterForm extends Component {
     )
   }
 
-  renderDatePicker({ input, defaultValue, label, type, required, meta: { touched, error } }) {
+  renderDatePicker({ input, defaultValue, label, required, meta: { touched, error } }) {
     let requiredField = (required)? <span className='text-danger'> *</span> : ''
     
     return (
@@ -135,7 +133,7 @@ class EventFilterForm extends Component {
 
   render() {
 
-    const { handleSubmit, pristine, reset, submitting, valid } = this.props;
+    const { handleSubmit, submitting, valid } = this.props;
     const eventFilterFormHeader = (<div>Event Filter</div>);
     const startTS = (this.props.minDate)? moment(this.props.minDate): null
     const stopTS = (this.props.maxDate)? moment(this.props.maxDate): null
@@ -214,10 +212,11 @@ function mapStateToProps(state) {
 
 }
 
-EventFilterForm = reduxForm({
-  form: 'eventFilterForm',
-  // enableReinitialize: true,
-  validate: validate
-})(EventFilterForm);
-
-export default connect(mapStateToProps, actions)(EventFilterForm);
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  reduxForm({
+    form: 'eventFilterForm',
+    // enableReinitialize: true,
+    validate: validate
+  })
+)(EventFilterForm);

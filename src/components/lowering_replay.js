@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import path from 'path';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { push } from 'connected-react-router';
 import { Row, Col, Card, ListGroup, Image, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import 'rc-slider/assets/index.css';
 import Slider, { createSliderWithTooltip } from 'rc-slider';
@@ -14,12 +13,8 @@ import LoweringDropdown from './lowering_dropdown';
 import LoweringModeDropdown from './lowering_mode_dropdown';
 import CustomPagination from './custom_pagination';
 import ExportDropdown from './export_dropdown';
-import * as actions from '../actions';
+import * as mapDispatchToProps from '../actions';
 import { ROOT_PATH, API_ROOT_URL, IMAGE_PATH } from '../client_config';
-
-let fileDownload = require('js-file-download');
-
-const imageCardStyle = {minHeight: "100px"};
 
 const playTimer = 3000;
 const ffwdTimer = 1000;
@@ -717,9 +712,6 @@ class LoweringReplay extends Component {
   renderEventListHeader() {
 
     const Label = "Filtered Events";
-    const exportTooltip = (<Tooltip id="deleteTooltip">Export these events</Tooltip>);
-    const toggleASNAPTooltip = (<Tooltip id="toggleASNAPTooltip">Show/Hide ASNAP Events</Tooltip>);
-
     const ASNAPToggleIcon = (this.props.event.hideASNAP)? "Show ASNAP" : "Hide ASNAP";
     const ASNAPToggle = (<span disabled={this.props.event.fetching} style={{ marginRight: "10px" }} onClick={() => this.toggleASNAP()}>{ASNAPToggleIcon}</span>);
 
@@ -758,13 +750,13 @@ class LoweringReplay extends Component {
             if(option.event_option_name === 'event_comment') {
               comment_exists = (option.event_option_value !== '')? true : false;
             } else {
-              filtered.push(`${option.event_option_name}: \"${option.event_option_value}\"`);
+              filtered.push(`${option.event_option_name}: "${option.event_option_value}"`);
             }
             return filtered;
           },[]);
           
           if (event.event_free_text) {
-            eventOptionsArray.push(`free_text: \"${event.event_free_text}\"`);
+            eventOptionsArray.push(`free_text: "${event.event_free_text}"`);
           } 
 
           let active = (this.props.event.selected_event.id === event.id)? true : false;
@@ -807,7 +799,6 @@ class LoweringReplay extends Component {
   render(){
 
     const cruise_id = (this.props.cruise.cruise_id)? this.props.cruise.cruise_id : "Loading...";
-    const lowering_id = (this.props.lowering.lowering_id)? this.props.lowering.lowering_id : "Loading...";
 
     return (
       <div>
@@ -868,4 +859,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, null)(LoweringReplay);
+export default connect(mapStateToProps, mapDispatchToProps)(LoweringReplay);

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import * as actions from '../../actions';
+import * as mapDispatchToProps from '../../actions';
 
 export default function(ComposedComponent) {
   class Unauthentication extends Component {
@@ -19,8 +19,8 @@ export default function(ComposedComponent) {
       }
     }
 
-    componentWillUpdate(nextProps) {
-      if (nextProps.authenticated) {
+    componentDidUpdate() {
+      if (this.props.authenticated) {
         this.props.gotoHome();
       }
     }
@@ -34,5 +34,5 @@ export default function(ComposedComponent) {
     return { authenticated: state.auth.authenticated };
   }
 
-  return connect(mapStateToProps, actions)(Unauthentication);
+  return connect(mapStateToProps, mapDispatchToProps)(Unauthentication);
 }

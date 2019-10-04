@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
+import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { reduxForm, Field } from 'redux-form';
 import { Alert, Button, Col, Card, Form, Tooltip, OverlayTrigger} from 'react-bootstrap';
-import * as actions from '../actions';
+import * as mapDispatchToProps from '../actions';
 import { standardUserRoleOptions } from '../standard_user_role_options';
 import { systemUserRoleOptions } from '../system_user_role_options';
 
@@ -242,7 +243,7 @@ class UpdateUser extends Component {
               {this.renderMessage()}
               <div className="float-right" style={{marginRight: "-20px", marginBottom: "-8px"}}>
                 <Button variant="secondary" size="sm" disabled={pristine || submitting} onClick={reset}>Reset Values</Button>
-                <Button variant="primary" size="sm" type="submit" disabled={submitting || !valid}>Update</Button>
+                <Button variant="primary" size="sm" type="submit" disabled={submitting || !valid || pristine}>Update</Button>
               </div>
             </Form>
           </Card.Body>
@@ -304,13 +305,13 @@ function mapStateToProps(state) {
     roles: state.user.profile.roles,
     profile: state.user.profile
   };
-
 }
 
-UpdateUser = reduxForm({
-  form: 'editUser',
-  enableReinitialize: true,
-  validate: validate
-})(UpdateUser);
-
-export default connect(mapStateToProps, actions)(UpdateUser);
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  reduxForm({
+    form: 'editUser',
+    enableReinitialize: true,
+    validate: validate
+  })
+)(UpdateUser);

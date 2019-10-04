@@ -83,7 +83,7 @@ class LoweringDropdown extends Component {
     }
   }
 
-  componentWillReceiveProps() {
+  UNSAFE_componentWillReceiveProps() {
     this.setState(
       {
         toggleText: (this.props.active_lowering.lowering_id)? this.props.active_lowering.lowering_id : 'Loading...'
@@ -106,7 +106,7 @@ class LoweringDropdown extends Component {
       })
       
       const lowerings = await response.data;
-      this.setState({cruise, menuItems: lowerings.map((lowering, index) => (<Dropdown.Item className="text-warning" onClick={() => onClick(lowering.id)} key={lowering.id}>{lowering.lowering_id}</Dropdown.Item>))})
+      this.setState({cruise, menuItems: lowerings.map((lowering) => (<Dropdown.Item className="text-warning" onClick={() => onClick(lowering.id)} key={lowering.id}>{lowering.lowering_id}</Dropdown.Item>))})
     }
     catch(error){
       console.log(error)
@@ -123,7 +123,7 @@ class LoweringDropdown extends Component {
         </Dropdown.Menu>
       </Dropdown>
     )
-  };
+  }
 }
 
 export default LoweringDropdown;

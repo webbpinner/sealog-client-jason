@@ -6,11 +6,11 @@ import moment from 'moment';
 import momentDurationFormatSetup from 'moment-duration-format';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { Accordion, Button, Container, Row, Col, Card, CardGroup } from 'react-bootstrap';
+import { Accordion, Row, Col, Card } from 'react-bootstrap';
 import FileDownload from 'js-file-download';
 import { API_ROOT_URL, MAIN_SCREEN_TXT } from '../client_config';
 
-import * as actions from '../actions';
+import * as mapDispatchToProps from '../actions';
 
 const CRUISE_ROUTE = "/files/cruises";
 const LOWERING_ROUTE = "/files/lowerings";
@@ -153,7 +153,7 @@ class CruiseMenu extends Component {
       .then((response) => {
         FileDownload(response.data, filename);
       })
-      .catch((error)=>{
+      .catch(()=>{
         console.log("JWT is invalid, logging out");
       });
   }
@@ -169,7 +169,7 @@ class CruiseMenu extends Component {
       .then((response) => {
         FileDownload(response.data, filename);
       })
-      .catch((error)=>{
+      .catch(()=>{
         console.log("JWT is invalid, logging out");
       });
   }
@@ -249,7 +249,7 @@ class CruiseMenu extends Component {
       let cruiseLocation = (this.state.activeCruise.cruise_location)? <span><strong>Location:</strong> {this.state.activeCruise.cruise_location}<br/></span> : null;
       let cruiseDates = <span><strong>Dates:</strong> {moment.utc(this.state.activeCruise.start_ts).format("YYYY/MM/DD")} - {moment.utc(this.state.activeCruise.stop_ts).format("YYYY/MM/DD")}<br/></span>;
       let cruisePi = (this.state.activeCruise.cruise_pi)? <span><strong>Chief Scientist:</strong> {this.state.activeCruise.cruise_pi}<br/></span> : null;
-      let cruiseLowerings = this.props.lowerings.filter(lowering => moment.utc(lowering.start_ts).isBetween(moment.utc(this.state.activeCruise.start_ts), moment.utc(this.state.activeCruise.stop_ts)))
+      let cruiseLowerings = this.props.lowerings.filter(lowering => moment.utc(lowering.start_ts).isBetween(moment.utc(this.state.activeCruise.start_ts), moment.utc(this.state.activeCruise.stop_ts)));
       // let cruiseLinkToR2R = (this.state.activeCruise.cruise_additional_meta.cruise_linkToR2R)? <span><strong>R2R Cruise Link :</strong> <a href={`${this.state.activeCruise.cruise_additional_meta.cruise_linkToR2R}`} target="_blank"><FontAwesomeIcon icon='link' fixedWidth/></a><br/></span> : null
 
       let lowerings = (cruiseLowerings.length > 0)? (
@@ -294,25 +294,25 @@ class CruiseMenu extends Component {
 
     const years = new Set(this.props.cruises.map((cruise) => {
       return moment.utc(cruise.start_ts).format("YYYY");
-    }))
+    }));
 
     const activeYearKey = (years.size == 1) ? years.values().next().value : null;
 
-    this.setState({years})
+    this.setState({years});
 
-    this.handleYearSelect(activeYearKey)
+    this.handleYearSelect(activeYearKey);
   }
 
   buildCruiseList(year) {
     let startOfYear = new Date(year);
     let endOfYear = new Date(startOfYear.getFullYear()+1, startOfYear.getMonth(), startOfYear.getDate());
     // let yearCruises = this.props.cruises.filter(cruise => moment.utc(cruise.start_ts).isBetween(startOfYear, endOfYear));
-    let yearCruises = this.props.cruises.filter(cruise => moment.utc(cruise.start_ts).isBetween(moment.utc(startOfYear), moment.utc(endOfYear)))
+    let yearCruises = this.props.cruises.filter(cruise => moment.utc(cruise.start_ts).isBetween(moment.utc(startOfYear), moment.utc(endOfYear)));
 
     this.setState({ yearCruises });
 
     if(yearCruises.length === 1 && this.state.activeCruise === null) {
-      this.handleCruiseSelect(yearCruises[0].id)
+      this.handleCruiseSelect(yearCruises[0].id);
     }
   }
 
@@ -358,7 +358,7 @@ class CruiseMenu extends Component {
 
   renderCruiseListItems() {
 
-    return this.props.cruises.map((cruise, index) => {
+    return this.props.cruises.map((cruise) => {
 
       let cruiseName = (cruise.cruise_additional_meta.cruise_name)? <span><strong>Cruise Name:</strong> {cruise.cruise_additional_meta.cruise_name}<br/></span> : null;
       let cruiseDescription = (cruise.cruise_additional_meta.cruise_description)? <span><strong>Description:</strong> {cruise.cruise_additional_meta.cruise_description}<br/></span> : null;
@@ -480,4 +480,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, null)(CruiseMenu);
+export default connect(mapStateToProps, mapDispatchToProps)(CruiseMenu);
