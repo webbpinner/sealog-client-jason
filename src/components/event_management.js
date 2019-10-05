@@ -217,7 +217,7 @@ class EventManagement extends Component {
 
     if (!this.state.events) {
       return (
-        <Card border="secondary">
+        <Card>
           <Card.Header>{ this.renderEventListHeader() }</Card.Header>
           <Card.Body>Loading...</Card.Body>
         </Card>
@@ -225,7 +225,7 @@ class EventManagement extends Component {
     }
 
     return (
-      <Card border="secondary">
+      <Card>
         <Card.Header>{ this.renderEventListHeader() }</Card.Header>
         <ListGroup>
           {this.renderEvents()}

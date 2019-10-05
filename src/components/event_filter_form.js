@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { compose } from 'redux';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { reduxForm, Field, initialize } from 'redux-form';
+import { reduxForm, Field } from 'redux-form';
 import Datetime from 'react-datetime';
 import moment from 'moment';
 import { Alert, Button, Card, Form } from 'react-bootstrap';
@@ -139,7 +139,7 @@ class EventFilterForm extends Component {
     const stopTS = (this.props.maxDate)? moment(this.props.maxDate): null
 
     return (
-      <Card border="secondary" className="form-standard">
+      <Card className="form-standard">
         <Card.Header>{eventFilterFormHeader}</Card.Header>
         <Card.Body>
           <form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>

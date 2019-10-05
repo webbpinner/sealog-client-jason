@@ -1,11 +1,11 @@
 
 // Use these settings if connecting to a server using http
-const API_ROOT_URL = `http://${window.location.hostname}:8000/sealog-server`;
-const WS_ROOT_URL = `ws://${window.location.hostname}:8000/ws`;
+const API_ROOT_URL = `http://localhost:8000/sealog-server`;
+const WS_ROOT_URL = `ws://localhost:8000/ws`;
 
 // Use these settings if connecting to a server using https
-// const API_ROOT_URL = `https://${window.location.hostname}:8000/sealog-server`;
-// const WS_ROOT_URL = `wss://${window.location.hostname}:8000/ws`;
+// const API_ROOT_URL = `https://localhost:8000/sealog-server`;
+// const WS_ROOT_URL = `wss://localhost:8000/ws`;
 
 // Change this if not hosting the client at the webserver's document root i.e. '/sealog/'
 const ROOT_PATH = "/sealog/";
@@ -29,6 +29,9 @@ const MAIN_SCREEN_TXT = "Please select a cruise from the list below.  Once a cru
 // Title displayed on the left side of the title bar
 const HEADER_TITLE = "Sealog - JASON";
 
+// Set default vessel
+const DEFAULT_VESSEL = "R/V Atlantis";
+
 // Use an internal tile server (true), or pull tiles directly from the Internet (false).
 const USE_MAPTILE_PROXY = false;
 
@@ -42,5 +45,6 @@ module.exports = {
   LOGIN_IMAGE,
   MAIN_SCREEN_TXT,
   HEADER_TITLE,
+  DEFAULT_VESSEL,
   USE_MAPTILE_PROXY
 }

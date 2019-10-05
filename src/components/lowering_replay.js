@@ -176,7 +176,7 @@ class LoweringReplay extends Component {
 
   renderImage(source, filepath) {
     return (
-      <Card border="secondary" id={`image_${source}`}>
+      <Card id={`image_${source}`}>
         <Card.Body className="data-card-body">
           <Image  fluid onError={this.handleMissingImage} src={filepath} onClick={ () => this.handleImageClick(source, filepath)} />
           <div style={{marginTop: "5px"}}>{source}</div>
@@ -350,7 +350,7 @@ class LoweringReplay extends Component {
 
 
     return (
-      <Card border="secondary">
+      <Card>
         <Card.Header className="data-card-header">Lat/Lng Coordinates</Card.Header>
         <Card.Body className="data-card-body">
           <strong>Realtime</strong><br/>
@@ -414,7 +414,7 @@ class LoweringReplay extends Component {
     }
 
     return (
-      <Card border="secondary">
+      <Card>
         <Card.Header className="data-card-header">Alvin Coordinates</Card.Header>
         <Card.Body className="data-card-body">
           <strong>Realtime</strong><br/>
@@ -466,7 +466,7 @@ class LoweringReplay extends Component {
     }  
 
     return (
-      <Card border="secondary">
+      <Card>
         <Card.Header className="data-card-header">Vehicle Attitude</Card.Header>
         <Card.Body className="data-card-body">
           <strong>Realtime</strong><br/>
@@ -552,7 +552,7 @@ class LoweringReplay extends Component {
 
     return (ctd_data || temp_probe_data || mag_data)? (
       <Col xs={12} sm={6} md={6} lg={3}>
-        <Card border="secondary">
+        <Card>
           <Card.Header className="data-card-header">Sensor Data</Card.Header>
           <Card.Body className="data-card-body">
             <Row>
@@ -604,7 +604,7 @@ class LoweringReplay extends Component {
 
       return (return_event_options.length > 0)? (
         <Col xs={12} sm={6} md={6} lg={3}>
-          <Card border="secondary">
+          <Card>
             <Card.Header className="data-card-header">Event Options</Card.Header>
             <Card.Body className="data-card-body">
               <div style={{paddingLeft: "10px"}}>
@@ -629,7 +629,7 @@ class LoweringReplay extends Component {
           if(aux_data_points.length > 0) {
             filtered.push(
               <Col key={`${aux_data.data_source}_col`}sm={4} md={3} lg={3}>
-                <Card key={`${aux_data.data_source}`} border="secondary">
+                <Card key={`${aux_data.data_source}`}>
                   <Card.Header className="data-card-header">{aux_data.data_source}</Card.Header>
                   <Card.Body className="data-card-body">
                     <div style={{paddingLeft: "10px"}}>
@@ -679,7 +679,7 @@ class LoweringReplay extends Component {
       );
 
       return (
-        <Card border="secondary" style={{marginBottom: "8px"}}>
+        <Card style={{marginBottom: "8px"}}>
           <Card.Body>
             <Row>
               <Col xs={4}>
@@ -728,7 +728,7 @@ class LoweringReplay extends Component {
 
   renderEventCard() {
     return (
-      <Card border="secondary">
+      <Card>
         <Card.Header>{ this.renderEventListHeader() }</Card.Header>
         <ListGroup>
           {this.renderEvents()}
@@ -785,7 +785,7 @@ class LoweringReplay extends Component {
   //   const mapRatio = "embed-responsive-4by3"
 
   //   return (
-  //     <Card border="secondary" id="MapCard" style={{backgroundColor: "#282828"}}>
+  //     <Card id="MapCard" style={{backgroundColor: "#282828"}}>
   //       <Card.Body style={{padding: "4px", marginBottom: "10px"}}>
   //         <div ref={ (mapCard) => this.mapCard = mapCard} className={`embed-responsive ${mapRatio}`}>
   //           <LoweringReplayMap height={this.state.mapHeight} event={this.props.event.selected_event}/>
@@ -815,12 +815,10 @@ class LoweringReplay extends Component {
             </span>
           </Col>
         </Row>
-        <Row style={{paddingTop: "8px"}}>
+        <Row>
           <Col sm={12}>
             {this.renderImageryCard()}
           </Col>
-        </Row>
-        <Row style={{paddingTop: "8px"}}>
           <Col sm={4} md={3} lg={3}>
             {this.renderNavLatLonCard()}
           </Col>
@@ -833,16 +831,18 @@ class LoweringReplay extends Component {
           {this.renderSensorCard()}
           {this.renderEventOptionsCard()}
           {this.renderAuxDataCard()}
-        </Row>
-        <Row style={{paddingTop: "8px"}}>
-          <Col md={9} lg={9}>
-            {this.renderControlsCard()}
-            {this.renderEventCard()}
-            <CustomPagination style={{marginTop: "8px"}} page={this.state.activePage} count={this.props.event.events.length} pageSelectFunc={this.handlePageSelect} maxPerPage={maxEventsPerPage}/>
-          </Col>          
-          <Col md={3} lg={3}>
-            <EventFilterForm disabled={this.props.event.fetching} hideASNAP={this.props.event.hideASNAP} handlePostSubmit={ this.updateEventFilter } minDate={this.props.lowering.start_ts} maxDate={this.props.lowering.stop_ts} initialValues={this.props.event.eventFilter}/>
-          </Col>          
+          <Col sm={12}>
+            <Row style={{paddingTop: "4px"}}>
+              <Col md={9} lg={9}>
+                {this.renderControlsCard()}
+                {this.renderEventCard()}
+                <CustomPagination style={{marginTop: "8px"}} page={this.state.activePage} count={this.props.event.events.length} pageSelectFunc={this.handlePageSelect} maxPerPage={maxEventsPerPage}/>
+              </Col>          
+              <Col md={3} lg={3}>
+                <EventFilterForm disabled={this.props.event.fetching} hideASNAP={this.props.event.hideASNAP} handlePostSubmit={ this.updateEventFilter } minDate={this.props.lowering.start_ts} maxDate={this.props.lowering.stop_ts} initialValues={this.props.event.eventFilter}/>
+              </Col>          
+            </Row>
+          </Col>
         </Row>
       </div>
     );

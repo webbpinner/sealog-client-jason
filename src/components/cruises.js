@@ -230,7 +230,7 @@ class Cruises extends Component {
           <ImportCruisesModal  handleExit={this.handleCruiseImportClose} />
           <Row>
             <Col sm={12} md={7} lg={6} xl={{span:5, offset:1}}>
-              <Card border="secondary">
+              <Card>
                 <Card.Header>{this.renderCruiseHeader()}</Card.Header>
                 {this.renderCruiseTable()}
               </Card>

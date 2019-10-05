@@ -265,7 +265,7 @@ class LoweringMap extends Component {
       const loweringDuration = loweringEndTime.diff(loweringStartTime);
       
       return (
-        <Card border="secondary" style={{marginBottom: "8px"}}>
+        <Card style={{marginBottom: "8px"}}>
           <Card.Body>
             <Row>
               <Col xs={4}>
@@ -311,7 +311,7 @@ class LoweringMap extends Component {
 
   renderEventCard() {
     return (
-      <Card border="secondary">
+      <Card>
         <Card.Header>{ this.renderEventListHeader() }</Card.Header>
         <ListGroup>
           {this.renderEvents()}
@@ -442,10 +442,8 @@ class LoweringMap extends Component {
               <span><LoweringModeDropdown onClick={this.handleLoweringModeSelect} active_mode={"Map"} modes={["Replay", "Review", "Gallery"]}/></span>
             </span>
           </Col>
-        </Row>
-        <Row style={{paddingTop: "8px"}}>
           <Col sm={12}>
-            <Card border="secondary">
+            <Card>
               <Card.Body className="data-card-body">
                 <Map
                   style={{ height: this.state.height }}
@@ -466,16 +464,18 @@ class LoweringMap extends Component {
               </Card.Body>
             </Card>
           </Col>
-        </Row>
-        <Row style={{paddingTop: "8px"}}>
-          <Col md={9} lg={9}>
-            {this.renderControlsCard()}
-            {this.renderEventCard()}
-            <CustomPagination style={{marginTop: "8px"}} page={this.state.activePage} count={this.props.event.events.length} pageSelectFunc={this.handlePageSelect} maxPerPage={maxEventsPerPage}/>
-          </Col>          
-          <Col md={3} lg={3}>
-            <EventFilterForm disabled={this.props.event.fetching} hideASNAP={this.props.event.hideASNAP} handlePostSubmit={ this.updateEventFilter } minDate={this.props.lowering.start_ts} maxDate={this.props.lowering.stop_ts} initialValues={this.props.event.eventFilter}/>
-          </Col>          
+          <Col sm={12}>
+            <Row style={{paddingTop: "4px"}}>
+              <Col md={9} lg={9}>
+                {this.renderControlsCard()}
+                {this.renderEventCard()}
+                <CustomPagination style={{marginTop: "8px"}} page={this.state.activePage} count={this.props.event.events.length} pageSelectFunc={this.handlePageSelect} maxPerPage={maxEventsPerPage}/>
+              </Col>          
+              <Col md={3} lg={3}>
+                <EventFilterForm disabled={this.props.event.fetching} hideASNAP={this.props.event.hideASNAP} handlePostSubmit={ this.updateEventFilter } minDate={this.props.lowering.start_ts} maxDate={this.props.lowering.stop_ts} initialValues={this.props.event.eventFilter}/>
+              </Col>          
+            </Row>
+          </Col>
         </Row>
       </div>
     );

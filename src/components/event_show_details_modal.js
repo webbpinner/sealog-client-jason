@@ -66,7 +66,7 @@ class EventShowDetailsModal extends Component {
 
   renderImage(source, filepath) {
     return (
-      <Card border="secondary" id={`image_${source}`}>
+      <Card id={`image_${source}`}>
         <Card.Body className="data-card-body">
           <Image  fluid onError={this.handleMissingImage} src={filepath} onClick={ () => this.handleImagePreviewModal(source, filepath)} />
           <div>{source}</div>
@@ -170,7 +170,7 @@ class EventShowDetailsModal extends Component {
 
     return (
       <Col xs={12} sm={6} md={6} lg={3}>
-        <Card border="secondary">
+        <Card>
           <Card.Header className="data-card-header">Lat/Lng Coordinates</Card.Header>
           <Card.Body className="data-card-body">
             <strong>Realtime</strong><br/>
@@ -236,7 +236,7 @@ class EventShowDetailsModal extends Component {
 
     return (
       <Col xs={12} sm={6} md={6} lg={3}>
-        <Card border="secondary">
+        <Card>
           <Card.Header className="data-card-header">Alvin Coordinates</Card.Header>
           <Card.Body className="data-card-body">
             <strong>Realtime</strong><br/>
@@ -290,7 +290,7 @@ class EventShowDetailsModal extends Component {
 
     return (
       <Col xs={12} sm={6} md={6} lg={3}>
-        <Card border="secondary">
+        <Card>
           <Card.Header className="data-card-header">Vehicle Attitude</Card.Header>
           <Card.Body className="data-card-body">
             <strong>Realtime</strong><br/>
@@ -377,7 +377,7 @@ class EventShowDetailsModal extends Component {
 
     return (ctd_data || temp_probe_data || mag_data)? (
       <Col xs={12} sm={6} md={6} lg={3}>
-        <Card border="secondary">
+        <Card>
           <Card.Header className="data-card-header">Sensor Data</Card.Header>
           <Card.Body className="data-card-body">
             <Row>
@@ -403,7 +403,7 @@ class EventShowDetailsModal extends Component {
 
     return (return_event_options.length > 0)? (
       <Col xs={12} sm={6} md={6} lg={3}>
-        <Card border="secondary">
+        <Card>
           <Card.Header className="data-card-header">Event Options</Card.Header>
           <Card.Body className="data-card-body">
             <div style={{paddingLeft: "10px"}}>
@@ -427,7 +427,7 @@ class EventShowDetailsModal extends Component {
           if(aux_data_points.length > 0) {
             filtered.push(
               <Col key={`${aux_data.data_source}_col`}sm={4} md={3} lg={3}>
-                <Card key={`${aux_data.data_source}`} border="secondary">
+                <Card key={`${aux_data.data_source}`}>
                   <Card.Header className="data-card-header">{aux_data.data_source}</Card.Header>
                   <Card.Body className="data-card-body">
                     <div style={{paddingLeft: "10px"}}>
@@ -452,10 +452,10 @@ class EventShowDetailsModal extends Component {
   render() {
     const { show } = this.props
 
-    const event_free_text_card = (this.state.event.event_free_text)? (<Card border="secondary"><Card.Body className="data-card-body">Text: {this.state.event.event_free_text}</Card.Body></Card>) : null;
+    const event_free_text_card = (this.state.event.event_free_text)? (<Card><Card.Body className="data-card-body">Text: {this.state.event.event_free_text}</Card.Body></Card>) : null;
     const event_comment = (this.state.event.event_options) ? this.state.event.event_options.find((event_option) => (event_option.event_option_name === 'event_comment' && event_option.event_option_value.length > 0)) : null
 
-    const event_comment_card = (event_comment)?(<Card border="secondary"><Card.Body className="data-card-body">Comment: {event_comment.event_option_value}</Card.Body></Card>) : null;
+    const event_comment_card = (event_comment)?(<Card><Card.Body className="data-card-body">Comment: {event_comment.event_option_value}</Card.Body></Card>) : null;
     
     if(this.state.event.event_options) {
       return (

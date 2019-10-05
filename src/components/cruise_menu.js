@@ -175,8 +175,10 @@ class CruiseMenu extends Component {
   }
 
   handleYearSelect(activeYearKey) {
-    this.setState({ activeYearKey: activeYearKey});
-    this.buildCruiseList(activeYearKey);
+    if(this.state.activeYearKey !== activeYearKey) {
+      this.setState({ activeYearKey: activeYearKey, activeCruise: null, activeLowering: null});
+      this.buildCruiseList(activeYearKey);
+    }
   }
 
 
@@ -208,8 +210,8 @@ class CruiseMenu extends Component {
       let loweringFiles = (this.state.activeLowering.lowering_additional_meta.lowering_files && this.state.activeLowering.lowering_additional_meta.lowering_files.length > 0)? <span><strong>Files:</strong><br/>{this.renderLoweringFiles(this.state.activeLowering.id, this.state.activeLowering.lowering_additional_meta.lowering_files)}</span>: null;
 
       return (          
-        <Card border="secondary" key={`lowering_card`}>
-          <Card.Header>Lowering: <span className="text-primary">{this.state.activeLowering.lowering_id}</span></Card.Header>
+        <Card key={`lowering_card`}>
+          <Card.Header>Lowering: <span className="text-warning">{this.state.activeLowering.lowering_id}</span></Card.Header>
           <Card.Body>
             {loweringDescription}
             {loweringLocation}
@@ -219,16 +221,16 @@ class CruiseMenu extends Component {
             <br/>
             <Row>
               <Col sm={12} md={6} xl={3}>
-                <div className="text-primary" onClick={ () => this.handleLoweringSelectForReplay() }>Goto replay...</div>
+                <div className="text-primary" onClick={ () => this.handleLoweringSelectForReplay() }>Goto replay<FontAwesomeIcon icon='arrow-right' fixedWidth /></div>
               </Col>
               <Col sm={12} md={6} xl={3}>
-                <div className="text-primary" onClick={ () => this.handleLoweringSelectForReview() }>Goto review...</div>
+                <div className="text-primary" onClick={ () => this.handleLoweringSelectForReview() }>Goto review<FontAwesomeIcon icon='arrow-right' fixedWidth /></div>
               </Col>
               <Col sm={12} md={6} xl={3}>
-                <div className="text-primary" onClick={ () => this.handleLoweringSelectForMap() }>Goto map...</div>
+                <div className="text-primary" onClick={ () => this.handleLoweringSelectForMap() }>Goto map<FontAwesomeIcon icon='arrow-right' fixedWidth /></div>
               </Col>
               <Col sm={12} md={6} xl={3}>
-                <div className="text-primary" onClick={ () => this.handleLoweringSelectForGallery() }>Goto gallery...</div>
+                <div className="text-primary" onClick={ () => this.handleLoweringSelectForGallery() }>Goto gallery<FontAwesomeIcon icon='arrow-right' fixedWidth /></div>
               </Col>
             </Row>
           </Card.Body>
@@ -266,8 +268,8 @@ class CruiseMenu extends Component {
       ): null;
 
       return (          
-        <Card border="secondary" key={`cruise_${this.state.activeCruise.cruise_id}`}>
-          <Card.Header>Cruise: <span className="text-primary">{this.state.activeCruise.cruise_id}</span></Card.Header>
+        <Card key={`cruise_${this.state.activeCruise.cruise_id}`}>
+          <Card.Header>Cruise: <span className="text-warning">{this.state.activeCruise.cruise_id}</span></Card.Header>
           <Card.Body>
             {cruiseName}
             {cruiseDescription}
@@ -338,10 +340,19 @@ class CruiseMenu extends Component {
     ): null;
 
     this.state.years.forEach((year) => {
+
+      let yearTxt = null;
+      if(year == this.state.activeYearKey) {
+        yearTxt = <span className="text-warning">{year}</span>
+      }
+      else {
+        yearTxt = <span className="text-primary">{year}</span> 
+      }
+
       years.push(          
-        <Card border="secondary" key={`year_${year}`} >
+        <Card key={`year_${year}`} >
           <Accordion.Toggle as={Card.Header} eventKey={year}>
-            <h6>Year: <span className="text-primary">{year}</span></h6>
+            <h6>Year: {yearTxt}</h6>
           </Accordion.Toggle>
           <Accordion.Collapse eventKey={year}>
             <Card.Body>
@@ -381,7 +392,7 @@ class CruiseMenu extends Component {
       ): null;
 
       return (          
-        <Card border="secondary" key={cruise.id} >
+        <Card key={cruise.id} >
           <Accordion.Toggle as={Card.Header} eventKey={cruise.id}>
             <h6>Cruise: <span className="text-primary">{cruise.cruise_id}</span></h6>
           </Accordion.Toggle>

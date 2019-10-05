@@ -255,11 +255,11 @@ class EventTemplates extends Component {
           <ImportEventTemplatesModal handleExit={this.handleEventTemplateImportClose} />
           <Row>
             <Col sm={12} md={8} lg={{span:6, offset:1}} xl={{span:5, offset:2}}>
-              <Card border="secondary" style={{marginBottom: "8px"}} >
+              <Card style={{marginBottom: "8px"}} >
                 <Card.Header>{this.renderSystemEventTemplatesHeader()}</Card.Header>
                 {this.renderSystemEventTemplatesTable()}
               </Card>
-              <Card border="secondary" style={{marginBottom: "8px"}} >
+              <Card style={{marginBottom: "8px"}} >
                 <Card.Header>{this.renderEventTemplatesHeader()}</Card.Header>
                 {this.renderEventTemplatesTable()}
               </Card>

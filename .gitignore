@@ -1,8 +1,7 @@
 /node_modules
 npm-debug.log
 .DS_Store
-/dist/fonts
-/dist/main.bundle.js
+/dist
 /src/client_config.js
 /src/map_tilelayers.js
 package-lock.json

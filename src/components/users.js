@@ -269,7 +269,7 @@ class Users extends Component {
 
     const Label = "System Users";
 
-    const exportTooltip = (<Tooltip id="exportTooltip">Export Users</Tooltip>);
+    const exportTooltip = (<Tooltip id="exportTooltip">Export System Users</Tooltip>);
 
     let export_icon = (this.props.roles.includes("admin"))? (<OverlayTrigger placement="top" overlay={exportTooltip}><FontAwesomeIcon onClick={ () => this.exportSystemUsersToJSON() } icon='download' fixedWidth/></OverlayTrigger>) : null;
 
@@ -305,12 +305,12 @@ class Users extends Component {
           <NonSystemUsersWipeModal />
           <Row>
             <Col sm={12} md={7} lg={{span:6, offset:1}} xl={{span:5, offset:2}}>
-              <Card key="system_users_card" border="secondary" style={{marginBottom: "8px"}} >
+              <Card key="system_users_card" style={{marginBottom: "8px"}} >
                 <Card.Header>{this.renderSystemUsersHeader()}</Card.Header>
                 {this.renderSystemUserTable()}
               </Card>
               <CustomPagination style={{marginTop: "8px"}} page={this.state.activeSystemPage} count={(this.state.filteredSystemUsers)? this.state.filteredSystemUsers.length : this.props.users.filter(user => user.system_user === true).length} pageSelectFunc={this.handleSystemPageSelect} maxPerPage={maxSystemUsersPerPage}/>
-              <Card border="secondary" style={{marginBottom: "8px"}} >
+              <Card style={{marginBottom: "8px"}} >
                 <Card.Header>
                   {this.renderUsersHeader()}
                 </Card.Header>

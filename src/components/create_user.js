@@ -190,7 +190,7 @@ class CreateUser extends Component {
       let userRoleOptions = this.props.roles.includes('admin')? systemUserRoleOptions.concat(standardUserRoleOptions): standardUserRoleOptions;
 
       return (
-        <Card border="secondary" className="form-standard">
+        <Card className="form-standard">
           <Card.Header>
             {createUserFormHeader}
           </Card.Header>

@@ -258,7 +258,7 @@ class UpdateEventTemplate extends Component {
 
     if (this.props.roles && (this.props.roles.includes("admin") || this.props.roles.includes("template_manager"))) {
       return (
-        <Card border="secondary" className="form-standard">
+        <Card className="form-standard">
           <Card.Header>{formHeader}</Card.Header>
           <Card.Body>
             <Form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>

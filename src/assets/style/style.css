@@ -162,6 +162,7 @@
 .col-xl-auto {
   padding-right: 4px;
   padding-left: 4px;
+  padding-bottom: 4px;
 }
 
 .row {
@@ -178,7 +179,9 @@
 }
 
 .navbar {
-  margin-bottom: 16px;
+  margin-bottom: 0px;
+  padding-left: 2px;
+  padding-right: 2px;
 }
 
 .event-list-item {

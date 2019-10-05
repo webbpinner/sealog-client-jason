@@ -6,13 +6,23 @@ import { Alert, Button, Col, Form, Card } from 'react-bootstrap';
 import moment from 'moment';
 import Datetime from 'react-datetime';
 import * as mapDispatchToProps from '../actions';
+import { DEFAULT_VESSEL } from '../client_config';
 
 const dateFormat = "YYYY-MM-DD";
 
 class CreateCruise extends Component {
 
+  componentDidMount() {
+    this.populateDefaultValues()
+  }
+
   componentWillUnmount() {
     this.props.leaveCreateCruiseForm();
+  }
+
+  async populateDefaultValues() {
+    let cruiseDefaultValues = { cruise_vessel: DEFAULT_VESSEL };
+    this.props.initialize(cruiseDefaultValues);
   }
 
   handleFormSubmit(formProps) {
@@ -189,7 +199,7 @@ class CreateCruise extends Component {
       if(this.props.roles.includes("admin")) {
 
         return (
-          <Card border="secondary">
+          <Card>
             <Card.Header>{createCruiseFormHeader}</Card.Header>
             <Card.Body>
               <Form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>
@@ -366,6 +376,7 @@ export default compose(
     form: 'createCruise',
     enableReinitialize: true,
     validate: validate,
+    keepDirtyOnReinitialize : true,
     onSubmitSuccess: afterSubmit
   })
 )(CreateCruise)

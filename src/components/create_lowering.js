@@ -171,7 +171,7 @@ class CreateLowering extends Component {
       if(this.props.roles.includes("admin")) {
 
         return (
-          <Card border="secondary">
+          <Card>
             <Card.Header>{createLoweringFormHeader}</Card.Header>
             <Card.Body>
               <Form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>

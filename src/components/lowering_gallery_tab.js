@@ -39,7 +39,7 @@ class LoweringGalleryTab extends Component {
 
   renderImage(source, filepath, event_id) {
     return (
-      <Card border="secondary" style={{marginBottom: "8px"}} id={`image_${source}`}>
+      <Card style={{marginBottom: "4px"}} id={`image_${source}`}>
         <Card.Body className="data-card-body">
           <Image fluid onClick={ () => this.handleEventShowDetailsModal(event_id) } onError={this.handleMissingImage} src={filepath}/>
         </Card.Body>
@@ -61,8 +61,7 @@ class LoweringGalleryTab extends Component {
 
   render(){
     return (
-      <div>
-        <br/>
+      <div style={{marginTop: "8px"}}>
         <Row key={`${this.props.imagesSource}_images`}>
           {this.renderGallery(this.props.imagesSource, this.props.imagesData)}
         </Row>

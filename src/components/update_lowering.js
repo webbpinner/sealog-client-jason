@@ -269,7 +269,7 @@ Bounding Box:  ${(this.props.lowering.lowering_additional_meta.stats && this.pro
     if (this.props.roles && (this.props.roles.includes("admin") || this.props.roles.includes('cruise_manager'))) {
 
       return (
-        <Card border="secondary">
+        <Card>
           <Card.Header>{updateLoweringFormHeader}</Card.Header>
           <Card.Body>
             <Form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>

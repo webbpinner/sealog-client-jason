@@ -229,7 +229,7 @@ class Lowerings extends Component {
           <SetLoweringStatsModal />
           <Row>
             <Col sm={12} md={7} lg={6} xl={{span:5, offset:1}}>
-              <Card border="secondary">
+              <Card>
                 <Card.Header>{this.renderLoweringHeader()}</Card.Header>
                 {this.renderLoweringTable()}
               </Card>

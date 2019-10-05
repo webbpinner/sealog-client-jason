@@ -277,7 +277,7 @@ End of Cruise:   ${this.props.cruise.stop_ts}\n`
     if (this.props.roles && (this.props.roles.includes("admin") || this.props.roles.includes('cruise_manager'))) {
 
       return (
-        <Card border="secondary">
+        <Card>
           <Card.Header>{updateCruiseFormHeader}</Card.Header>
           <Card.Body>
             <Form onSubmit={ handleSubmit(this.handleFormSubmit.bind(this)) }>

@@ -135,8 +135,6 @@ class LoweringGallery extends Component {
               <span><LoweringModeDropdown onClick={this.handleLoweringModeSelect} active_mode={"Gallery"} modes={["Review", "Replay", "Map"]}/></span>
             </span>
           </Col>
-        </Row>
-        <Row style={{paddingTop: "8px"}}>
           <Col lg={12}>
             {galleries}
           </Col>
