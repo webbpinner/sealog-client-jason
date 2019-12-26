@@ -1,3 +1,4 @@
+const Pkg = require('../package.json');
 
 // Use these settings if connecting to a server using http
 const API_ROOT_URL = `http://localhost:8000/sealog-server`;
@@ -18,7 +19,7 @@ const IMAGE_PATH = "/files/images";
 const RECAPTCHA_SITE_KEY = "";
 
 // Text show on the login page.  If a login image is defined then this text will appear below the image.
-const LOGIN_SCREEN_TXT = "Sealog provides the Oceanographic Research community with an open-source tool for recording, reviewing, and exporting real-time scientific and/or operational observations.";
+const LOGIN_SCREEN_TXT = "Sealog provides the Oceanographic Research community with an open-source tool for recording, reviewing, and exporting insitu scientific and operational observations.";
 
 // Image file shown on the login page.  This image needs to be saved in the ./dist/images folder
 const LOGIN_IMAGE = "Jason_Profile.png";
@@ -27,13 +28,19 @@ const LOGIN_IMAGE = "Jason_Profile.png";
 const MAIN_SCREEN_TXT = "Please select a cruise from the list below.  Once a cruise is selected please select a lowering from the list of lowerings associated with that cruise that appear at the bottom of the cruise information panel.  Selecting a lowering will open the lowering information panel.  At the bottom of the cruise information panel there will be links for proceeding to the lowering replay section, the lowering review section and the lowering gallery section of Sealog. If at any time you wish to return to this page please click the \"Review Cruises/Lowerings\" text in upper navigation bar.";
 
 // Title displayed on the left side of the title bar
-const HEADER_TITLE = "Sealog - JASON";
+const HEADER_TITLE = `Sealog for JASON v${Pkg.version}`;
 
 // Set default vessel
 const DEFAULT_VESSEL = "R/V Atlantis";
 
 // Use an internal tile server (true), or pull tiles directly from the Internet (false).
 const USE_MAPTILE_PROXY = false;
+
+// Add cruise-level and lowering-level authentication. This needs to match the 'useAccessControl' setting on the sealog-server.
+const USE_ACCESS_CONTROL = true;
+
+// Remove ability to add new events
+const DISABLE_EVENT_LOGGING = false;
 
 module.exports = {
   API_ROOT_URL,
@@ -46,5 +53,7 @@ module.exports = {
   MAIN_SCREEN_TXT,
   HEADER_TITLE,
   DEFAULT_VESSEL,
-  USE_MAPTILE_PROXY
+  USE_MAPTILE_PROXY,
+  USE_ACCESS_CONTROL,
+  DISABLE_EVENT_LOGGING
 }

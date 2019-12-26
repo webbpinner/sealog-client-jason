@@ -16,10 +16,9 @@ import LoweringDropdown from './lowering_dropdown';
 import LoweringModeDropdown from './lowering_mode_dropdown';
 import CustomPagination from './custom_pagination';
 import ExportDropdown from './export_dropdown';
-
 import * as mapDispatchToProps from '../actions';
 import { API_ROOT_URL } from '../client_config';
-import tilelayers from '../map_tilelayers';
+import { TILE_LAYERS, DEFAULT_LOCATION } from '../map_tilelayers';
 
 const { BaseLayer } = LayersControl;
 
@@ -29,10 +28,16 @@ const SliderWithTooltip = createSliderWithTooltip(Slider);
 
 const maxEventsPerPage = 10;
 
+const initCenterPosition = DEFAULT_LOCATION;
+
+const positionAuxDataSources = ['vehicleRealtimeNavData'];
+
 class LoweringMap extends Component {
 
   constructor (props) {
     super(props);
+
+    this.divFocus = null;
 
     this.state = {
       fetching: false,
@@ -42,18 +47,18 @@ class LoweringMap extends Component {
       activePage: 1,
 
       zoom: 13,
-      center:{lat:41.522664576, lng:-70.657830702},
-      position:{lat:41.522664576, lng:-70.657830702},
+      center:initCenterPosition,
+      position:initCenterPosition,
       showMarker: false,
       height: "480px"
     };
 
-    // this.auxDatasourceFilters = ['vehicleRealtimeNavData', 'vehicleReNavData'];
-    this.auxDatasourceFilters = ['vehicleRealtimeNavData'];
+    this.auxDatasourceFilters = positionAuxDataSources;
 
     this.sliderTooltipFormatter = this.sliderTooltipFormatter.bind(this);
     this.handleSliderChange = this.handleSliderChange.bind(this);
     this.handleEventClick = this.handleEventClick.bind(this);
+    this.handleKeyPress = this.handleKeyPress.bind(this);
     this.handlePageSelect = this.handlePageSelect.bind(this);
     this.updateEventFilter = this.updateEventFilter.bind(this);
 
@@ -80,31 +85,60 @@ class LoweringMap extends Component {
       );
     }
 
-    // if(!this.props.cruise.id || this.props.lowering.id !== this.props.match.params.id){
     this.props.initCruiseFromLowering(this.props.match.params.id);
-    // }
 
     this.initLoweringTrackline(this.props.match.params.id);
+
+    this.divFocus.focus();
   }
 
   componentDidUpdate() {
-    // this.calcVehiclePosition(this.props.event)
     this.map.leafletElement.invalidateSize();
-
-    // if(this.props.height != this.state.height) {
-    // console.log("height change from", this.state.height, "to", this.props.height)
-    // this.setState({height: this.props.height})
-    // }
   }
 
   componentWillUnmount(){}
 
+  handleKeyPress(event) {
+    if(event.key === "ArrowRight" && this.state.activePage < Math.ceil(this.props.event.events.length / maxEventsPerPage)) {
+      this.handlePageSelect(this.state.activePage + 1)
+    }
+    else if(event.key === "ArrowLeft" && this.state.activePage > 1) {
+      this.handlePageSelect(this.state.activePage - 1)
+    }
+    else if(event.key === "ArrowDown") {
+      const eventIndex = this.props.event.events.findIndex((event) => event.id === this.props.event.selected_event.id);
+      if(eventIndex < (this.props.event.events.length - 1)) {
+        if(Math.ceil((eventIndex + 2) / maxEventsPerPage) !== this.state.activePage) {
+          this.handlePageSelect(Math.ceil((eventIndex + 2) / maxEventsPerPage))
+        }
+        else {
+          this.setState({replayEventIndex: eventIndex + 1});
+          this.props.advanceLoweringReplayTo(this.props.event.events[eventIndex + 1].id)  
+        } 
+      }
+    }
+    else if(event.key === "ArrowUp") {
+      const eventIndex = this.props.event.events.findIndex((event) => event.id === this.props.event.selected_event.id);
+      if(eventIndex > 0) {
+        if(Math.ceil((eventIndex) / maxEventsPerPage) !== this.state.activePage) {
+          this.handlePageSelect(Math.ceil((eventIndex) / maxEventsPerPage), false)
+          this.props.advanceLoweringReplayTo(this.props.event.events[eventIndex - 1].id)
+        }
+        else {
+          this.setState({replayEventIndex: eventIndex - 1});
+          this.props.advanceLoweringReplayTo(this.props.event.events[eventIndex - 1].id)
+        }
+      }
+    }
+    else if(event.key === "Enter") {
+      this.handleEventShowDetailsModal(this.state.replayEventIndex)
+    }
+  }
+
   async initLoweringTrackline(id) {
     this.setState({ fetching: true});
 
-    let tracklines = {
-
-    };
+    let tracklines = {};
 
     for (let index=0;index<this.auxDatasourceFilters.length;index++) {
 
@@ -177,7 +211,7 @@ class LoweringMap extends Component {
   }
 
   handleSliderChange(index) {
-    if(this.props.event.events && this.props.event.events.length > index) {
+    if(this.props.event.events && this.props.event.events[index]) {
       this.setState({replayEventIndex: index});
       this.props.advanceLoweringReplayTo(this.props.event.events[index].id);
       this.setState({activePage: Math.ceil((index+1)/maxEventsPerPage)});
@@ -198,21 +232,22 @@ class LoweringMap extends Component {
     this.props.showModal('eventComment', { event: this.props.event.events[index], handleUpdateEvent: this.props.updateEvent });
   }
 
-  handlePageSelect(eventKey) {
+  handlePageSelect(eventKey, updateReplay=true) {
     this.setState({activePage: eventKey, replayEventIndex: (eventKey-1)*maxEventsPerPage });
-    this.props.advanceLoweringReplayTo(this.props.event.events[(eventKey-1)*maxEventsPerPage].id);
+    if(updateReplay) {
+      this.props.advanceLoweringReplayTo(this.props.event.events[(eventKey-1)*maxEventsPerPage].id);
+    }
+    this.divFocus.focus();
   }
 
   handleZoomEnd() {
     if(this.map) {
-      // console.log("zoom end:", this.map.leafletElement.getZoom())
       this.setState({zoom: this.map.leafletElement.getZoom()});
     }
   }
 
   handleMoveEnd() {
     if(this.map) {
-      // console.log("move end:", this.map.leafletElement.getCenter())
       this.setState({center: this.map.leafletElement.getCenter()});
     }
   }
@@ -242,7 +277,6 @@ class LoweringMap extends Component {
     this.props.initLoweringReplay(id);
     this.props.initCruiseFromLowering(id);
     this.initLoweringTrackline(id);
-    // this.setState({replayEventIndex: 0, activePage: 1})
   }
 
   handleLoweringModeSelect(mode) {
@@ -327,33 +361,15 @@ class LoweringMap extends Component {
       let eventList = this.props.event.events.map((event, index) => {
         if(index >= (this.state.activePage-1) * maxEventsPerPage && index < (this.state.activePage * maxEventsPerPage)) {
           
-          let comment_exists = false;
-
-          let eventOptionsArray = event.event_options.reduce((filtered, option) => {
-            if(option.event_option_name === 'event_comment') {
-              comment_exists = (option.event_option_value !== '')? true : false;
-            } else {
-              filtered.push(`${option.event_option_name}: "${option.event_option_value}"`);
-            }
-            return filtered;
-          },[]);
-          
-          if (event.event_free_text) {
-            eventOptionsArray.push(`free_text: "${event.event_free_text}"`);
-          } 
-
+          let comment_exists = (event.event_options.find((option) => option.event_option_name == 'event_comment')) ? true : false;
           let active = (this.props.event.selected_event.id === event.id)? true : false;
-
-          let eventOptions = (eventOptionsArray.length > 0)? '--> ' + eventOptionsArray.join(', '): '';
-          
           let commentIcon = (comment_exists)? <FontAwesomeIcon onClick={() => this.handleEventCommentModal(index)} icon='comment' fixedWidth transform="grow-4"/> : <span onClick={() => this.handleEventCommentModal(index)} className="fa-layers fa-fw"><FontAwesomeIcon icon='comment' fixedWidth transform="grow-4"/><FontAwesomeIcon className={(active)? "text-primary" : "text-secondary" } icon='plus' fixedWidth transform="shrink-4"/></span>;
           let commentTooltip = (comment_exists)? (<OverlayTrigger placement="left" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Edit/View Comment</Tooltip>}>{commentIcon}</OverlayTrigger>) : (<OverlayTrigger placement="top" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Add Comment</Tooltip>}>{commentIcon}</OverlayTrigger>);
           let eventComment = (this.props.roles.includes("event_logger") || this.props.roles.includes("admin"))? commentTooltip : null;
 
           let eventDetails = <OverlayTrigger placement="left" overlay={<Tooltip id={`commentTooltip_${event.id}`}>View Details</Tooltip>}><FontAwesomeIcon onClick={() => this.handleEventShowDetailsModal(index)} icon='window-maximize' fixedWidth/></OverlayTrigger>;
 
-          //eventArray.push(<ListGroup.Item className="event-list-item" eventKey={event.id} key={event.id}><span onClick={() => this.handleEventShowDetailsModal(event)}>{event.ts} {`<${event.event_author}>`}: {event.event_value} {eventOptions}</span><span className="float-right">{commentTooltip}</span></ListGroup.Item>);
-          return (<ListGroup.Item className="event-list-item" key={event.id} active={active} ><span onClick={() => this.handleEventClick(index)} >{`${event.ts} <${event.event_author}>: ${event.event_value} ${eventOptions}`}</span><span className="float-right">{eventDetails} {eventComment}</span></ListGroup.Item>);
+          return (<ListGroup.Item className="event-list-item" key={event.id} active={active} ><span onClick={() => this.handleEventClick(index)} >{`${event.ts} <${event.event_author}>: ${event.event_value} ${(event.event_free_text !== "") ? `-> "${event.event_free_text}"` : ""}`}</span><span className="float-right">{eventDetails} {eventComment}</span></ListGroup.Item>);
 
         }
       });
@@ -380,20 +396,8 @@ class LoweringMap extends Component {
   }
 
   render() {
-    // Esri Ocean Layer
-    // maxZoom={13}
-    // <TileLayer
-    //   attribution='Tiles &copy; Esri'
-    //   url="https://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}"
-    // />
 
-    // OpenStreetMap
-    // <TileLayer
-    //   attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-    //   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-    // />
-
-    const baseLayers = tilelayers.map((layer, index) => {
+    const baseLayers = TILE_LAYERS.map((layer, index) => {
       if(layer.wms) {
         return (
           <BaseLayer checked={layer.default} key={`baseLayer_${index}`} name={layer.name}>
@@ -429,7 +433,7 @@ class LoweringMap extends Component {
     const cruise_id = (this.props.cruise.cruise_id)? this.props.cruise.cruise_id : "Loading...";
     
     return (
-      <div>
+      <div tabIndex="-1" onKeyDown={this.handleKeyPress} ref={(div) => { this.divFocus = div }}>
         <EventCommentModal />
         <EventShowDetailsModal />
         <Row>
@@ -481,7 +485,6 @@ class LoweringMap extends Component {
     );
   }
 }
-// maxZoom={10}
 
 function mapStateToProps(state) {
 

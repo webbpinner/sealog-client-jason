@@ -3,8 +3,6 @@ import { Pagination } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-const defaultStyle = { borderColor: "secondary" }
-
 class CustomPagination extends Component {
 
   constructor (props) {

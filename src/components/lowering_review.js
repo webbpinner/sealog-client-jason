@@ -18,10 +18,13 @@ class LoweringReview extends Component {
   constructor (props) {
     super(props);
 
+    this.divFocus = null;
+
     this.state = {
       activePage: 1
     };
 
+    this.handleKeyPress = this.handleKeyPress.bind(this);
     this.handleEventUpdate = this.handleEventUpdate.bind(this);
     this.handlePageSelect = this.handlePageSelect.bind(this);
     this.updateEventFilter = this.updateEventFilter.bind(this);
@@ -36,12 +39,12 @@ class LoweringReview extends Component {
     }
     else {
       const eventIndex = this.props.event.events.findIndex((event) => event.id === this.props.event.selected_event.id);
-      this.handlePageSelect(Math.ceil((eventIndex+1)/maxEventsPerPage));
+      this.handlePageSelect(Math.ceil((eventIndex + 1)/maxEventsPerPage), false);
     }
 
-    // if(!this.props.cruise.id || this.props.lowering.id !== this.props.match.params.id){
     this.props.initCruiseFromLowering(this.props.match.params.id);
-    // }
+
+    this.divFocus.focus();
   }
 
   componentDidUpdate() {
@@ -56,9 +59,49 @@ class LoweringReview extends Component {
     this.props.eventUpdateLoweringReplay(this.props.match.params.id, this.props.event.hideASNAP);
   }
 
-  handlePageSelect(eventKey) {
+  handlePageSelect(eventKey, updateReplay=true) {
     this.setState({activePage: eventKey});
+    if(updateReplay) {
+      this.props.advanceLoweringReplayTo(this.props.event.events[(eventKey-1)*maxEventsPerPage].id);
+    }
+    this.divFocus.focus();
   }
+
+  handleKeyPress(event) {
+    if(event.key === "ArrowRight" && this.state.activePage < Math.ceil(this.props.event.events.length / maxEventsPerPage)) {
+      this.handlePageSelect(this.state.activePage + 1)
+    }
+    else if(event.key === "ArrowLeft" && this.state.activePage > 1) {
+      this.handlePageSelect(this.state.activePage - 1)
+    }
+    else if(event.key === "ArrowDown") {
+      const eventIndex = this.props.event.events.findIndex((event) => event.id === this.props.event.selected_event.id);
+      if(eventIndex < (this.props.event.events.length - 1)) {
+        if(Math.ceil((eventIndex + 2) / maxEventsPerPage) !== this.state.activePage) {
+          this.handlePageSelect(Math.ceil((eventIndex + 2) / maxEventsPerPage))
+        }
+        else {
+          this.props.advanceLoweringReplayTo(this.props.event.events[eventIndex + 1].id)  
+        } 
+      }
+    }
+    else if(event.key === "ArrowUp") {
+      const eventIndex = this.props.event.events.findIndex((event) => event.id === this.props.event.selected_event.id);
+      if(eventIndex > 0) {
+        if(Math.ceil((eventIndex) / maxEventsPerPage) !== this.state.activePage) {
+          this.handlePageSelect(Math.ceil((eventIndex) / maxEventsPerPage), false)
+          this.props.advanceLoweringReplayTo(this.props.event.events[eventIndex - 1].id)
+        }
+        else {
+          this.props.advanceLoweringReplayTo(this.props.event.events[eventIndex - 1].id)
+        }
+      }
+    }
+    else if(event.key === "Enter") {
+      this.handleEventShowDetailsModal(this.props.event.selected_event)
+    }
+  }
+
 
   handleEventCommentModal(event) {
     this.props.showModal('eventComment', { event: event, handleUpdateEvent: this.handleEventUpdate });
@@ -157,32 +200,15 @@ class LoweringReview extends Component {
       let eventList = this.props.event.events.map((event, index) => {
         if(index >= (this.state.activePage-1) * maxEventsPerPage && index < (this.state.activePage * maxEventsPerPage)) {
 
-          let comment_exists = false;
-
-          let eventOptionsArray = event.event_options.reduce((filtered, option) => {
-            if(option.event_option_name === 'event_comment') {
-              comment_exists = (option.event_option_value !== '')? true : false;
-            } else {
-              filtered.push(`${option.event_option_name}: "${option.event_option_value}"`);
-            }
-            return filtered;
-          },[]);
-          
-          if (event.event_free_text) {
-            eventOptionsArray.push(`free_text: "${event.event_free_text}"`);
-          } 
-
-          let active = (this.props.event.selected_event.id === event.id)? true : false;
-
-          let eventOptions = (eventOptionsArray.length > 0)? '--> ' + eventOptionsArray.join(', '): '';
-          
+          let comment_exists = (event.event_options.find((option) => option.event_option_name == 'event_comment')) ? true : false;
+          let active = (this.props.event.selected_event.id === event.id)? true : false;          
           let commentIcon = (comment_exists)? <FontAwesomeIcon onClick={() => this.handleEventCommentModal(event)} icon='comment' fixedWidth transform="grow-4"/> : <span onClick={() => this.handleEventCommentModal(event)} className="fa-layers fa-fw"><FontAwesomeIcon icon='comment' fixedWidth transform="grow-4"/><FontAwesomeIcon className={(active)? "text-primary" : "text-secondary" } icon='plus' fixedWidth transform="shrink-4"/></span>;
           let commentTooltip = (comment_exists)? (<OverlayTrigger placement="top" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Edit/View Comment</Tooltip>}>{commentIcon}</OverlayTrigger>) : (<OverlayTrigger placement="top" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Add Comment</Tooltip>}>{commentIcon}</OverlayTrigger>);
           let eventComment = (this.props.roles.includes("event_logger") || this.props.roles.includes("admin"))? commentTooltip : null;
 
           let eventDetails = <OverlayTrigger placement="left" overlay={<Tooltip id={`commentTooltip_${event.id}`}>View Details</Tooltip>}><FontAwesomeIcon onClick={() => this.handleEventShowDetailsModal(event)} icon='window-maximize' fixedWidth/></OverlayTrigger>;
 
-          return (<ListGroup.Item className="event-list-item" key={event.id} active={active} ><span onClick={() => this.handleEventClick(event)} >{`${event.ts} <${event.event_author}>: ${event.event_value} ${eventOptions}`}</span><span className="float-right">{eventDetails} {eventComment}</span></ListGroup.Item>);
+          return (<ListGroup.Item className="event-list-item" key={event.id} active={active} ><span onClick={() => this.handleEventClick(event)} >{`${event.ts} <${event.event_author}>: ${event.event_value} ${(event.event_free_text !== "") ? `-> "${event.event_free_text}"` : ""}`}</span><span className="float-right">{eventDetails} {eventComment}</span></ListGroup.Item>);
 
         }
       });
@@ -198,7 +224,7 @@ class LoweringReview extends Component {
     const cruise_id = (this.props.cruise.cruise_id)? this.props.cruise.cruise_id : "Loading...";
 
     return (
-      <div>
+      <div tabIndex="-1" onKeyDown={this.handleKeyPress} ref={(div) => { this.divFocus = div }}>
         <EventCommentModal />
         <EventShowDetailsModal />
         <Row>
