@@ -21,11 +21,16 @@ class DisplayUserTokenModal extends Component {
   }
 
   static propTypes = {
-    id: PropTypes.string.isRequired,
+    id: PropTypes.string,
+    handleHide: PropTypes.func.isRequired
   };
 
   componentDidMount() {
-    axios.get(`${API_ROOT_URL}/api/v1/users/${this.props.id}/token`,
+    this.getUserJWT()
+  }
+
+  async getUserJWT() {
+    const token = await axios.get(`${API_ROOT_URL}/api/v1/users/${this.props.id}/token`,
     {
       headers: {
         authorization: cookies.get('token'),
@@ -33,37 +38,43 @@ class DisplayUserTokenModal extends Component {
       }
     })
     .then((response) => {
-
-      this.setState( { token: response.data.token} )
+      return response.data.token;
     })
     .catch(() => {
-      this.setState( {token: "There was an error retriving the JWT for this user."})
+      return "There was an error retriving the JWT for this user.";
     })
+
+    this.setState( { token } )
   }
 
   handleConfirm() {
-    this.props.handleDestroy();
+    this.props.handleHide();
   }
 
   render() {
 
-    const { show, handleHide } = this.props
+    const { show, handleHide, id } = this.props
 
-    return (
-      <Modal show={show} onHide={handleHide}>
-        <Modal.Header closeButton>
-          <Modal.Title>User&#39;s Java Web Token</Modal.Title>
-        </Modal.Header>
+    if (id) {
+      return (
+        <Modal show={show} onHide={handleHide}>
+          <Modal.Header closeButton>
+            <Modal.Title>User&#39;s Java Web Token</Modal.Title>
+          </Modal.Header>
 
-        <Modal.Body>
-          <h6>Token:</h6><div style={{wordWrap:'break-word'}}>{this.state.token}</div>
-        </Modal.Body>
+          <Modal.Body>
+            <h6>Token:</h6><div style={{wordWrap:'break-word'}}>{this.state.token}</div>
+          </Modal.Body>
 
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleHide}>Close</Button>
-        </Modal.Footer>
-      </Modal>
-    );
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleHide}>Close</Button>
+          </Modal.Footer>
+        </Modal>
+      );
+    }
+    else {
+      return null;
+    }
   }
 }
 

@@ -4,11 +4,10 @@ import Cookies from 'universal-cookie';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
 import momentDurationFormatSetup from 'moment-duration-format';
-import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Accordion, Row, Col, Card } from 'react-bootstrap';
 import FileDownload from 'js-file-download';
-import { API_ROOT_URL, MAIN_SCREEN_TXT } from '../client_config';
+import { API_ROOT_URL, MAIN_SCREEN_TXT, DEFAULT_VESSEL } from '../client_config';
 
 import * as mapDispatchToProps from '../actions';
 
@@ -23,13 +22,12 @@ class CruiseMenu extends Component {
     super(props);
 
     this.state = {
-      activeYearKey: null,
       years: null,
-      activeCruiseKey: null,
+      activeYear: (this.props.cruise.start_ts) ? moment.utc(this.props.cruise.start_ts).format("YYYY") : null,
+      yearCruises: null,
+      activeCruise: (this.props.cruise.id) ? this.props.cruise : null,
       cruiseLowerings: null,
-      activeCruise: null,
-      activeLowering: null
-
+      activeLowering: (this.props.lowering.id) ? this.props.lowering : null,
     };
 
     this.handleYearSelect = this.handleYearSelect.bind(this);
@@ -40,77 +38,69 @@ class CruiseMenu extends Component {
 
   }
 
-  componentDidMount(){
+  componentDidMount() {
     this.props.fetchCruises();
     this.props.fetchLowerings();
   }
 
-  componentDidUpdate(){
 
-    if(this.props.cruises.length > 0 && this.state.years === null) {
+  componentDidUpdate(prevProps, prevState) {
+
+    if(this.state.years !== prevState.years && this.state.years.size > 0) {
+      // console.log("year list changed");
+      this.buildCruiseList();
+    }
+
+    if(this.props.cruises !== prevProps.cruises && this.props.cruises.length > 0 ) {
+      // console.log("cruise list changed");
       this.buildYearList();
+      this.setState({ activeCruise: null, activeLowering: null })
     }
 
-    if(this.props.cruise && this.props.cruise.id && this.props.cruises.length > 0 && this.props.lowerings.length > 0 && this.state.activeCruise === null) {
-      this.handleYearSelect(moment.utc(this.props.cruise.start_ts).format("YYYY"));
-      this.handleCruiseSelect(this.props.cruise.id);
+    if(this.state.activeCruise !== prevState.activeCruise && this.props.lowerings.length > 0 ) {
+      // console.log("lowering list changed");
+      this.buildLoweringList();
+      this.setState({ activeLowering: null })
     }
 
-    if(this.state.activeCruise === null && this.state.activeLowering !== null) {
-      this.handleLoweringSelect();
-    }
-    else if(this.props.lowering.id && this.props.lowerings.length > 0 && this.state.activeLowering === null) {
-      this.handleLoweringSelect(this.props.lowering.id);
+    if(this.state.activeYear !== prevState.activeYear ) {
+      // console.log("selected year changed");
+      this.setState({ activeCruise: null, activeLowering: null })
     }
 
+    if(this.props.cruise !== prevProps.cruise && this.props.cruise.id){
+      // console.log("selected cruise changed");
+      this.setState({activeYear: moment.utc(this.props.cruise.start_ts).format("YYYY"), activeCruise: this.props.cruise})
+    }
 
-    // if(this.props.cruise.id && this.props.lowerings.length > 0 && this.state.activeCruise === null) {
-    //   // console.log("selected cruise but no active cruise")
-    //   this.handleCruiseSelect(this.props.cruise.id)
-    //   this.buildLoweringList(this.props.cruise.start_ts, this.props.cruise.stop_ts)
-    // }
-    // // else if(this.props.cruises.length > 0 && this.props.lowerings.length > 0 && this.state.activeCruise === null) {
-    // //   console.log("cruiselist but no active cruise")
-    // //   this.handleCruiseSelect(this.props.cruises[0].id)
-    // //   this.buildLoweringList(this.props.cruises[0].start_ts, this.props.cruises[0].stop_ts)
-    // // }
-
-    // if(this.props.lowering.id && this.props.lowerings.length > 0 && this.state.activeLowering === null) {
-    //   // console.log("selected lowering but there is no active lowering")
-    //   this.handleLoweringSelect(this.props.lowering.id)
-    // }
-
-    // if(this.state.activeCruise !== null && this.state.cruiseLowerings === null) {
-    //   // console.log("active cruise but null cruise lowerings")
-    //   this.buildLoweringList(this.state.activeCruise.start_ts, this.state.activeCruise.stop_ts)
-    // }
-
-    // if(this.state.activeCruise === null && this.state.activeLowering !== null) {
-    //   // console.log("no active cruise but there is an active lowering")
-    //   this.handleLoweringSelect();
-    // }
+    if(this.props.lowering !== prevProps.lowering && this.props.lowering.id){
+      // console.log("selected lowering changed");
+      this.setState({ activeLowering: this.props.lowering })
+    }
   }
 
-  componentWillUnmount(){
+  componentWillUnmount() {
+  }
+
+  handleYearSelect(activeYear) {
+    this.setState({ activeYear });
   }
 
   handleCruiseSelect(id) {
     if(this.state.activeCruise === null || this.state.activeCruise && this.state.activeCruise.id !== id) {
       window.scrollTo(0, 0);
       const activeCruise = this.props.cruises.find(cruise => cruise.id === id);
-      this.buildLoweringList(activeCruise.start_ts, activeCruise.stop_ts);
-      this.setState({activeCruiseKey: activeCruise.id, activeCruise: activeCruise});
-      this.handleLoweringSelect();
+      // console.log("activeCruise:", activeCruise);
+      this.setState({ activeCruise });
     }
   }
 
-  handleLoweringSelect(id = null) {
-    window.scrollTo(0, 0);
-    if(id !== null) {
-      this.setState({activeLowering: this.props.lowerings.find(lowering => lowering.id === id)});
-    } else {
-      this.props.clearSelectedLowering();
-      this.setState({activeLowering: null});
+  handleLoweringSelect(id) {
+    if(this.state.activeLowering === null || this.state.activeLowering && this.state.activeLowering.id !== id) {
+      window.scrollTo(0, 0);
+      const activeLowering = this.props.lowerings.find(lowering => lowering.id === id);
+      // console.log("activeLowering:", activeLowering);
+      this.setState({activeLowering: activeLowering});
     }
   }
 
@@ -142,8 +132,8 @@ class CruiseMenu extends Component {
     }
   }
 
-  handleLoweringFileDownload(loweringID, filename) {
-    axios.get(`${API_ROOT_URL}${LOWERING_ROUTE}/${loweringID}/${filename}`,
+  async handleLoweringFileDownload(loweringID, filename) {
+    await axios.get(`${API_ROOT_URL}${LOWERING_ROUTE}/${loweringID}/${filename}`,
       {
         headers: {
           authorization: cookies.get('token')
@@ -158,8 +148,8 @@ class CruiseMenu extends Component {
       });
   }
 
-  handleCruiseFileDownload(cruiseID, filename) {
-    axios.get(`${API_ROOT_URL}${CRUISE_ROUTE}/${cruiseID}/${filename}`,
+  async handleCruiseFileDownload(cruiseID, filename) {
+    await axios.get(`${API_ROOT_URL}${CRUISE_ROUTE}/${cruiseID}/${filename}`,
       {
         headers: {
           authorization: cookies.get('token')
@@ -173,14 +163,6 @@ class CruiseMenu extends Component {
         console.log("JWT is invalid, logging out");
       });
   }
-
-  handleYearSelect(activeYearKey) {
-    if(this.state.activeYearKey !== activeYearKey) {
-      this.setState({ activeYearKey: activeYearKey, activeCruise: null, activeLowering: null});
-      this.buildCruiseList(activeYearKey);
-    }
-  }
-
 
   renderCruiseFiles(cruiseID, files) {
     let output = files.map((file, index) => {
@@ -247,10 +229,11 @@ class CruiseMenu extends Component {
 
       let cruiseName = (this.state.activeCruise.cruise_additional_meta.cruise_name)? <span><strong>Cruise Name:</strong> {this.state.activeCruise.cruise_additional_meta.cruise_name}<br/></span> : null;
       let cruiseDescription = (this.state.activeCruise.cruise_additional_meta.cruise_description)? <span><strong>Description:</strong> {this.state.activeCruise.cruise_additional_meta.cruise_description}<br/></span> : null;
-      let cruiseVessel = (this.state.activeCruise.cruise_additional_meta.cruise_vessel)? <span><strong>Vessel:</strong> {this.state.activeCruise.cruise_additional_meta.cruise_vessel}<br/></span> : null;
+      let cruiseVessel = <span><strong>Vessel:</strong> {this.state.activeCruise.cruise_additional_meta.cruise_vessel}<br/></span>;
       let cruiseLocation = (this.state.activeCruise.cruise_location)? <span><strong>Location:</strong> {this.state.activeCruise.cruise_location}<br/></span> : null;
-      let cruiseDates = <span><strong>Dates:</strong> {moment.utc(this.state.activeCruise.start_ts).format("YYYY/MM/DD")} - {moment.utc(this.state.activeCruise.stop_ts).format("YYYY/MM/DD")}<br/></span>;
-      let cruisePi = (this.state.activeCruise.cruise_pi)? <span><strong>Chief Scientist:</strong> {this.state.activeCruise.cruise_pi}<br/></span> : null;
+      let cruisePorts = (this.state.activeCruise.cruise_additional_meta.cruise_departure_location)? <span><strong>Ports:</strong> {this.state.activeCruise.cruise_additional_meta.cruise_departure_location} <FontAwesomeIcon icon='arrow-right' fixedWidth /> {this.state.activeCruise.cruise_additional_meta.cruise_arrival_location}<br/></span> : null;
+      let cruiseDates = <span><strong>Dates:</strong> {moment.utc(this.state.activeCruise.start_ts).format("YYYY/MM/DD")} <FontAwesomeIcon icon='arrow-right' fixedWidth /> {moment.utc(this.state.activeCruise.stop_ts).format("YYYY/MM/DD")}<br/></span>;
+      let cruisePi = <span><strong>Chief Scientist:</strong> {this.state.activeCruise.cruise_additional_meta.cruise_pi}<br/></span>;
       let cruiseLowerings = this.props.lowerings.filter(lowering => moment.utc(lowering.start_ts).isBetween(moment.utc(this.state.activeCruise.start_ts), moment.utc(this.state.activeCruise.stop_ts)));
       // let cruiseLinkToR2R = (this.state.activeCruise.cruise_additional_meta.cruise_linkToR2R)? <span><strong>R2R Cruise Link :</strong> <a href={`${this.state.activeCruise.cruise_additional_meta.cruise_linkToR2R}`} target="_blank"><FontAwesomeIcon icon='link' fixedWidth/></a><br/></span> : null
 
@@ -261,7 +244,7 @@ class CruiseMenu extends Component {
               return (<li key={`select_${lowering.id}`} ><span className="text-warning">{lowering.lowering_id}</span><br/></li>);
             }
 
-            return (<li key={`select_${lowering.id}`} ><Link to="#" onClick={ () => this.handleLoweringSelect(lowering.id) }>{lowering.lowering_id}</Link><br/></li>);
+            return (<li key={`select_${lowering.id}`} ><span className={(this.state.activeLowering && lowering.id === this.state.activeLowering.id) ? "text-warning" : "text-primary"} onClick={ () => this.handleLoweringSelect(lowering.id) }>{lowering.lowering_id}</span><br/></li>);
           })
           }
         </ul>
@@ -272,18 +255,20 @@ class CruiseMenu extends Component {
           <Card.Header>Cruise: <span className="text-warning">{this.state.activeCruise.cruise_id}</span></Card.Header>
           <Card.Body>
             {cruiseName}
+            {cruisePi}
             {cruiseDescription}
             {cruiseVessel}
             {cruiseLocation}
+            {cruisePorts}
             {cruiseDates}
-            {cruisePi}
             {cruiseFiles}
-            { (cruiseLowerings && cruiseLowerings.length > 0)? (
-              <div>
-                <p><strong>Lowerings:</strong></p>
-                {lowerings}
-              </div>
-            ): null
+            {
+              (cruiseLowerings && cruiseLowerings.length > 0)? (
+                <div>
+                  <p><strong>Lowerings:</strong></p>
+                  {lowerings}
+                </div>
+              ): null
             }
           </Card.Body>
         </Card>
@@ -298,73 +283,130 @@ class CruiseMenu extends Component {
       return moment.utc(cruise.start_ts).format("YYYY");
     }));
 
-    const activeYearKey = (years.size == 1) ? years.values().next().value : null;
+    const activeYear = (years.size == 1) ? years.values().next().value : null;
 
     this.setState({years});
-
-    this.handleYearSelect(activeYearKey);
   }
 
-  buildCruiseList(year) {
-    let startOfYear = new Date(year);
-    let endOfYear = new Date(startOfYear.getFullYear()+1, startOfYear.getMonth(), startOfYear.getDate());
-    // let yearCruises = this.props.cruises.filter(cruise => moment.utc(cruise.start_ts).isBetween(startOfYear, endOfYear));
-    let yearCruises = this.props.cruises.filter(cruise => moment.utc(cruise.start_ts).isBetween(moment.utc(startOfYear), moment.utc(endOfYear)));
+  buildCruiseList() {
 
-    this.setState({ yearCruises });
+    const yearCruises = {}
 
-    if(yearCruises.length === 1 && this.state.activeCruise === null) {
-      this.handleCruiseSelect(yearCruises[0].id);
+    if (this.state.years && this.state.years.size > 0) {
+      this.state.years.forEach((year) => {
+
+        // let cruise_start_ts = new Date(Date.UTC(year));
+        // console.log("cruise_start_ts:", cruise_start_ts);
+        // let startOfYear1 = new Date(Date.UTC(cruise_start_ts.getFullYear(), 0, 1, 0, 0, 0));
+        // console.log("startOfYear1:", startOfYear1);
+        // let endOfYear1 = new Date(Date.UTC(cruise_start_ts.getFullYear(), 11, 31, 23, 59, 59));
+        // console.log("endOfYear1:", endOfYear1);
+
+        let startOfYear = new Date(year);
+        // console.log("startOfYear:", startOfYear);
+        let endOfYear = new Date(startOfYear.getFullYear()+1, startOfYear.getMonth(), startOfYear.getDate());
+        // console.log("endOfYear:", endOfYear);
+
+        // let yearCruises = this.props.cruises.filter(cruise => moment.utc(cruise.start_ts).isBetween(startOfYear, endOfYear));
+        const yearCruisesTemp = this.props.cruises.filter(cruise => moment.utc(cruise.start_ts).isBetween(moment.utc(startOfYear), moment.utc(endOfYear)))
+        // console.log("yearCruisesTemp:",yearCruisesTemp);
+        yearCruises[year] = yearCruisesTemp.map((cruise) => { return { id: cruise.id, cruise_id: cruise.cruise_id } } );
+      });
+
+      // console.log('yearCruises:', yearCruises)
+      this.setState({ yearCruises });
     }
   }
 
-  buildLoweringList(start_ts, stop_ts) {
-    this.setState({ cruiseLowerings: this.props.lowerings.filter(lowering => moment.utc(lowering.start_ts).isBetween(start_ts, stop_ts)) });
-  }
+  buildLoweringList() {
+
+    if ( this.state.activeCruise ) {
+      let startOfCruise = new Date(this.state.activeCruise.start_ts);
+      // console.log("startOfYear:", startOfYear);
+      let endOfCruise = new Date(this.state.activeCruise.stop_ts);
+      // console.log("endOfYear:", endOfYear);
+
+      const cruiseLoweringsTemp = this.props.lowerings.filter(lowering => moment.utc(lowering.start_ts).isBetween(moment.utc(startOfCruise), moment.utc(endOfCruise)))
+      // console.log("yearCruisesTemp:",yearCruisesTemp);
+      const cruiseLowerings = cruiseLoweringsTemp.map((lowering) => { return { id: lowering.id, lowering_id: lowering.lowering_id } } );
+
+      // console.log('cruiseLowerings:', cruiseLowerings)
+      this.setState({ cruiseLowerings });
+    }
+
+
+    // // let cruise_start_ts = new Date(Date.UTC(year));
+    // // console.log("cruise_start_ts:", cruise_start_ts);
+    // // let startOfYear1 = new Date(Date.UTC(cruise_start_ts.getFullYear(), 0, 1, 0, 0, 0));
+    // // console.log("startOfYear1:", startOfYear1);
+    // // let endOfYear1 = new Date(Date.UTC(cruise_start_ts.getFullYear(), 11, 31, 23, 59, 59));
+    // // console.log("endOfYear1:", endOfYear1);
+
+    // let startOfYear = new Date(year);
+    // // console.log("startOfYear:", startOfYear);
+    // let endOfYear = new Date(startOfYear.getFullYear()+1, startOfYear.getMonth(), startOfYear.getDate());
+    // // console.log("endOfYear:", endOfYear);
+
+    // // let yearCruises = this.props.cruises.filter(cruise => moment.utc(cruise.start_ts).isBetween(startOfYear, endOfYear));
+    // const yearCruisesTemp = this.props.cruises.filter(cruise => moment.utc(cruise.start_ts).isBetween(moment.utc(startOfYear), moment.utc(endOfYear)))
+    // // console.log("yearCruisesTemp:",yearCruisesTemp);
+    // yearCruises[year] = yearCruisesTemp.map((cruise) => { return { id: cruise.id, cruise_id: cruise.cruise_id } } );
+
+    // // console.log('yearCruises:', yearCruises)
+    // this.setState({ cruiseLowerings });
+}
 
   renderYearListItems() {
 
-    let years = [];
+    const yearCards = []
 
-    let cruises = (this.state.yearCruises)? (
-      <ul>
-        { this.state.yearCruises.map((cruise) => {
-          if(this.state.activeCruise && cruise.id === this.state.activeCruise.id) {
-            return (<li key={`select_${cruise.id}`} ><span className="text-warning">{cruise.cruise_id}</span><br/></li>);
-          }
+    if (this.state.yearCruises) {
+      Object.entries(this.state.yearCruises).forEach(([year,cruises])=>{
+        // console.log(`${year}:${cruises.join(", ")}`)
 
-          return (<li key={`select_${cruise.id}`} ><Link to="#" onClick={ () => this.handleCruiseSelect(cruise.id) }>{cruise.cruise_id}</Link><br/></li>);
-        })
+        let yearTxt = <span className="text-primary">{year}</span> 
+
+        let yearCruises = (
+          <ul>
+            {
+              cruises.map((cruise) => {
+                return (<li key={`select_${cruise.id}`} ><span className={(this.state.activeCruise && cruise.id === this.state.activeCruise.id) ? "text-warning" : "text-primary"} onClick={ () => this.handleCruiseSelect(cruise.id) }>{cruise.cruise_id}</span><br/></li>);
+              })
+            }
+          </ul>
+        );
+
+        if (this.state.years.size > 1) {
+          yearCards.unshift(
+            <Card key={`year_${year}`} >
+              <Accordion.Toggle as={Card.Header} eventKey={year}>
+                <h6>Year: {yearTxt}</h6>
+              </Accordion.Toggle>
+              <Accordion.Collapse eventKey={year}>
+                <Card.Body>
+                  <strong>Cruises:</strong>
+                  {yearCruises}
+                </Card.Body>
+              </Accordion.Collapse>
+            </Card>
+          );
         }
-      </ul>
-    ): null;
+        else {
+          yearCards.push(
+            <Card key={`year_${year}`} >
+              <Card.Header>Year: {yearTxt}</Card.Header>
+              <Card.Body>
+                <strong>Cruises:</strong>
+                {yearCruises}
+              </Card.Body>
+            </Card>
+          );
+        }
+      })
+    }
 
-    this.state.years.forEach((year) => {
-
-      let yearTxt = null;
-      if(year == this.state.activeYearKey) {
-        yearTxt = <span className="text-warning">{year}</span>
-      }
-      else {
-        yearTxt = <span className="text-primary">{year}</span> 
-      }
-
-      years.push(          
-        <Card key={`year_${year}`} >
-          <Accordion.Toggle as={Card.Header} eventKey={year}>
-            <h6>Year: {yearTxt}</h6>
-          </Accordion.Toggle>
-          <Accordion.Collapse eventKey={year}>
-            <Card.Body>
-              <strong>Cruises:</strong>
-              {cruises}
-            </Card.Body>
-          </Accordion.Collapse>
-        </Card>
-      );
-    });
-
-    return years;    
+    return yearCards;
+ 
   }
 
   renderCruiseListItems() {
@@ -375,7 +417,8 @@ class CruiseMenu extends Component {
       let cruiseDescription = (cruise.cruise_additional_meta.cruise_description)? <span><strong>Description:</strong> {cruise.cruise_additional_meta.cruise_description}<br/></span> : null;
       let cruiseLocation = (cruise.cruise_location)? <span><strong>Location:</strong> {cruise.cruise_location}<br/></span> : null;
       let cruiseDates = <span><strong>Dates:</strong> {moment.utc(cruise.start_ts).format("YYYY/MM/DD")} - {moment.utc(cruise.stop_ts).format("YYYY/MM/DD")}<br/></span>;
-      let cruisePI = <span><strong>Chief Scientist:</strong> {cruise.cruise_pi}<br/></span>;
+      let cruisePI = <span><strong>Chief Scientist:</strong> {cruise.cruise_additional_meta.cruise_pi}<br/></span>;
+      let cruiseVessel = <span><strong>Vessel:</strong> {cruise.cruise_additional_meta.cruise_vessel}<br/></span>;
       let cruiseFiles = (cruise.cruise_additional_meta.cruise_files && cruise.cruise_additional_meta.cruise_files.length > 0)? <span><strong>Files:</strong><br/>{this.renderCruiseFiles(cruise.id, cruise.cruise_additional_meta.cruise_files)}</span>: null;
       
       let lowerings = (this.state.cruiseLowerings)? (
@@ -401,6 +444,7 @@ class CruiseMenu extends Component {
               {cruiseName}
               {cruiseDescription}
               {cruiseLocation}
+              {cruiseVessel}
               {cruiseDates}
               {cruisePI}
               {cruiseFiles}
@@ -421,12 +465,16 @@ class CruiseMenu extends Component {
 
   renderYearList() {
 
-    if(this.state.years && this.state.years.size > 0){
+    if(this.state.years && this.state.years.size > 1) {
       return (
-        <Accordion id="accordion-controlled-year" activeKey={this.state.activeYearKey} onSelect={this.handleYearSelect}>
+        <Accordion id="accordion-controlled-year" activeKey={this.state.activeYear} onSelect={this.handleYearSelect}>
           {this.renderYearListItems()}
         </Accordion>
       );
+    } else if(this.state.years && this.state.years.size > 0) {
+      return (
+        this.renderYearListItems()
+      )
     }
 
     return (
@@ -434,14 +482,14 @@ class CruiseMenu extends Component {
         <Card.Body>No cruises found!</Card.Body>
       </Card>
     );
-  }
+  } 
 
   renderCruiseList() {
 
     if(this.props.cruises && this.props.cruises.length > 0) {
 
       return (
-        <Accordion id="accordion-controlled-example" activeKey={this.state.activeCruiseKey} onSelect={this.handleCruiseSelect}>
+        <Accordion id="accordion-controlled-example" activeKey={this.state.activeCruise} onSelect={this.handleCruiseSelect}>
           {this.renderCruiseListItems()}
         </Accordion>
       );

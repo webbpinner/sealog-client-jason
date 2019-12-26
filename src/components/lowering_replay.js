@@ -26,7 +26,11 @@ const FREV = 3;
 
 const maxEventsPerPage = 10;
 
-const excludeAuxDataSources = ['vehicleRealtimeCTDData', 'vehicleRealtimeMAGData', 'vehicleRealtimeNavData', 'vehicleRealtimeAlvinCoordData', 'vehicleReNavData', 'vehicleReNavAlvinCoordData', 'vehicleRealtimeFramegrabberData'];
+const excludeAuxDataSources = ['vehicleRealtimeFramegrabberData','vehicleRealtimeAlvinCoordData','vehicleRealtimeNavData','vehicleReNavData'];
+
+const imageAuxDataSources = ['vehicleRealtimeFramegrabberData']
+
+const imageEvents = ['SulisCam'];
 
 const SliderWithTooltip = createSliderWithTooltip(Slider);
 
@@ -35,6 +39,8 @@ class LoweringReplay extends Component {
   constructor (props) {
     super(props);
 
+    this.divFocus = null;
+
     this.state = {
       replayTimer: null,
       replayState: PAUSE,
@@ -42,6 +48,7 @@ class LoweringReplay extends Component {
       activePage: 1,
     };
 
+    this.handleKeyPress = this.handleKeyPress.bind(this);
     this.sliderTooltipFormatter = this.sliderTooltipFormatter.bind(this);
     this.handleSliderChange = this.handleSliderChange.bind(this);
     this.handleEventClick = this.handleEventClick.bind(this);
@@ -58,7 +65,6 @@ class LoweringReplay extends Component {
   componentDidMount() {
 
     if(!this.props.lowering.id || this.props.lowering.id !== this.props.match.params.id || this.props.event.events.length === 0) {
-      // console.log("initLoweringReplay", this.props.match.params.id)
       this.props.initLoweringReplay(this.props.match.params.id, this.props.event.hideASNAP);
     }
     else {
@@ -71,15 +77,11 @@ class LoweringReplay extends Component {
       );
     }
 
-    // if(!this.props.cruise.id || this.props.lowering.id !== this.props.match.params.id){
     this.props.initCruiseFromLowering(this.props.match.params.id);
-    // }
+    this.divFocus.focus();
   }
 
   componentDidUpdate() {
-    // if(this.state.mapHeight !== this.mapCard.clientHeight) {
-    //   this.setState({mapHeight: this.mapCard.clientHeight });
-    // }
   }
 
   componentWillUnmount(){
@@ -149,10 +151,45 @@ class LoweringReplay extends Component {
     this.props.showModal('eventComment', { event: this.props.event.events[index], handleUpdateEvent: this.props.updateEvent });
   }
 
-  handlePageSelect(eventKey) {
+  handlePageSelect(eventKey, updateReplay=true) {
     this.handleLoweringReplayPause();
     this.setState({activePage: eventKey, replayEventIndex: (eventKey-1)*maxEventsPerPage });
-    this.props.advanceLoweringReplayTo(this.props.event.events[(eventKey-1)*maxEventsPerPage].id);
+    if(updateReplay) {
+      this.props.advanceLoweringReplayTo(this.props.event.events[(eventKey-1)*maxEventsPerPage].id);
+    }
+    this.divFocus.focus();
+  }
+
+  handleKeyPress(event) {
+    if(event.key === "ArrowRight" && this.state.activePage < Math.ceil(this.props.event.events.length / maxEventsPerPage)) {
+      this.handlePageSelect(this.state.activePage + 1)
+    }
+    else if(event.key === "ArrowLeft" && this.state.activePage > 1) {
+      this.handlePageSelect(this.state.activePage - 1)
+    }
+    else if(event.key === "ArrowDown") {
+      const eventIndex = this.props.event.events.findIndex((event) => event.id === this.props.event.selected_event.id);
+      if(eventIndex < (this.props.event.events.length - 1)) {
+        if(Math.ceil((eventIndex + 2) / maxEventsPerPage) !== this.state.activePage) {
+          this.handlePageSelect(Math.ceil((eventIndex + 2) / maxEventsPerPage))
+        }
+        else {
+          this.props.advanceLoweringReplayTo(this.props.event.events[eventIndex + 1].id)  
+        } 
+      }
+    }
+    else if(event.key === "ArrowUp") {
+      const eventIndex = this.props.event.events.findIndex((event) => event.id === this.props.event.selected_event.id);
+      if(eventIndex > 0) {
+        if(Math.ceil((eventIndex) / maxEventsPerPage) !== this.state.activePage) {
+          this.handlePageSelect(Math.ceil((eventIndex) / maxEventsPerPage), false)
+          this.props.advanceLoweringReplayTo(this.props.event.events[eventIndex - 1].id)
+        }
+        else {
+          this.props.advanceLoweringReplayTo(this.props.event.events[eventIndex - 1].id)
+        }
+      }
+    }
   }
 
   handleLoweringSelect(id) {
@@ -257,14 +294,26 @@ class LoweringReplay extends Component {
   }
 
   renderImageryCard() {
-    if(this.props.event && this.props.event.selected_event.aux_data) { 
-      if (this.props.event.selected_event.event_value === "SulisCam") {
-        let tmpData =[];
+    if (this.props.event && imageEvents.includes(this.props.event.selected_event.event_value)) {
+      const filename_option = this.props.event.selected_event.event_options.find((event_option) => event_option.event_option_name === 'filename');
+      if(filename_option) {
+        return (
+          <Row>
+            <Col key={this.props.event.event_value} xs={12} sm={6} md={3} lg={3}>
+              {this.renderImage('SulisCam', API_ROOT_URL + IMAGE_PATH + filename_option.event_option_value)}
+            </Col>
+          </Row>
+        );
+      }
+    }
+    else if(this.props.event && this.props.event.selected_event.aux_data) { 
+      let frameGrabberData = this.props.event.selected_event.aux_data.filter(aux_data => imageAuxDataSources.includes(aux_data.data_source));
+      let tmpData = [];
 
-        for (let i = 0; i < this.props.event.selected_event.event_options.length; i++) {
-          if (this.props.event.selected_event.event_options[i].event_option_name === "filename") {
-            tmpData.push({source: "SulisCam", filepath: API_ROOT_URL + IMAGE_PATH + "/SulisCam/" + this.props.event.selected_event.event_options[i].event_option_value} );
-          } 
+      if(frameGrabberData.length > 0) {
+        for (let i = 0; i < frameGrabberData[0].data_array.length; i+=2) {
+    
+          tmpData.push({source: frameGrabberData[0].data_array[i].data_value, filepath: API_ROOT_URL + IMAGE_PATH + frameGrabberData[0].data_array[i+1].data_value} );
         }
 
         return (
@@ -280,327 +329,21 @@ class LoweringReplay extends Component {
             }
           </Row>
         );
-      } else {
-        let frameGrabberData = this.props.event.selected_event.aux_data.filter(aux_data => aux_data.data_source === 'vehicleRealtimeFramegrabberData');
-        let tmpData = [];
-
-        if(frameGrabberData.length > 0) {
-          for (let i = 0; i < frameGrabberData[0].data_array.length; i+=2) {
-      
-            tmpData.push({source: frameGrabberData[0].data_array[i].data_value, filepath: API_ROOT_URL + IMAGE_PATH + '/' + path.basename(frameGrabberData[0].data_array[i+1].data_value)} );
-          }
-
-          return (
-            <Row>
-              {
-                tmpData.map((camera) => {
-                  return (
-                    <Col key={camera.source} xs={12} sm={6} md={3} lg={3}>
-                      {this.renderImage(camera.source, camera.filepath)}
-                    </Col>
-                  );
-                })
-              }
-            </Row>
-          );
-        }
       }
     }
-  }
-
-  renderNavLatLonCard() {
-
-    let realtime_latitude = 'n/a';
-    let realtime_longitude = 'n/a';
-
-    let renav_latitude = 'n/a';
-    let renav_longitude = 'n/a';
-
-    let delta_latitude = 'n/a';
-    let delta_longitude = 'n/a';
-
-    if(this.props.event && this.props.event.selected_event.aux_data) {
-      let vehicleRealtimeNavData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source === "vehicleRealtimeNavData");
-      if(vehicleRealtimeNavData) {
-        let xObj = vehicleRealtimeNavData.data_array.find(data => data.data_name === "latitude");
-        realtime_latitude = (xObj)? `${xObj.data_value} ${xObj.data_uom}` : 'n/a';
-        delta_latitude = (xObj)? `${parseFloat(xObj.data_value)}` : 'n/a';
-
-        let yObj = vehicleRealtimeNavData.data_array.find(data => data.data_name === "longitude");
-        realtime_longitude = (yObj)? `${yObj.data_value} ${yObj.data_uom}` : 'n/a';
-        delta_longitude = (yObj)? `${parseFloat(yObj.data_value)}` : 'n/a';
-      }
-    }
-
-    if(this.props.event && this.props.event.selected_event.aux_data) {
-      let vehicleReNavData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source === "vehicleReNavData");
-      if(vehicleReNavData) {
-        let xObj = vehicleReNavData.data_array.find(data => data.data_name === "latitude");
-        renav_latitude = (xObj)? `${parseFloat(xObj.data_value).toFixed(6)} ${xObj.data_uom}` : 'n/a';
-        delta_latitude = (xObj)? `${(delta_latitude - parseFloat(xObj.data_value)).toFixed(6)} ddeg` : 'n/a';
-
-        let yObj = vehicleReNavData.data_array.find(data => data.data_name === "longitude");
-        renav_longitude = (yObj)? `${parseFloat(yObj.data_value).toFixed(6)} ${yObj.data_uom}` : 'n/a';
-        delta_longitude = (yObj)? `${(delta_longitude - parseFloat(yObj.data_value)).toFixed(6)} ddeg` : 'n/a';
-      } else {
-        delta_latitude = 'n/a';
-        delta_longitude = 'n/a';
-      }
-    }
-
-
-    return (
-      <Card>
-        <Card.Header className="data-card-header">Lat/Lng Coordinates</Card.Header>
-        <Card.Body className="data-card-body">
-          <strong>Realtime</strong><br/>
-          <div style={{paddingLeft: "10px"}}>
-            Lat:<span className="float-right"> {`${realtime_latitude}`}</span><br/>
-            Lng:<span className="float-right"> {`${realtime_longitude}`}</span><br/>
-          </div>
-          <strong>ReNav</strong><br/>
-          <div style={{paddingLeft: "10px"}}>
-            Lat:<span className="float-right"> {`${renav_latitude}`}</span><br/>
-            Lng:<span className="float-right"> {`${renav_longitude}`}</span><br/>
-          </div>
-          <strong>Delta</strong><br/>
-          <div style={{paddingLeft: "10px"}}>
-            Lat:<span className="float-right"> {`${delta_latitude}`}</span><br/>
-            Lng:<span className="float-right"> {`${delta_longitude}`}</span><br/>
-          </div>
-        </Card.Body>
-      </Card>
-    );
-  }
-
-  renderNavAlvCoordCard() {
-
-    let realtime_alvin_x = 'n/a';
-    let realtime_alvin_y = 'n/a';
-
-    let renav_alvin_x = 'n/a';
-    let renav_alvin_y = 'n/a';
-
-    let delta_alvin_x = 'n/a';
-    let delta_alvin_y = 'n/a';
-
-    if(this.props.event && this.props.event.selected_event.aux_data) {
-      let vehicleRealtimeAlvinCoordData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source === "vehicleRealtimeAlvinCoordData");
-      if(vehicleRealtimeAlvinCoordData) {
-        let xObj = vehicleRealtimeAlvinCoordData.data_array.find(data => data.data_name === "alvin_x");
-        realtime_alvin_x = (xObj)? `${xObj.data_value} ${xObj.data_uom}` : 'n/a';
-        delta_alvin_x = (xObj)? `${parseFloat(xObj.data_value)}` : 'n/a';
-
-        let yObj = vehicleRealtimeAlvinCoordData.data_array.find(data => data.data_name === "alvin_y");
-        realtime_alvin_y = (yObj)? `${yObj.data_value} ${yObj.data_uom}` : 'n/a';
-        delta_alvin_y = (yObj)? `${parseFloat(yObj.data_value)}` : 'n/a';
-      }
-    }
-
-    if(this.props.event && this.props.event.selected_event.aux_data) {
-      let vehicleReNavAlvinCoordData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source === "vehicleReNavAlvinCoordData");
-      if(vehicleReNavAlvinCoordData) {
-        let xObj = vehicleReNavAlvinCoordData.data_array.find(data => data.data_name === "alvin_x");
-        renav_alvin_x = (xObj)? `${parseFloat(xObj.data_value).toFixed(2)} ${xObj.data_uom}` : 'n/a';
-        delta_alvin_x = (xObj)? `${(delta_alvin_x - parseFloat(xObj.data_value)).toFixed(2)} meters` : 'n/a';
-
-        let yObj = vehicleReNavAlvinCoordData.data_array.find(data => data.data_name === "alvin_y");
-        renav_alvin_y = (yObj)? `${parseFloat(yObj.data_value).toFixed(2)} ${yObj.data_uom}` : 'n/a';
-        delta_alvin_y = (yObj)? `${(delta_alvin_y - parseFloat(yObj.data_value)).toFixed(2)} meters` : 'n/a';
-      } else {
-        delta_alvin_x = 'n/a';
-        delta_alvin_y = 'n/a';
-      }
-    }
-
-    return (
-      <Card>
-        <Card.Header className="data-card-header">Alvin Coordinates</Card.Header>
-        <Card.Body className="data-card-body">
-          <strong>Realtime</strong><br/>
-          <div style={{paddingLeft: "10px"}}>
-            X:<span className="float-right"> {`${realtime_alvin_x}`}</span><br/>
-            Y:<span className="float-right"> {`${realtime_alvin_y}`}</span><br/>
-          </div>
-          <strong>ReNav</strong><br/>
-          <div style={{paddingLeft: "10px"}}>
-            X:<span className="float-right"> {`${renav_alvin_x}`}</span><br/>
-            Y:<span className="float-right"> {`${renav_alvin_y}`}</span><br/>
-          </div>
-          <strong>Delta</strong><br/>
-          <div style={{paddingLeft: "10px"}}>
-            X:<span className="float-right"> {`${delta_alvin_x}`}</span><br/>
-            Y:<span className="float-right"> {`${delta_alvin_y}`}</span><br/>
-          </div>
-        </Card.Body>
-      </Card>
-    );
-  }
-
-  renderAttitudeCard() {
-    let depth = 'n/a';
-    let alt = 'n/a';
-    let hdg = 'n/a';
-    let pitch = 'n/a';
-    let roll = 'n/a';
-
-    if(this.props.event && this.props.event.selected_event.aux_data) {
-      let vehicleRealtimeNavData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source === "vehicleRealtimeNavData");
-      if(vehicleRealtimeNavData) {
-        let depthObj = vehicleRealtimeNavData.data_array.find(data => data.data_name === "depth");
-        depth = (depthObj)? `${depthObj.data_value} ${depthObj.data_uom}` : 'n/a';
-
-        let altObj = vehicleRealtimeNavData.data_array.find(data => data.data_name === "altitude");
-        alt = (altObj)? `${altObj.data_value} ${altObj.data_uom}` : 'n/a';
-
-        let hdgObj = vehicleRealtimeNavData.data_array.find(data => data.data_name === "heading");
-        hdg = (hdgObj)? `${hdgObj.data_value} ${hdgObj.data_uom}` : 'n/a';
-
-        let pitchObj = vehicleRealtimeNavData.data_array.find(data => data.data_name === "pitch");
-        pitch = (pitchObj)? `${pitchObj.data_value} ${pitchObj.data_uom}` : 'n/a';
-
-        let rollObj = vehicleRealtimeNavData.data_array.find(data => data.data_name === "roll");
-        roll = (rollObj)? `${rollObj.data_value} ${rollObj.data_uom}` : 'n/a';
-
-      }
-    }  
-
-    return (
-      <Card>
-        <Card.Header className="data-card-header">Vehicle Attitude</Card.Header>
-        <Card.Body className="data-card-body">
-          <strong>Realtime</strong><br/>
-          <div style={{paddingLeft: "10px"}}>
-            Depth:<span className="float-right"> {`${depth}`}</span><br/>
-            Alt:<span className="float-right"> {`${alt}`}</span><br/>
-            Hdg:<span className="float-right"> {`${hdg}`}</span><br/>
-            Pitch:<span className="float-right"> {`${pitch}`}</span><br/>
-            Roll:<span className="float-right"> {`${roll}`}</span><br/>
-          </div>
-        </Card.Body>
-      </Card>
-    );
-  }
-
-  renderSensorCard() {
-    let ctd_data = null;
-    let temp_probe_data = null;
-    let mag_data = null;
-
-    if(this.props.event && this.props.event.selected_event.aux_data) {
-      const vehicleCTDData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source === "vehicleRealtimeCTDData");
-      if(vehicleCTDData) {
-        const ctd_cObj = vehicleCTDData.data_array.find(data => data.data_name === "ctd_c");
-        const ctd_c = (ctd_cObj)? `${ctd_cObj.data_value} ${ctd_cObj.data_uom}` : 'n/a';
-
-        const ctd_tObj = vehicleCTDData.data_array.find(data => data.data_name === "ctd_t");
-        const ctd_t = (ctd_tObj)? `${ctd_tObj.data_value} ${ctd_tObj.data_uom}` : 'n/a';
-
-        const ctd_dObj = vehicleCTDData.data_array.find(data => data.data_name === "ctd_d");
-        const ctd_d = (ctd_dObj)? `${ctd_dObj.data_value} ${ctd_dObj.data_uom}` : 'n/a';
-
-        ctd_data = (
-          <Col sm={12} md={12}>
-            <strong>CTD</strong><br/>
-            <div style={{paddingLeft: "10px"}}>
-              C:<span className="float-right"> {`${ctd_c}`}</span><br/>
-              T:<span className="float-right"> {`${ctd_t}`}</span><br/>
-              D:<span className="float-right"> {`${ctd_d}`}</span><br/>
-            </div>
-          </Col>
-        );
-      }
-
-      const vehicleTempProbeData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source === "vehicleRealtimeTempProbeData");
-      if(vehicleTempProbeData) {
-        const temp_probeObj = vehicleTempProbeData.data_array.find(data => data.data_name === "ctd_c");
-        const temp_probe = (temp_probeObj)? `${temp_probeObj.data_value} ${temp_probeObj.data_uom}` : 'n/a';
-
-        temp_probe_data = (
-          <Col sm={12} md={12}>
-            <strong>Temp Probe</strong><br/>
-            <div style={{paddingLeft: "10px"}}>
-              Temp:<span className="float-right"> {`${temp_probe}`}</span><br/>
-            </div>
-          </Col>
-        );
-      }
-
-      const vehicleMagData = this.props.event.selected_event.aux_data.find(aux_data => aux_data.data_source === "vehicleRealtimeMAGData");
-      if(vehicleMagData) {
-        const mag_xObj = vehicleMagData.data_array.find(data => data.data_name === "x-axis");
-        const mag_x = (mag_xObj)? `${mag_xObj.data_value} ${mag_xObj.data_uom}` : 'n/a';
-
-        const mag_yObj = vehicleMagData.data_array.find(data => data.data_name === "y-axis");
-        const mag_y = (mag_yObj)? `${mag_yObj.data_value} ${mag_yObj.data_uom}` : 'n/a';
-
-        const mag_zObj = vehicleMagData.data_array.find(data => data.data_name === "z-axis");
-        const mag_z = (mag_zObj)? `${mag_zObj.data_value} ${mag_zObj.data_uom}` : 'n/a';
-
-        mag_data = (
-          <Col sm={12} md={12}>
-            <strong>Magnetometer</strong><br/>
-            <div style={{paddingLeft: "10px"}}>
-              X:<span className="float-right"> {`${mag_x}`}</span><br/>
-              Y:<span className="float-right"> {`${mag_y}`}</span><br/>
-              Z:<span className="float-right"> {`${mag_z}`}</span><br/>
-            </div>
-          </Col>
-        );
-      }
-    }
-
-    return (ctd_data || temp_probe_data || mag_data)? (
-      <Col xs={12} sm={6} md={6} lg={3}>
-        <Card>
-          <Card.Header className="data-card-header">Sensor Data</Card.Header>
-          <Card.Body className="data-card-body">
-            <Row>
-              {ctd_data}
-              {temp_probe_data}
-              {mag_data}
-            </Row>
-          </Card.Body>
-        </Card>
-      </Col>
-    ):null;
   }
 
   renderEventOptionsCard() {
 
     if(this.props.event.selected_event && this.props.event.selected_event.event_options && this.props.event.selected_event.event_options.length > 0) {
 
-      let event_seatube_permalink = false;
-
       let return_event_options = this.props.event.selected_event.event_options.reduce((filtered, event_option, index) => {
-        if(event_option.event_option_name !== 'event_comment') {
-          if (this.props.event.selected_event.event_value === "EDU" && event_option.event_option_name === 'seatube_permalink') {
-            event_seatube_permalink = true;
-            if(this.props.roles.includes("admin") || this.props.roles.includes("event_manager") || this.props.roles.includes("event_loggerr")) {
-              if( event_option.event_option_value !== '') {
-                filtered.push(<span key={`event_option_${index}`}>{event_option.event_option_name}: <a target="_blank" href={this.props.event.selected_event.event_options[index].event_option_value}>{this.props.event.selected_event.event_options[index].event_option_value}</a> (<span className="text-primary" onClick={() => this.handleEventPermalinkModal()}>Edit</span>)<br/></span>);
-              }
-              else {
-                filtered.push(<span key={`event_option_${index}`}>{event_option.event_option_name}: (<span className="text-primary" onClick={() => this.handleEventPermalinkModal()}>Add</span>)<br/></span>);
-              }
-            }
-          }
-          else {
-            filtered.push(<div key={`event_option_${index}`}><span>{event_option.event_option_name}:</span> <span style={{wordWrap:'break-word'}} >{event_option.event_option_value}</span><br/></div>);
-          }
+        if(event_option.event_option_name !== 'event_comment' && !(event_option.event_option_name === "filename" && imageEvents.includes(this.props.event.selected_event.event_value))) {
+          filtered.push(<div style={{'textTransform': 'capitalize'}} key={`event_option_${index}`}><span>{event_option.event_option_name}:</span> <span className="float-right" style={{wordWrap:'break-word'}} >{event_option.event_option_value}</span><br/></div>);
         }
 
         return filtered;
       },[]);
-
-      if(this.props.event.selected_event.event_value === "EDU" && !event_seatube_permalink) {
-        if(this.props.roles.includes("admin") || this.props.roles.includes("event_manager") || this.props.roles.includes("event_loggerr")) {
-          return_event_options.push(<span key={`event_option_${return_event_options.length}`}>seatube_permalink: (<span className="text-primary" onClick={() => this.handleEventPermalinkModal()}>Add</span>)<br/></span>);
-        }
-        else {
-          return_event_options.push(<span key={`event_option_${return_event_options.length}`}>seatube_permalink:<br/></span>); 
-        }
-      }
 
       return (return_event_options.length > 0)? (
         <Col xs={12} sm={6} md={6} lg={3}>
@@ -617,13 +360,127 @@ class LoweringReplay extends Component {
     }
   }
 
+  renderVehicleRealtimeAlvinCoordDataCard() {
+
+    if(this.props.event.selected_event && this.props.event.selected_event.aux_data) {
+
+      const vehicleRealtimeAlvinCoordData = this.props.event.selected_event.aux_data.find((data) => data.data_source === 'vehicleRealtimeAlvinCoordData');
+
+      if(vehicleRealtimeAlvinCoordData) {
+        let aux_data_points = vehicleRealtimeAlvinCoordData.data_array.map((data, index) => {
+          let data_name = ''
+          if (data.data_name === 'alvin_x') {
+            data_name = 'X'
+          }
+          else if (data.data_name === 'alvin_y') {
+           data_name = 'Y' 
+          }
+
+          return(<div style={{'textTransform': 'capitalize'}} key={`${vehicleRealtimeAlvinCoordData.data_source}_data_point_${index}`}><span>{data_name}:</span> <span className="float-right" style={{wordWrap:'break-word'}} >{data.data_value} {data.data_uom}</span><br/></div>);
+        });
+
+        if(aux_data_points.length > 0) {
+          return (
+            <Col key={`${vehicleRealtimeAlvinCoordData.data_source}_col`}sm={4} md={3} lg={3}>
+              <Card key={`${vehicleRealtimeAlvinCoordData.data_source}`}>
+                <Card.Header className="data-card-header">Alvin Coordinates</Card.Header>
+                <Card.Body className="data-card-body">
+                  <div style={{paddingLeft: "10px"}}>
+                    {aux_data_points}
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          );
+        }
+        return null;
+      }
+
+      return null;
+    }
+
+    return null;
+  }
+
+  renderVehicleRealtimeNavDataCard() {
+
+    if(this.props.event.selected_event && this.props.event.selected_event.aux_data) {
+
+      const vehicleRealtimeAlvinCoordData = this.props.event.selected_event.aux_data.find((data) => data.data_source === 'vehicleRealtimeNavData');
+
+      if(vehicleRealtimeAlvinCoordData) {
+        let aux_data_points = vehicleRealtimeAlvinCoordData.data_array.map((data, index) => {
+          let data_name = '';
+
+          return(<div style={{'textTransform': 'capitalize'}} key={`${vehicleRealtimeAlvinCoordData.data_source}_data_point_${index}`}><span>{data.data_name}:</span> <span className="float-right" style={{wordWrap:'break-word'}} >{data.data_value} {data.data_uom}</span><br/></div>);
+        });
+
+        if(aux_data_points.length > 0) {
+          return (
+            <Col key={`${vehicleRealtimeAlvinCoordData.data_source}_col`}sm={4} md={3} lg={3}>
+              <Card key={`${vehicleRealtimeAlvinCoordData.data_source}`}>
+                <Card.Header className="data-card-header">Realtime Navigation</Card.Header>
+                <Card.Body className="data-card-body">
+                  <div style={{paddingLeft: "10px"}}>
+                    {aux_data_points}
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          );
+        }
+        return null;
+      }
+
+      return null;
+    }
+
+    return null;
+  }
+
+  renderVehicleReNavDataCard() {
+
+    if(this.props.event.selected_event && this.props.event.selected_event.aux_data) {
+
+      const vehicleRealtimeAlvinCoordData = this.props.event.selected_event.aux_data.find((data) => data.data_source === 'vehicleReNavData');
+
+      if(vehicleRealtimeAlvinCoordData) {
+        let aux_data_points = vehicleRealtimeAlvinCoordData.data_array.map((data, index) => {
+          let data_name = '';
+
+          return(<div style={{'textTransform': 'capitalize'}} key={`${vehicleRealtimeAlvinCoordData.data_source}_data_point_${index}`}><span>{data.data_name}:</span> <span className="float-right" style={{wordWrap:'break-word'}} >{data.data_value} {data.data_uom}</span><br/></div>);
+        });
+
+        if(aux_data_points.length > 0) {
+          return (
+            <Col key={`${vehicleRealtimeAlvinCoordData.data_source}_col`}sm={4} md={3} lg={3}>
+              <Card key={`${vehicleRealtimeAlvinCoordData.data_source}`}>
+                <Card.Header className="data-card-header">Re-Navigation</Card.Header>
+                <Card.Body className="data-card-body">
+                  <div style={{paddingLeft: "10px"}}>
+                    {aux_data_points}
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          );
+        }
+        return null;
+      }
+
+      return null;
+    }
+
+    return null;
+  }
+
   renderAuxDataCard() {
 
     if(this.props.event.selected_event && this.props.event.selected_event.aux_data) {
       let return_aux_data = this.props.event.selected_event.aux_data.reduce((filtered, aux_data, index) => {
         if(!excludeAuxDataSources.includes(aux_data.data_source)) {
           let aux_data_points = aux_data.data_array.map((data, index) => {
-            return(<div key={`${aux_data.data_source}_data_point_${index}`}><span>{data.data_name}:</span> <span style={{wordWrap:'break-word'}} >{data.data_value} {data.data_uom}</span><br/></div>);
+            return(<div style={{'textTransform': 'capitalize'}} key={`${aux_data.data_source}_data_point_${index}`}><span>{data.data_name}:</span> <span className="float-right" style={{wordWrap:'break-word'}} >{data.data_value} {data.data_uom}</span><br/></div>);
           });
 
           if(aux_data_points.length > 0) {
@@ -726,6 +583,38 @@ class LoweringReplay extends Component {
     );
   }
 
+  renderEvents() {
+
+    if(this.props.event.events && this.props.event.events.length > 0){
+
+      let eventList = this.props.event.events.map((event, index) => {
+        if(index >= (this.state.activePage-1) * maxEventsPerPage && index < (this.state.activePage * maxEventsPerPage)) {
+          
+          let comment_exists = (event.event_options.find((option) => option.event_option_name == 'event_comment')) ? true : false;
+          
+          // if (event.event_free_text) {
+          //   eventOptionsArray.push(`"${event.event_free_text}"`);
+          // } 
+
+          let active = (this.props.event.selected_event.id === event.id)? true : false;
+
+          // let eventOptions = (eventOptionsArray.length > 0)? '--> ' + eventOptionsArray.join(', '): '';
+          
+          let commentIcon = (comment_exists)? <FontAwesomeIcon onClick={() => this.handleEventCommentModal(index)} icon='comment' fixedWidth transform="grow-4"/> : <span onClick={() => this.handleEventCommentModal(index)} className="fa-layers fa-fw"><FontAwesomeIcon icon='comment' fixedWidth transform="grow-4"/><FontAwesomeIcon className={(active)? "text-primary" : "text-secondary" } icon='plus' fixedWidth transform="shrink-4"/></span>;
+          let commentTooltip = (comment_exists)? (<OverlayTrigger placement="left" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Edit/View Comment</Tooltip>}>{commentIcon}</OverlayTrigger>) : (<OverlayTrigger placement="top" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Add Comment</Tooltip>}>{commentIcon}</OverlayTrigger>);
+          let eventComment = (this.props.roles.includes("event_logger") || this.props.roles.includes("admin"))? commentTooltip : null;
+
+          return (<ListGroup.Item className="event-list-item" key={event.id} active={active} ><span onClick={() => this.handleEventClick(index)} >{`${event.ts} <${event.event_author}>: ${event.event_value} ${(event.event_free_text !== "") ? `-> "${event.event_free_text}"` : ""}`}</span><span className="float-right">{eventComment}</span></ListGroup.Item>);
+
+        }
+      });
+
+      return eventList;
+    }
+
+    return (this.props.event.fetching)? (<ListGroup.Item className="event-list-item">Loading...</ListGroup.Item>) : (<ListGroup.Item>No events found</ListGroup.Item>);
+  }
+
   renderEventCard() {
     return (
       <Card>
@@ -737,71 +626,13 @@ class LoweringReplay extends Component {
     );
   }
 
-  renderEvents() {
-
-    if(this.props.event.events && this.props.event.events.length > 0){
-
-      let eventList = this.props.event.events.map((event, index) => {
-        if(index >= (this.state.activePage-1) * maxEventsPerPage && index < (this.state.activePage * maxEventsPerPage)) {
-          
-          let comment_exists = false;
-
-          let eventOptionsArray = event.event_options.reduce((filtered, option) => {
-            if(option.event_option_name === 'event_comment') {
-              comment_exists = (option.event_option_value !== '')? true : false;
-            } else {
-              filtered.push(`${option.event_option_name}: "${option.event_option_value}"`);
-            }
-            return filtered;
-          },[]);
-          
-          if (event.event_free_text) {
-            eventOptionsArray.push(`free_text: "${event.event_free_text}"`);
-          } 
-
-          let active = (this.props.event.selected_event.id === event.id)? true : false;
-
-          let eventOptions = (eventOptionsArray.length > 0)? '--> ' + eventOptionsArray.join(', '): '';
-          
-          let commentIcon = (comment_exists)? <FontAwesomeIcon onClick={() => this.handleEventCommentModal(index)} icon='comment' fixedWidth transform="grow-4"/> : <span onClick={() => this.handleEventCommentModal(index)} className="fa-layers fa-fw"><FontAwesomeIcon icon='comment' fixedWidth transform="grow-4"/><FontAwesomeIcon className={(active)? "text-primary" : "text-secondary" } icon='plus' fixedWidth transform="shrink-4"/></span>;
-          let commentTooltip = (comment_exists)? (<OverlayTrigger placement="left" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Edit/View Comment</Tooltip>}>{commentIcon}</OverlayTrigger>) : (<OverlayTrigger placement="top" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Add Comment</Tooltip>}>{commentIcon}</OverlayTrigger>);
-          let eventComment = (this.props.roles.includes("event_logger") || this.props.roles.includes("admin"))? commentTooltip : null;
-
-          //eventArray.push(<ListGroup.Item className="event-list-item" eventKey={event.id} key={event.id}><span onClick={() => this.handleEventShowDetailsModal(event)}>{event.ts} {`<${event.event_author}>`}: {event.event_value} {eventOptions}</span><span className="float-right">{commentTooltip}</span></ListGroup.Item>);
-          return (<ListGroup.Item className="event-list-item" key={event.id} active={active} ><span onClick={() => this.handleEventClick(index)} >{`${event.ts} <${event.event_author}>: ${event.event_value} ${eventOptions}`}</span><span className="float-right">{eventComment}</span></ListGroup.Item>);
-
-        }
-      });
-
-      return eventList;
-    }
-
-    return (this.props.event.fetching)? (<ListGroup.Item className="event-list-item">Loading...</ListGroup.Item>) : (<ListGroup.Item>No events found</ListGroup.Item>);
-  }
-
-  // renderMapCard() {
-
-  //   // const mapRatio = (new Date(this.props.cruise.start_ts) <= new Date("2012-10-01"))? "embed-responsive-4by3" : "embed-responsive-16by9"
-  //   const mapRatio = "embed-responsive-4by3"
-
-  //   return (
-  //     <Card id="MapCard" style={{backgroundColor: "#282828"}}>
-  //       <Card.Body style={{padding: "4px", marginBottom: "10px"}}>
-  //         <div ref={ (mapCard) => this.mapCard = mapCard} className={`embed-responsive ${mapRatio}`}>
-  //           <LoweringReplayMap height={this.state.mapHeight} event={this.props.event.selected_event}/>
-  //         </div>
-  //         <div style={{marginTop: "8px", marginLeft: "10px"}}>Map</div>
-  //       </Card.Body>
-  //     </Card>
-  //   )
-  // }
-
   render(){
 
     const cruise_id = (this.props.cruise.cruise_id)? this.props.cruise.cruise_id : "Loading...";
+    // console.log("cruise:", this.props.cruise);
 
     return (
-      <div>
+      <div tabIndex="-1" onKeyDown={this.handleKeyPress} ref={(div) => { this.divFocus = div }}>
         <ImagePreviewModal />
         <EventCommentModal />
         <Row>
@@ -819,16 +650,9 @@ class LoweringReplay extends Component {
           <Col sm={12}>
             {this.renderImageryCard()}
           </Col>
-          <Col sm={4} md={3} lg={3}>
-            {this.renderNavLatLonCard()}
-          </Col>
-          <Col sm={4} md={3} lg={3}>
-            {this.renderNavAlvCoordCard()}
-          </Col>
-          <Col sm={4} md={3} lg={3}>
-            {this.renderAttitudeCard()}
-          </Col>
-          {this.renderSensorCard()}
+          {this.renderVehicleRealtimeNavDataCard()}
+          {this.renderVehicleReNavDataCard()}
+          {this.renderVehicleRealtimeAlvinCoordDataCard()}
           {this.renderEventOptionsCard()}
           {this.renderAuxDataCard()}
           <Col sm={12}>
