@@ -75,8 +75,6 @@ class LoweringGallery extends Component {
       return [];
     });
 
-    console.log("image_data:", image_data);
-
     const sulisCam_data = await axios.get(`${API_ROOT_URL}/api/v1/events/bylowering/${id}?value=SulisCam`,
       {
         headers: {
