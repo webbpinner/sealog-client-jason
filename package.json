@@ -1,6 +1,6 @@
 {
   "name": "sealog-client-jason",
-  "version": "0.8.0a",
+  "version": "0.9.0",
   "license": "MIT",
   "description": "Sealog Client intended for use with JASON",
   "bugs": {
