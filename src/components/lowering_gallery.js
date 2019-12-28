@@ -63,7 +63,7 @@ class LoweringGallery extends Component {
             image_data[data.data_array[i].data_value] = { images: [] };
           }
 
-          image_data[data.data_array[i].data_value].images.unshift({ event_id: data.event_id, filepath: API_ROOT_URL + IMAGE_PATH + '/' + path.basename(data.data_array[i+1].data_value) });
+          image_data[data.data_array[i].data_value].images.unshift({ event_id: data.event_id, filepath: API_ROOT_URL + IMAGE_PATH + data.data_array[i+1].data_value });
         }
       });
 
@@ -74,6 +74,36 @@ class LoweringGallery extends Component {
       }
       return [];
     });
+
+    console.log("image_data:", image_data);
+
+    const sulisCam_data = await axios.get(`${API_ROOT_URL}/api/v1/events/bylowering/${id}?value=SulisCam`,
+      {
+        headers: {
+          authorization: cookies.get('token')
+        }
+      }).then((response) => {
+
+      let image_data = { images: [] };
+      response.data.forEach((event) => {
+        event.event_options.forEach((option) => {
+          if (option.event_option_name === 'filename') {
+            image_data.images.unshift({ event_id: event.id, filepath: API_ROOT_URL + IMAGE_PATH + option.event_option_value });
+          }
+        })
+      });
+
+      return image_data;
+    }).catch((error)=>{
+      if(error.response.data.statusCode !== 404) {
+        console.error(error);
+      }
+      return null;
+    });
+
+    if (sulisCam_data) {
+      image_data.SulisCam = sulisCam_data;
+    }
 
     this.setState({ aux_data: image_data, fetching: false });
 
