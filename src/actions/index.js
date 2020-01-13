@@ -937,7 +937,7 @@ export function logout() {
 
 export function switch2Guest(reCaptcha = null) {
   return function(dispatch) {
-    return dispatch(login( { username:"guest", password: "", reCaptcha } ) );
+    return dispatch(login( { username:"guest", password: "guest", reCaptcha } ) );
   };
 }
 
