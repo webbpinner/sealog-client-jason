@@ -3,8 +3,8 @@ import Cookies from 'universal-cookie';
 import queryString from 'querystring';
 import { push } from 'connected-react-router';
 import { show } from 'redux-modal';
-import {change, untouch} from 'redux-form';
-import { API_ROOT_URL} from '../client_config';
+import { change, untouch } from 'redux-form';
+import { API_ROOT_URL } from '../client_config';
 
 import {
   AUTH_USER,
@@ -167,9 +167,17 @@ export function login({username, password, reCaptcha = null}) {
         dispatch({ type: AUTH_USER });
         return dispatch(updateProfileState());
       }).catch((error)=>{
-        console.error(error.response.data.message);
-        // If request is unauthenticated
-        return dispatch(authError(error.response.data.message));
+
+        if(error.response && error.response.status !== 401) {
+          // If request is unauthenticated
+          return dispatch(authError(error.response.data.message));
+        }
+        else if(error.message == "Network Error") {
+          return dispatch(authError("Unable to connect to server"));
+        }
+
+        console.error(JSON.stringify(error));
+
       });
   };
 }
@@ -517,12 +525,12 @@ export function createEventTemplate(formProps) {
         event_option.event_option_values = event_option.event_option_values.map(string => {
           return string.trim();
         });
-      } else if(event_option.event_option_type === 'checkboxes') {
+      } else if(event_option.event_option_type === 'checkboxes' || event_option.event_option_type === 'radio buttons') {
         event_option.event_option_values = event_option.event_option_values.split(',');
         event_option.event_option_values = event_option.event_option_values.map(string => {
           return string.trim();
         });
-      } else if (event_option.event_option_type === 'text') {
+      } else if (event_option.event_option_type === 'text' || event_option.event_option_type === 'static text') {
         event_option.event_option_values = [];
       }
 
@@ -641,6 +649,12 @@ export function updateCruise(formProps) {
   }
 
   if(formProps.cruise_additional_meta) {
+
+    // FIX THIS
+    if (formProps.cruise_additional_meta.cruise_files) {
+      delete formProps.cruise_additional_meta.cruise_files
+    }
+
     fields.cruise_additional_meta = formProps.cruise_additional_meta;
   }
 
@@ -719,6 +733,12 @@ export function updateLowering(formProps) {
   }
 
   if(formProps.lowering_additional_meta) {
+
+    // FIX THIS
+    if (formProps.lowering_additional_meta.lowering_files) {
+      delete formProps.lowering_additional_meta.lowering_files
+    }
+
     fields.lowering_additional_meta = formProps.lowering_additional_meta;
   }
 
@@ -831,12 +851,12 @@ export function updateEventTemplate(formProps) {
         event_option.event_option_values = event_option.event_option_values.map(string => {
           return string.trim();
         });
-      } else if(event_option.event_option_type === 'checkboxes') {
+      } else if(event_option.event_option_type === 'checkboxes' || event_option.event_option_type === 'radio buttons') {
         event_option.event_option_values = event_option.event_option_values.split(',');
         event_option.event_option_values = event_option.event_option_values.map(string => {
           return string.trim();
         });
-      } else if (event_option.event_option_type === 'text') {
+      } else if (event_option.event_option_type === 'text' || event_option.event_option_type === 'static text') {
         event_option.event_option_values = [];
       }
 
@@ -1176,7 +1196,7 @@ export function updateEventTemplateError(message) {
 export function fetchEventTemplatesForMain() {
 
   return async function (dispatch) {
-    return await axios.get(API_ROOT_URL + '/api/v1/event_templates', { headers: { authorization: cookies.get('token') } }
+    return await axios.get(API_ROOT_URL + '/api/v1/event_templates?sort=event_name', { headers: { authorization: cookies.get('token') } }
     ).then(({data}) => {
       return dispatch({type: FETCH_EVENT_TEMPLATES_FOR_MAIN, payload: data});
     }).catch((error) => {
@@ -1248,13 +1268,20 @@ export function clearEvents() {
   };
 }
 
-export function fetchEventHistory(asnap=false, page=0) {
+export function fetchEventHistory(asnap=false, filter='', page=0) {
 
   const eventsPerPage = 20;
 
   let url = `${API_ROOT_URL}/api/v1/events?sort=newest&limit=${eventsPerPage}&offset=${eventsPerPage*page}`;
   if(!asnap) {
-    url = url + '&value=!ASNAP';
+    url += '&value=!ASNAP';
+  }
+
+  if(filter != '') {
+    filter.split(',').forEach((filter_item) => {
+      filter_item.trim();
+      url += '&value='+filter_item;
+    })    
   }
 
   return async function (dispatch) {
@@ -1274,7 +1301,7 @@ export function fetchEventHistory(asnap=false, page=0) {
 export function fetchEventTemplates() {
 
   return async function (dispatch) {
-    return await axios.get(API_ROOT_URL + '/api/v1/event_templates', { headers: { authorization: cookies.get('token') } }
+    return await axios.get(API_ROOT_URL + '/api/v1/event_templates?sort=event_name', { headers: { authorization: cookies.get('token') } }
     ).then(({data}) => {
       return dispatch({type: FETCH_EVENT_TEMPLATES, payload: data});
     }).catch((error) => {
@@ -1587,7 +1614,7 @@ export function deleteAllNonSystemUsers() {
 
 export function deleteAllNonSystemEventTemplates() {
   return async function(dispatch) {
-    const event_templates = await axios.get(`${API_ROOT_URL}/api/v1/event_templates?system_template=false`, { headers: { authorization: cookies.get('token') } }
+    const event_templates = await axios.get(`${API_ROOT_URL}/api/v1/event_templates?system_template=false&sort=event_name`, { headers: { authorization: cookies.get('token') } }
       ).then((response) => {
         return response.data;
       }).catch((error)=> {

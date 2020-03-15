@@ -3,7 +3,7 @@ import path from 'path';
 import { connect } from 'react-redux';
 import axios from 'axios';
 import Cookies from 'universal-cookie';
-import { Row, Col, Tabs, Tab } from 'react-bootstrap';
+import { Row, Col, Tabs, Tab, Form} from 'react-bootstrap';
 import EventShowDetailsModal from './event_show_details_modal';
 import LoweringGalleryTab from './lowering_gallery_tab';
 import LoweringDropdown from './lowering_dropdown';
@@ -20,10 +20,12 @@ class LoweringGallery extends Component {
 
     this.state = {
       fetching: false,
-      aux_data: []
+      aux_data: [],
+      maxImagesPerPage: 16
     };
 
     this.handleLoweringSelect = this.handleLoweringSelect.bind(this);
+    this.handleImageCountChange = this.handleImageCountChange.bind(this);
     this.handleLoweringModeSelect = this.handleLoweringModeSelect.bind(this);
 
   }
@@ -40,16 +42,37 @@ class LoweringGallery extends Component {
     }
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps, prevState) {
+
+    if(prevProps.event.hideASNAP !== this.props.event.hideASNAP) {
+      this.initLoweringImages(this.props.match.params.id, 'vehicleRealtimeFramegrabberData', this.props.event.hideASNAP);
+    }  
+  }
+
+  toggleASNAP() {
+    this.props.eventUpdateLoweringReplay(this.props.match.params.id, this.props.event.hideASNAP);
+
+    if(this.props.event.hideASNAP) {
+      this.props.showASNAP();
+    }
+    else {
+      this.props.hideASNAP();
+    }
   }
 
   componentWillUnmount(){
   }
 
-  async initLoweringImages(id, auxDatasourceFilter = 'vehicleRealtimeFramegrabberData') {
+  async initLoweringImages(id, auxDatasourceFilter = 'vehicleRealtimeFramegrabberData', hideASNAP=false) {
     this.setState({ fetching: true});
 
-    const image_data = await axios.get(`${API_ROOT_URL}/api/v1/event_aux_data/bylowering/${id}?datasource=${auxDatasourceFilter}`,
+    let url = `${API_ROOT_URL}/api/v1/event_aux_data/bylowering/${id}?datasource=${auxDatasourceFilter}`
+
+    if(hideASNAP) {
+      url += '&value=!ASNAP'
+    }
+
+    const image_data = await axios.get(url,
       {
         headers: {
           authorization: cookies.get('token')
@@ -63,7 +86,7 @@ class LoweringGallery extends Component {
             image_data[data.data_array[i].data_value] = { images: [] };
           }
 
-          image_data[data.data_array[i].data_value].images.unshift({ event_id: data.event_id, filepath: API_ROOT_URL + IMAGE_PATH + data.data_array[i+1].data_value });
+          image_data[data.data_array[i].data_value].images.push({ event_id: data.event_id, filepath: API_ROOT_URL + IMAGE_PATH + '/' + path.basename(data.data_array[i+1].data_value) });
         }
       });
 
@@ -75,44 +98,18 @@ class LoweringGallery extends Component {
       return [];
     });
 
-    const sulisCam_data = await axios.get(`${API_ROOT_URL}/api/v1/events/bylowering/${id}?value=SulisCam`,
-      {
-        headers: {
-          authorization: cookies.get('token')
-        }
-      }).then((response) => {
-
-      let image_data = { images: [] };
-      response.data.forEach((event) => {
-        event.event_options.forEach((option) => {
-          if (option.event_option_name === 'filename') {
-            image_data.images.unshift({ event_id: event.id, filepath: API_ROOT_URL + IMAGE_PATH + option.event_option_value });
-          }
-        })
-      });
-
-      return image_data;
-    }).catch((error)=>{
-      if(error.response.data.statusCode !== 404) {
-        console.error(error);
-      }
-      return null;
-    });
-
-    if (sulisCam_data) {
-      image_data.SulisCam = sulisCam_data;
-    }
-
     this.setState({ aux_data: image_data, fetching: false });
+  }
 
+  handleImageCountChange(event) {
+    this.setState({ maxImagesPerPage: parseInt(event.target.value)});
   }
 
   handleLoweringSelect(id) {
     this.props.gotoLoweringGallery(id);
-    this.props.initLowering(id, this.state.hideASNAP);
+    this.props.initLowering(id, this.props.event.hideASNAP);
     this.props.initCruiseFromLowering(id);
     this.initLoweringImages(id);
-
   }
 
   handleLoweringModeSelect(mode) {
@@ -133,7 +130,7 @@ class LoweringGallery extends Component {
     for (const [key, value] of Object.entries(this.state.aux_data)) {
       galleries.push((
         <Tab key={`tab_${key}`} eventKey={`tab_${key}`} title={key}>
-          <LoweringGalleryTab imagesSource={key} imagesData={value}/>
+          <LoweringGalleryTab imagesSource={key} imagesData={value} maxImagesPerPage={this.state.maxImagesPerPage} />
         </Tab>
 
       ));
@@ -151,6 +148,9 @@ class LoweringGallery extends Component {
 
     const cruise_id = (this.props.cruise.cruise_id)? this.props.cruise.cruise_id : "loading...";
     const galleries = (this.state.fetching)? <div><hr className="border-secondary"/><span style={{paddingLeft: "8px"}}>Loading...</span></div> : this.renderGalleries();
+
+    const ASNAPToggle = (<Form.Check id="ASNAP" type='switch' inline checked={!this.props.event.hideASNAP} onChange={() => this.toggleASNAP()} disabled={this.props.event.fetching} label='ASNAP'/>);
+
     return (
       <div>
         <EventShowDetailsModal />
@@ -162,6 +162,21 @@ class LoweringGallery extends Component {
               <span><LoweringDropdown onClick={this.handleLoweringSelect} active_cruise={this.props.cruise} active_lowering={this.props.lowering}/></span>
               {' '}/{' '}
               <span><LoweringModeDropdown onClick={this.handleLoweringModeSelect} active_mode={"Gallery"} modes={["Review", "Replay", "Map"]}/></span>
+            </span>
+            <span className="float-right">
+              <Form style={{marginTop: '-4px'}} className='float-right' inline>
+                <Form.Group controlId="selectMaxImagesPerPage" >
+                  <Form.Control size="sm" as="select" onChange={this.handleImageCountChange}>
+                    <option>16</option>
+                    <option>32</option>
+                    <option>48</option>
+                    <option>64</option>
+                    <option>80</option>
+                  </Form.Control>
+                  <Form.Label>&nbsp;&nbsp;Images/Page&nbsp;&nbsp;</Form.Label>
+                </Form.Group>
+              </Form>
+              {ASNAPToggle}
             </span>
           </Col>
           <Col lg={12}>

@@ -61,7 +61,7 @@ class SetLoweringStatsModal extends Component {
       stats: {
         max_depth: (this.props.lowering.lowering_additional_meta.stats && this.props.lowering.lowering_additional_meta.stats.max_depth) ? this.props.lowering.lowering_additional_meta.stats.max_depth : null,
         bounding_box: (this.props.lowering.lowering_additional_meta.stats && this.props.lowering.lowering_additional_meta.stats.bounding_box) ? this.props.lowering.lowering_additional_meta.stats.bounding_box : [],
-        dive_origin: (this.props.lowering.lowering_additional_meta.stats && this.props.lowering.lowering_additional_meta.stats.dive_origin) ? this.props.lowering.lowering_additional_meta.stats.dive_origin : [],
+        dive_origin: (this.props.lowering.lowering_additional_meta.stats && this.props.lowering.lowering_additional_meta.stats.dive_origin) ? this.props.lowering.lowering_additional_meta.stats.dive_origin : []
       },
       touched: false,
       depthChartOptions: {
@@ -137,11 +137,21 @@ class SetLoweringStatsModal extends Component {
   };
 
   componentDidMount() {
-    this.initEvents(this.props.lowering.id)
-    this.initLoweringTrackline(this.props.lowering.id)
+    this.initEvents(this.props.lowering.id);
+    this.initLoweringTrackline(this.props.lowering.id);
+    this.setPlotLines();
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps, prevState) {
+
+    if(this.state.milestones !== prevState.milestones) {
+      this.setPlotLines();
+    }
+
+    if(this.state.milestone_to_edit !== prevState.milestone_to_edit) {
+      this.setPlotLines();
+    }
+
   }
 
   componentWillUnmount() {
@@ -193,9 +203,24 @@ class SetLoweringStatsModal extends Component {
 
         let aux_data = event['aux_data'].find((aux_data => aux_data['data_source'] == auxDatasource))
         if(aux_data) {
-          trackline.polyline.addLatLng([ parseFloat(aux_data['data_array'].find(data => data['data_name'] == 'latitude')['data_value']), parseFloat(aux_data['data_array'].find(data => data['data_name'] == 'longitude')['data_value'])]);
-          trackline.ts.push(moment.utc(event['ts']).valueOf());
-          trackline.depth.push([trackline.ts[trackline.ts.length-1], parseFloat(aux_data['data_array'].find(data => data['data_name'] == 'depth')['data_value'])]);
+          try {
+            const rawLat = aux_data['data_array'].find(data => data['data_name'] == 'latitude');
+            const rawLng = aux_data['data_array'].find(data => data['data_name'] == 'longitude');
+
+            if(rawLat && rawLng) {
+              const latLng = [ parseFloat(rawLat['data_value']), parseFloat(rawLng['data_value'])]
+              if(latLng[0] != 0 && latLng[0] != 0) {
+                trackline.polyline.addLatLng(latLng);
+              }
+            }
+
+            trackline.ts.push(moment.utc(event['ts']).valueOf());
+            trackline.depth.push([trackline.ts[trackline.ts.length-1], parseFloat(aux_data['data_array'].find(data => data['data_name'] == 'depth')['data_value'])]);
+          }
+          catch(err) {
+            console.log("No latLng found, skipping...");
+            console.error(err);
+          }
         }
       })
 
@@ -205,7 +230,7 @@ class SetLoweringStatsModal extends Component {
     })
 
     if(tracklines.vehicleRealtimeNavData) {
-      this.setState((prevState) => { return { events: events, tracklines: tracklines, fetching: false, depthChartOptions: Object.assign(prevState.depthChartOptions, { series: [ { data: tracklines.vehicleRealtimeNavData.depth } ] }) } });
+      this.setState((prevState) => { return { events: events, tracklines: tracklines, fetching: false, depthChartOptions: { ...prevState.depthChartOptions, series: [ { data: tracklines.vehicleRealtimeNavData.depth } ] } } });
     }
     else {
       this.setState({ events: events, tracklines: tracklines, fetching: false }); 
@@ -229,13 +254,28 @@ class SetLoweringStatsModal extends Component {
   }
 
   handleTweak(milestones, stats) {
-    this.setState({milestones, stats, touched: true, show_edit_form: false})
+
+    this.setState({milestones, stats})
+
+    const start_ts = moment.utc(milestones.lowering_start);
+    const stop_ts = moment.utc(milestones.lowering_stop);
+    
+    const newMilestones = {...milestones}
+    delete newMilestones.lowering_start;
+    delete newMilestones.lowering_stop;
+
+    const lowering_additional_meta = { ...this.props.lowering.lowering_additional_meta, newMilestones, stats }
+
+    const newLoweringRecord = { ...this.props.lowering, start_ts, stop_ts, lowering_additional_meta }
+
+    this.props.handleUpdateLowering(newLoweringRecord)
+    this.setState({milestones, stats, touched: false, show_edit_form: false})
   }
 
   handleCalculateBoundingBox() {
     if(this.state.tracklines.vehicleRealtimeNavData && !this.state.tracklines.vehicleRealtimeNavData.polyline.isEmpty()) {
       let lowering_bounds = this.state.tracklines.vehicleRealtimeNavData.polyline.getBounds()
-      this.setState((prevState) => { return { touched: true, stats: Object.assign(prevState.stats, { bounding_box: [lowering_bounds.getNorth(),lowering_bounds.getEast(),lowering_bounds.getSouth(),lowering_bounds.getWest()] }) } });
+      this.setState((prevState) => { return { touched: true, stats: { ...prevState.stats, bounding_box: [lowering_bounds.getNorth(),lowering_bounds.getEast(),lowering_bounds.getSouth(),lowering_bounds.getWest()] } } });
     }
   }
 
@@ -247,78 +287,65 @@ class SetLoweringStatsModal extends Component {
         return current_max_depth
       }, 0)
 
-      this.setState((prevState) => { return { touched: true, stats: Object.assign(prevState.stats, { max_depth: maxDepth }) } });
-      // this.setPlotLines()
+      this.setState((prevState) => { return { touched: true, stats: { ...prevState.stats, max_depth: maxDepth } } });
     }
   }
 
   handleClick() {
     if(this.state.milestone_to_edit) {
-      this.setState((prevState) => { return { touched: true, milestones: Object.assign(prevState.milestones, { [prevState.milestone_to_edit]: prevState.event.ts }) } });
+      this.setState((prevState) => { return { touched: true, milestones: { ...prevState.milestones, [prevState.milestone_to_edit]: prevState.event.ts } } });
       this.setMilestoneToEdit()
     }
   }
 
   handleUpdateLowering() {
-    let loweringRecord = Object.assign({}, this.props.lowering)
-    let loweringMilestones = Object.assign({}, this.state.milestones)
-    let loweringStats = Object.assign({}, this.state.stats)
+    const newMilestones = { ...this.state.milestones };
+    delete newMilestones.lowering_start;
+    delete newMilestones.lowering_stop;
 
-    loweringRecord.start_ts = loweringMilestones.lowering_start
-    loweringRecord.stop_ts = loweringMilestones.lowering_stop
-    delete loweringMilestones.lowering_start
-    delete loweringMilestones.lowering_stop
+    const newLoweringAdditionalMeta = { ...this.props.lowering.lowering_additional_meta, milestones: newMilestones, stats: this.state.stats }
 
-    loweringRecord.lowering_additional_meta.milestones = loweringMilestones
-    loweringRecord.lowering_additional_meta.stats = loweringStats
+    const newLoweringRecord = { ...this.props.lowering, start_ts: this.state.milestones.lowering_start, stop_ts: this.state.milestones.lowering_stop, lowering_additional_meta: newLoweringAdditionalMeta }
 
-    this.props.handleUpdateLowering(loweringRecord)
+    this.props.handleUpdateLowering(newLoweringRecord)
     this.setState({touched: false})
   }
 
   setMilestoneToEdit(milestone = null) {
     if(milestone !== null && milestone !== this.state.milestone_to_edit) {
       this.setState({milestone_to_edit: milestone})
-      // this.setPlotLines()
     }
     else {
       this.setState({milestone_to_edit: null}) 
     }
   }
 
-  // setPlotLines() {
+  setPlotLines() {
 
-  //   // let plotLines = []
+    let xAxis = this.state.depthChartOptions.xAxis
+    xAxis.plotLines = []
 
-  //   let xAxis = this.state.depthChartOptions.xAxis
-  //   xAxis.plotLines = []
+    for (const [key, value] of Object.entries(this.state.milestones)) {
+      if(value) {
+        if(key === this.state.milestone_to_edit) {
+          xAxis.plotLines.push({
+              color: '#FF0000',
+              width: 2,
+              value: moment.utc(value).valueOf()
+          })
+        }
+        else {
+          xAxis.plotLines.push({
+              color: '#CFCFCF',
+              width: 2,
+              value: moment.utc(value).valueOf()
+          })
+        }
+      }
+    }
 
-  //   let milestones = Object.values(this.state.milestones)
-  //   milestones.forEach((milestone) => {
-  //     // propertyName is what you want
-  //     // you can get the value like this: myObject[propertyName]
-  //     if(milestone) {
-  //       xAxis.plotLines.push({
-  //           color: '#000000',
-  //           width: 2,
-  //           value: moment.utc(milestone).valueOf()
-  //       })
-  //     }
-  //   })
-
-  //   if(this.state.stats.max_depth) {
-  //     let maxDepthPair = this.state.tracklines.vehicleRealtimeNavData.depth.find((depth) => depth[1] === this.state.stats.max_depth)
-  //     if(maxDepthPair) {
-  //       xAxis.plotLines.push({
-  //           color: '#FF0000',
-  //           width: 2,
-  //           value: maxDepthPair[0]
-  //       })
-  //     }
-  //   }
-
-  //   this.setState((prevState) => { return { depthChartOptions: Object.assign(prevState.depthChartOptions, { xAxis: xAxis }) } });
-  // }
+    this.setState((prevState) => { return { depthChartOptions: { ...prevState.depthChartOptions, xAxis: xAxis } } });
+  }
 
   clearEvent(){
     this.setState({event: null})
@@ -330,7 +357,6 @@ class SetLoweringStatsModal extends Component {
   }
 
   tooltipFormatter() {
-    // console.log(this)
     let event_txt = `<b>EVENT: ${this.state.event.event_value}</b>`
     if(this.state.event.event_value === 'FREE_FORM') {
       event_txt = `<span>${event_txt}<br/><b>Text:</b> ${this.state.event.event_free_text}</span>`
@@ -348,14 +374,12 @@ class SetLoweringStatsModal extends Component {
 
   handleZoomEnd() {
     if(this.map) {
-      // console.log("zoom end:", this.map.leafletElement.getZoom())
       this.setState({zoom: this.map.leafletElement.getZoom()});
     }
   }
 
   handleMoveEnd() {
     if(this.map) {
-      // console.log("move end:", this.map.leafletElement.getCenter())
       this.setState({center: this.map.leafletElement.getCenter()});
     }
   }
@@ -365,13 +389,17 @@ class SetLoweringStatsModal extends Component {
     if(this.state.event) {
 
       const realtimeNavData = this.state.event.aux_data.find((data) => data['data_source'] === 'vehicleRealtimeNavData');
-      return (
-        <Marker position={[ parseFloat(realtimeNavData['data_array'].find(data => data['data_name'] == 'latitude')['data_value']), parseFloat(realtimeNavData['data_array'].find(data => data['data_name'] == 'longitude')['data_value'])]}>
-          <Popup>
-            You are here! :-)
-          </Popup>
-        </Marker>
-      );
+      const rawLat = realtimeNavData['data_array'].find(data => data['data_name'] == 'latitude')
+      const rawLng = realtimeNavData['data_array'].find(data => data['data_name'] == 'longitude')
+      if( rawLat && rawLng ) {
+        return (
+          <Marker position={[ parseFloat(rawLat['data_value']), parseFloat(rawLng['data_value'])]}>
+            <Popup>
+              You are here! :-)
+            </Popup>
+          </Marker>
+        );
+      }
     }
   }
 
@@ -403,10 +431,6 @@ class SetLoweringStatsModal extends Component {
       }
     })
 
-    // if (this.state.tracklines.vehicleRealtimeNavData && this.state.tracklines.vehicleRealtimeNavData.depth) {
-    //   console.log("depth:", this.state.tracklines.vehicleRealtimeNavData.depth)
-    // }
-
     const milestones_and_stats = (this.state.show_edit_form) ?
       <Col md={12}>
         <UpdateLoweringStatsForm milestones={this.state.milestones} stats={this.state.stats} handleHide={this.handleShowEditForm} handleFormSubmit={this.handleTweak}/>
@@ -416,7 +440,7 @@ class SetLoweringStatsModal extends Component {
           <span className={(this.state.milestone_to_edit == 'lowering_start')? "text-warning" : ""} onClick={() => this.setMilestoneToEdit('lowering_start')}>Dive Start: {this.state.milestones.lowering_start}</span><br/>
           <span className={(this.state.milestone_to_edit == 'lowering_on_bottom')? "text-warning" : ""} onClick={() => this.setMilestoneToEdit('lowering_on_bottom')}>On Bottom: {this.state.milestones.lowering_on_bottom}</span><br/>
           <span className={(this.state.milestone_to_edit == 'lowering_off_bottom')? "text-warning" : ""} onClick={() => this.setMilestoneToEdit('lowering_off_bottom')}>Off Bottom: {this.state.milestones.lowering_off_bottom}</span><br/>
-          <span className={(this.state.milestone_to_edit == 'lowering_stop')? "text-warning" : ""} onClick={() => this.setMilestoneToEdit('lowering_stop')}>Dive End: {this.state.milestones.lowering_stop}</span>
+          <span className={(this.state.milestone_to_edit == 'lowering_stop')? "text-warning" : ""} onClick={() => this.setMilestoneToEdit('lowering_stop')}>Dive Stop: {this.state.milestones.lowering_stop}</span>
         </div>
       </Col>,
       <Col key="stats" md={6}>
@@ -449,7 +473,6 @@ class SetLoweringStatsModal extends Component {
             <Modal.Header closeButton>
               <Modal.Title as="h5">Lowering Details: {this.props.lowering.lowering_id}</Modal.Title>
             </Modal.Header>
-
             <Modal.Body>
               <Row style={{paddingTop: "8px"}}>
                 <Col xs={12}>
@@ -512,15 +535,6 @@ class SetLoweringStatsModal extends Component {
     }
   }
 }
-
-                    // {this.renderMarker()}
-
-              // <Row style={{paddingTop: "8px"}}>
-                // <Col xs={12}>
-                  // {this.renderDepthCard()}
-                // </Col>
-              // </Row>
-
 
 function mapStateToProps(state) {
 

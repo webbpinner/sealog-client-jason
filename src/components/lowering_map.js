@@ -153,9 +153,16 @@ class LoweringMap extends Component {
           authorization: cookies.get('token')
         }
       }).then((response) => {
-        response.data.map((r_data) => {
-          tracklines[this.auxDatasourceFilters[index]].polyline.addLatLng([ parseFloat(r_data['data_array'].find(data => data['data_name'] == 'latitude')['data_value']), parseFloat(r_data['data_array'].find(data => data['data_name'] == 'longitude')['data_value'])]);
-          tracklines[this.auxDatasourceFilters[index]].eventIDs.push(r_data['event_id']);
+        response.data.forEach((r_data) => {
+          try {
+            const latLng = [ parseFloat(r_data['data_array'].find(data => data['data_name'] == 'latitude')['data_value']), parseFloat(r_data['data_array'].find(data => data['data_name'] == 'longitude')['data_value'])];
+            if(latLng[0] != 0 && latLng[1] != 0) {
+              tracklines[this.auxDatasourceFilters[index]].polyline.addLatLng(latLng);
+              tracklines[this.auxDatasourceFilters[index]].eventIDs.push(r_data['event_id']);
+            }
+          } catch(err) {
+            console.log("No nav found")
+          }
         });
 
       }).catch((error)=>{
@@ -256,13 +263,18 @@ class LoweringMap extends Component {
     if(selected_event && selected_event.aux_data) {
       let vehicleRealtimeNavData = selected_event.aux_data.find(aux_data => aux_data.data_source == "vehicleRealtimeNavData");
       if(vehicleRealtimeNavData) {
-        let latObj = vehicleRealtimeNavData.data_array.find(data => data.data_name == "latitude");
-        let lonObj = vehicleRealtimeNavData.data_array.find(data => data.data_name == "longitude");
+        try {
+          let latObj = vehicleRealtimeNavData.data_array.find(data => data.data_name == "latitude");
+          let lonObj = vehicleRealtimeNavData.data_array.find(data => data.data_name == "longitude");
 
-        if(latObj && lonObj && latObj.data_value != this.state.position.lat && lonObj.data_value != this.state.position.lng) {
-          this.setState({ showMarker: true, position:{ lat:latObj.data_value, lng: lonObj.data_value}});
-        } else if(!latObj || !lonObj) {
-          this.setState({showMarker: false});
+          if(latObj && lonObj && latObj.data_value != this.state.position.lat && lonObj.data_value != this.state.position.lng) {
+            this.setState({ showMarker: true, position:{ lat:latObj.data_value, lng: lonObj.data_value}});
+          } else if(!latObj || !lonObj) {
+            this.setState({showMarker: false});
+          }
+        }
+        catch(err) {
+          console.log("unable to process nav");
         }
       }
     }
@@ -328,9 +340,7 @@ class LoweringMap extends Component {
   renderEventListHeader() {
 
     const Label = "Filtered Events";
-
-    const ASNAPToggleIcon = (this.props.event.hideASNAP)? "Show ASNAP" : "Hide ASNAP";
-    const ASNAPToggle = (<span disabled={this.props.event.fetching} style={{ marginRight: "10px" }} onClick={() => this.toggleASNAP()}>{ASNAPToggleIcon}</span>);
+    const ASNAPToggle = (<Form.Check id="ASNAP" type='switch' inline checked={!this.props.event.hideASNAP} onChange={() => this.toggleASNAP()} disabled={this.props.event.fetching} label='ASNAP'/>);
 
     return (
       <div>
@@ -361,15 +371,32 @@ class LoweringMap extends Component {
       let eventList = this.props.event.events.map((event, index) => {
         if(index >= (this.state.activePage-1) * maxEventsPerPage && index < (this.state.activePage * maxEventsPerPage)) {
           
-          let comment_exists = (event.event_options.find((option) => option.event_option_name == 'event_comment')) ? true : false;
+          let comment_exists = false;
+
+          let eventOptionsArray = event.event_options.reduce((filtered, option) => {
+            if(option.event_option_name === 'event_comment') {
+              comment_exists = (option.event_option_value !== '')? true : false;
+            } else {
+              filtered.push(`${option.event_option_name}: "${option.event_option_value}"`);
+            }
+            return filtered;
+          },[]);
+          
+          if (event.event_free_text) {
+            eventOptionsArray.push(`free_text: "${event.event_free_text}"`);
+          } 
+
           let active = (this.props.event.selected_event.id === event.id)? true : false;
+
+          let eventOptions = (eventOptionsArray.length > 0)? '--> ' + eventOptionsArray.join(', '): '';
+          
           let commentIcon = (comment_exists)? <FontAwesomeIcon onClick={() => this.handleEventCommentModal(index)} icon='comment' fixedWidth transform="grow-4"/> : <span onClick={() => this.handleEventCommentModal(index)} className="fa-layers fa-fw"><FontAwesomeIcon icon='comment' fixedWidth transform="grow-4"/><FontAwesomeIcon className={(active)? "text-primary" : "text-secondary" } icon='plus' fixedWidth transform="shrink-4"/></span>;
           let commentTooltip = (comment_exists)? (<OverlayTrigger placement="left" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Edit/View Comment</Tooltip>}>{commentIcon}</OverlayTrigger>) : (<OverlayTrigger placement="top" overlay={<Tooltip id={`commentTooltip_${event.id}`}>Add Comment</Tooltip>}>{commentIcon}</OverlayTrigger>);
           let eventComment = (this.props.roles.includes("event_logger") || this.props.roles.includes("admin"))? commentTooltip : null;
 
           let eventDetails = <OverlayTrigger placement="left" overlay={<Tooltip id={`commentTooltip_${event.id}`}>View Details</Tooltip>}><FontAwesomeIcon onClick={() => this.handleEventShowDetailsModal(index)} icon='window-maximize' fixedWidth/></OverlayTrigger>;
 
-          return (<ListGroup.Item className="event-list-item" key={event.id} active={active} ><span onClick={() => this.handleEventClick(index)} >{`${event.ts} <${event.event_author}>: ${event.event_value} ${(event.event_free_text !== "") ? `-> "${event.event_free_text}"` : ""}`}</span><span className="float-right">{eventDetails} {eventComment}</span></ListGroup.Item>);
+          return (<ListGroup.Item className="event-list-item" key={event.id} active={active} ><span onClick={() => this.handleEventClick(index)} >{`${event.ts} <${event.event_author}>: ${event.event_value} ${eventOptions}`}</span><span className="float-right">{eventDetails} {eventComment}</span></ListGroup.Item>);
 
         }
       });
@@ -385,13 +412,19 @@ class LoweringMap extends Component {
     if(this.props.event.selected_event.aux_data && typeof this.props.event.selected_event.aux_data.find((data) => data['data_source'] === 'vehicleRealtimeNavData') !== 'undefined') {
 
       const realtimeNavData = this.props.event.selected_event.aux_data.find((data) => data['data_source'] === 'vehicleRealtimeNavData');
-      return (
-        <Marker position={[ parseFloat(realtimeNavData['data_array'].find(data => data['data_name'] == 'latitude')['data_value']), parseFloat(realtimeNavData['data_array'].find(data => data['data_name'] == 'longitude')['data_value'])]}>
-          <Popup>
-            You are here! :-)
-          </Popup>
-        </Marker>
-      );
+      try {
+        const latLng = [ parseFloat(realtimeNavData['data_array'].find(data => data['data_name'] == 'latitude')['data_value']), parseFloat(realtimeNavData['data_array'].find(data => data['data_name'] == 'longitude')['data_value'])]
+        return (
+          <Marker position={latLng}>
+            <Popup>
+              You are here! :-)
+            </Popup>
+          </Marker>
+        );
+      }
+      catch(err) {
+        return null;
+      }
     }
   }
 

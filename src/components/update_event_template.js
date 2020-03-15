@@ -52,7 +52,20 @@ class UpdateEventTemplate extends Component {
   renderOptionOptions(prefix, index) {
 
     if(this.props.event_options && this.props.event_options.length > 0) {
-      if(this.props.event_options[index].event_option_type === 'text') {
+      if(this.props.event_options[index].event_option_type === 'static text') {
+        return (
+          <div>
+            <Field
+              name={`${prefix}.event_option_default_value`}
+              component={renderTextField}
+              label="Value"
+              required={true}
+              lg={12}
+              sm={12}
+            />
+          </div>
+        );
+      } else if(this.props.event_options[index].event_option_type === 'text') {
         return (
           <div>
             <Field
@@ -77,7 +90,7 @@ class UpdateEventTemplate extends Component {
             <Field
               name={`${prefix}.event_option_default_value`}
               component={renderTextField}
-              label="Default Value"
+              label="Default Selection"
               placeholder="i.e. a value from the list of options"
               lg={12}
               sm={12}
@@ -97,7 +110,27 @@ class UpdateEventTemplate extends Component {
             <Field
               name={`${prefix}.event_option_default_value`}
               component={renderTextField}
-              label="Default Value"
+              label="Default Selections"
+              placeholder="i.e. a value from the list of options"
+              lg={12}
+              sm={12}
+            />
+          </div>
+        );
+      } else if(this.props.event_options[index].event_option_type === 'radio buttons') {
+        return (
+          <div>
+            <Field
+              name={`${prefix}.event_option_values`}
+              component={renderTextArea}
+              label="Radio Button Options"
+              required={true}
+              rows={2}
+            />
+            <Field
+              name={`${prefix}.event_option_default_value`}
+              component={renderTextField}
+              label="Default Selection"
               placeholder="i.e. a value from the list of options"
               lg={12}
               sm={12}
@@ -275,8 +308,8 @@ function validate(formProps) {
 
   if (!formProps.event_name) {
     errors.event_name = 'Required';
-  } else if (formProps.event_name.length > 15) {
-    errors.event_name = 'Must be 15 characters or less';
+  } else if (formProps.event_name.length > 32) {
+    errors.event_name = 'Must be 32 characters or less';
   }
 
   if (!formProps.event_value) {
@@ -331,6 +364,30 @@ function validate(formProps) {
           event_optionsArrayErrors[event_optionIndex] = event_optionErrors;
 
         } else if (event_option.event_option_type === 'checkboxes') {
+
+          let valueArray = [];
+
+          if (event_option.event_option_values === "") {
+            event_optionErrors.event_option_values = 'Required';
+          }
+          else {
+            try {
+              valueArray = event_option.event_option_values.split(',');
+              valueArray = valueArray.map(string => {
+                return string.trim();
+              });
+            }
+            catch(err) {
+              event_optionErrors.event_option_values = 'Invalid csv list';
+            }
+          }
+
+          if(event_option.event_option_default_value && !valueArray.includes(event_option.event_option_default_value)) {
+            event_optionErrors.event_option_default_value = 'Value is not in options list';
+          }
+
+          event_optionsArrayErrors[event_optionIndex] = event_optionErrors;
+        } else if (event_option.event_option_type === 'radio buttons') {
 
           let valueArray = [];
 

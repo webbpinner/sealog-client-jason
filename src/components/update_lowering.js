@@ -2,19 +2,19 @@ import React, { Component } from 'react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { reduxForm, Field } from 'redux-form';
-import { Button, Card, Form, Tooltip, OverlayTrigger} from 'react-bootstrap';
+import { Button, Card, Form } from 'react-bootstrap';
 import { renderAlert, renderDateTimePicker, renderMessage, renderTextField, renderTextArea } from './form_elements';
 import axios from 'axios';
 import Cookies from 'universal-cookie';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
 import FileDownload from 'js-file-download';
 
 import { FilePond } from 'react-filepond';
 import 'filepond/dist/filepond.min.css';
 
+import CopyLoweringToClipboard from './copy_lowering_to_clipboard';
 import { API_ROOT_URL } from '../client_config';
 import * as mapDispatchToProps from '../actions';
 
@@ -115,8 +115,6 @@ Start of Dive: ${this.props.lowering.start_ts}
 On Bottom:     ${(this.props.lowering.lowering_additional_meta.milestones && this.props.lowering.lowering_additional_meta.milestones.lowering_on_bottom) ? this.props.lowering.lowering_additional_meta.milestones.lowering_on_bottom : ""}
 Off Bottom:    ${(this.props.lowering.lowering_additional_meta.milestones && this.props.lowering.lowering_additional_meta.milestones.lowering_off_bottom) ? this.props.lowering.lowering_additional_meta.milestones.lowering_off_bottom : ""}
 End of Dive:   ${this.props.lowering.stop_ts}\n
-Dive Origin:   ${(this.props.lowering.lowering_additional_meta.stats && this.props.lowering.lowering_additional_meta.stats.dive_origin.length >= 2) ? this.props.lowering.lowering_additional_meta.stats.dive_origin[0] + ', ' + this.props.lowering.lowering_additional_meta.stats.dive_origin[1] : ""}
-Dive UTM Zone: ${(this.props.lowering.lowering_additional_meta.stats && this.props.lowering.lowering_additional_meta.stats.dive_origin.length == 3) ? this.props.lowering.lowering_additional_meta.stats.dive_origin[2] : ""}\n
 Max Depth:     ${(this.props.lowering.lowering_additional_meta.stats && this.props.lowering.lowering_additional_meta.stats.max_depth) ? this.props.lowering.lowering_additional_meta.stats.max_depth : ""}
 Bounding Box:  ${(this.props.lowering.lowering_additional_meta.stats && this.props.lowering.lowering_additional_meta.stats.bounding_box) ? this.props.lowering.lowering_additional_meta.stats.bounding_box.join(', ') : ""}\n`
       )
@@ -136,7 +134,7 @@ Bounding Box:  ${(this.props.lowering.lowering_additional_meta.stats && this.pro
   render() {
 
     const { handleSubmit, pristine, reset, submitting, valid } = this.props;
-    const updateLoweringFormHeader = (<div>Update Lowering<span className="float-right"><OverlayTrigger placement="top" overlay={<Tooltip id="copyToClipboardTooltip">Copy Lowering to Clipboard</Tooltip>}><CopyToClipboard text={this.copyToClipboard()} ><FontAwesomeIcon icon='clipboard' fixedWidth /></CopyToClipboard></OverlayTrigger></span></div>);
+    const updateLoweringFormHeader = (<div>Update Lowering<span className="float-right"><CopyLoweringToClipboard lowering={this.props.lowering}/></span></div>);
 
     if (this.props.roles && (this.props.roles.includes("admin") || this.props.roles.includes('cruise_manager'))) {
 
@@ -261,7 +259,7 @@ function validate(formProps) {
   }
 
   if ((formProps.start_ts !== '') && (formProps.stop_ts !== '')) {
-    if(moment(formProps.stop_ts, dateFormat + " " + timeFormat).isBefore(moment(formProps.start_ts, dateFormat + " " + timeFormat))) {
+    if(moment.utc(formProps.stop_ts, dateFormat + " " + timeFormat).isBefore(moment.utc(formProps.start_ts, dateFormat + " " + timeFormat))) {
       errors.stop_ts = 'Stop date must be later than start data'
     }
   }

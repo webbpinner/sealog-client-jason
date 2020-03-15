@@ -2,12 +2,18 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Alert, Button, Tab, Tabs } from 'react-bootstrap';
 import EventTemplateOptionsModal from './event_template_options_modal';
+import { Client } from '@hapi/nes/lib/client';
+import { WS_ROOT_URL, DISABLE_EVENT_LOGGING } from '../client_config';
+
 import * as mapDispatchToProps from '../actions';
 
 class EventTemplateList extends Component {
 
   constructor (props) {
     super(props);
+
+    this.client = new Client(`${WS_ROOT_URL}`);
+    this.connectToWS = this.connectToWS.bind(this);
 
     this.renderEventTemplates = this.renderEventTemplates.bind(this);
 
@@ -16,18 +22,70 @@ class EventTemplateList extends Component {
   componentDidMount() {
     if(this.props.authenticated) {
       this.props.fetchEventTemplatesForMain();
+      this.connectToWS();
     }
+  }
+
+  componentWillUnmount() {
+    this.client.disconnect();
   }
 
   componentDidUpdate() {}
 
+  async connectToWS() {
+
+    try {
+      await this.client.connect();
+      // {
+      //   auth: {
+      //     headers: {
+      //       authorization: cookies.get('token')
+      //     }
+      //   }
+      // })
+
+      const deleteHandler = (update, flags) => {
+        // console.log("delete:", update);
+        this.props.fetchEventTemplatesForMain();
+      };
+
+      const updateHandler = (update, flags) => {
+        // console.log("update:", update);
+        this.props.fetchEventTemplatesForMain();
+      };
+
+      this.client.subscribe('/ws/status/newEventTemplates', updateHandler);
+      this.client.subscribe('/ws/status/updateEventTemplates', updateHandler);
+      this.client.subscribe('/ws/status/deleteEventTemplates', deleteHandler);
+
+    } catch(error) {
+      console.log(error);
+      throw(error);
+    }
+  }
 
   async handleEventSubmit(event_template) {
 
-    let event = await this.props.createEvent(event_template.event_value, '', []);
+    const needs_modal = event_template.event_options.reduce((needs, option) => {
+      return (option.event_option_type !== 'static text') ? true : needs;
+    }, false);
 
-    if( event_template.event_options.length > 0 || event_template.event_free_text_required ) {
+    if( event_template.event_free_text_required || needs_modal ) {
+
+      const event = await this.props.createEvent(event_template.event_value, '', []);
+
       this.props.showModal('eventOptions', { eventTemplate: event_template, event: event, handleUpdateEvent: this.props.updateEvent, handleDeleteEvent: this.props.deleteEvent });
+
+    } else {
+      const event_options = event_template.event_options.reduce((eventOptions, option) => {
+
+        eventOptions.push({ event_option_name: option.event_option_name, event_option_value: option.event_option_default_value });
+      
+        return eventOptions;
+      
+      }, []);
+
+      const event = await this.props.createEvent(event_template.event_value, '', event_options);
     }
   }
 
@@ -36,7 +94,7 @@ class EventTemplateList extends Component {
     const template_categories = [...new Set(this.props.event_templates.reduce(function (flat, event_template) {
         return flat.concat(event_template.template_categories);
       }, [])
-    )]
+    )].sort();
 
     if(this.props.event_templates){
       if(template_categories.length > 0) {
