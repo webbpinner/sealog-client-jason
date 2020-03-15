@@ -93,7 +93,6 @@ class EventShowDetailsModal extends Component {
       }
     }
     else if(this.state.event && this.state.event.aux_data) {
-      console.log("found images");
       let frameGrabberData = this.state.event.aux_data.filter(aux_data => imageAuxDataSources.includes(aux_data.data_source));
       let tmpData = [];
 
